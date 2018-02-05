@@ -1,0 +1,258 @@
+/*  ========================================================  */
+/*  CONTROL FLOW AND CONDITIONAL BRANCHING                    */
+/*                                                            */
+/*  Test control flow and conditional operations              */
+/*  ========================================================  */
+
+print  "======================================\n";
+print  "*** Test Operations for Quantity Logic\n";
+print  "======================================\n\n";
+
+X1 = 1  m;
+X2 = 10 m;
+
+print "\n -- Quantity Greater Than, Less Than \n";
+Y1 = X1 > X2;
+Y2 = X1 < X2;
+
+print" Y1 = ", Y1, " FALSE \n";
+print" Y2 = ", Y2, " TRUE  \n";
+
+print "\n -- Quantity Greater Equal Than, Less Equal Than \n";
+Y1 = X1 >= X2;
+Y2 = X1 <= X2;
+
+print" Y1 = ", Y1, " FALSE \n";
+print" Y2 = ", Y2, " TRUE  \n";
+
+print "\n -- Quantity Equal, Not Equal \n";
+Y1 = X1 == X2;
+Y2 = X1 != X2;
+
+print" Y1 = ", Y1, " FALSE \n";
+print" Y2 = ", Y2, " TRUE  \n";
+
+print "\n -- Quantity And \n";
+
+Y1 = (X1 == 1 m) && (X2 != 10 m);
+Y2 = (X1 != 1 m) && (X2 == 10 m);
+Y3 = (X1 == 1 m) && (X2 == 10 m);
+Y4 = (X1 != 1 m) && (X2 != 10 m);
+
+print" Y1 = ", Y1, " FALSE \n";
+print" Y2 = ", Y2, " FALSE  \n";
+print" Y3 = ", Y3, " TRUE  \n";
+print" Y4 = ", Y4, " FALSE  \n";
+
+print "\n -- Quantity Or  \n";
+
+Y1 = (X1 == 1 m) || (X2 != 10 m);
+Y2 = (X1 != 1 m) || (X2 == 10 m);
+Y3 = (X1 == 1 m) || (X2 == 10 m);
+Y4 = (X1 != 1 m) || (X2 != 10 m);
+
+print" Y1 = ", Y1, " TRUE  \n";
+print" Y2 = ", Y2, " TRUE  \n";
+print" Y3 = ", Y3, " TRUE  \n";
+print" Y4 = ", Y4, " FALSE \n";
+
+print "\n ======= WHILE LOOP ======== \n";
+
+print "\n -- Single Condition \n";
+X = 1 m;
+while (X <= 5 m) {
+
+   print " X = ", X, "\n";
+   X = X + 1 m;
+}
+
+print "\n -- Multiple Conditions \n";
+Y = 1 in;
+X = 1 m;
+while (X <= 5 m && Y <= 0.5 ft) {
+
+   print " (X, Y) = (",X,Y,")\n";
+   X = X + 1 m;
+   Y = Y + 1 in;
+}
+
+print "\n -- Empty Condition \n";
+X = 1 m;
+while ( ) {
+   if(X > 5 m) {
+      break;
+   }
+   print " X = ", X, "\n";
+   X = X + 1 m;
+}
+
+print "\n -- Multiple Layers \n";
+X = 2 m;
+while (X <= 5 m) {
+   Y = 1 in;
+   print "\n";
+   while(Y <= 1 ft) {
+      print "(X, Y) = (",X,Y,")\n";
+      Y = Y + 4 in;
+   }
+   X = X + 2 m ;
+}
+
+print "\n ======= FOR LOOP ======== \n";
+
+print "\n -- For-loop : Empty initializer\n";
+
+x = 1m; for(     ; x <= 5 m; x = x + 1 m) {
+   print "x = ", x, "\n";
+}
+
+print "\n -- For-loop : Empty increment \n";
+
+for(x = 1 m; 
+   x <= 5 m;       ) {
+   print "x = ", x, "\n";
+   x = x + 1 m;
+}
+
+print "\n -- For-loop : Empty condition\n";
+
+for(x = 1 m;   ; x = x + 1 m ) {
+   if(x > 5 m) {
+      break;
+   } 
+   print "x = ", x, "\n";
+}
+
+print "\n -- For-loop : Empty initializer, increment & condition\n";
+
+x = 1m;
+for( ;  ;  ) {
+    if(x > 5 m) {
+      break;
+    }
+    print "x = ", x, "\n";
+    x = x + 1m;
+}
+
+print "\n -- For : Single Condition \n";
+
+for(x = 1 m; x <= 5 m; x = x + 1 m) {
+   print "x = ", x, "\n";
+}
+
+print "\n -- For : Multiple Conditions \n";
+
+x = 1 m;
+y = 1 in;
+z = 100 yard;
+
+for(x = 1 m, y = 1 in, z = 100 yard;
+    x <= 5 m && y < 1 ft || z < 0.5 mile;
+    x = x + 1 m, y = y + 1 in, z = z + 400 yard) {
+   print " (x,y,z) = (",x, y, z,")\n";
+}
+
+print "\n -- For-loop : Multiple Layers \n";
+
+for(x = 1 m; x <= 2 m; x = x + 1 m) {
+    for( y = 11 in; y <= 1 ft; y = y + 1 in) {
+       for(z = 500 yard; z <= 0.5 mile ; z = z + 400 yard) {
+           print " (x,y,z) = (",x, y, z,")\n";
+       }
+    }
+}
+
+print "\n -- For-loop & While-loop Combination \n";
+
+for(x = 1 m; x <= 2 m; x = x + 1 m) {
+    for(y = 11 in; y <= 1 ft; y = y + 1 in) {
+        z = 500 yard;
+        while(z <= 0.5 mile) {
+              Coord = [x, y, z];
+              PrintMatrix(Coord);
+              z = z + 400 yard;
+        }
+    }
+}
+
+print "\n ======= CONDITIONAL BRANCHING  ======== \n";
+
+print "\n -- Test IF Condition \n";
+
+x = 1 ksi;
+if ( x < 10 ksi ) {
+     print " x = ", x ,"\n";
+} 
+
+print "\n -- Test IF-THEN-ELSE Condition \n";
+
+x = 10 ksi;
+y = 1 MPa;
+
+if ( x < 10 ksi ) then {
+     print " x = ", x ,"\n";
+} else {
+     print " y = ", y ,"\n";
+}
+
+print "\n ======= STOPPING COMMAND ======== \n";
+
+print " \n quit;  ---- stop the program ";
+print " \n break; ---- break the loops : FOR, WHILE \n";
+
+print "\n ==== Break a Single Layer For-Loop\n";
+
+for(x = 1 m; x <= 5 m; x = x + 1 m) {
+    if(x > 3m) break;
+    print " x = ",x,"\n";
+}
+
+print "\n ==== Break a Single Layer While-Loop \n";
+
+x = 1m;
+while(x <= 5 m) {
+    if(x > 3m) break;
+    print " x = ",x,"\n";
+    x = x + 1m; 
+}
+
+print "\n ==== Break a Multiple Layer For-Loop \n";
+
+for(x = 1 m; x <= 5 m; x = x + 1 m) {
+    if(x > 2 m) break;
+    print "x = ",x,"\n";
+    for( y = 1 in; y <= 1 ft; y = y + 1 in) {
+       if(y > 6 in) break;
+       print "(x,y) =(",x,y,")\n";
+       for(z = 100 yard; z <= 0.5 mile ; z = z + 100 yard) {
+           if( z > 300 yard) break;
+           print " (x,y,z) = (",x, y, z,")\n";
+       }
+    }
+}
+
+print "\n ==== Break a Multiple Layer While-Loop \n";
+X = 2 m;
+while (X <= 10 m) {
+   if(X < 4m) then {} else break;
+   Y = 1 in;
+   print "\n";
+   while(Y <= 1 ft) {
+      if(Y > 8 in) break;
+      print "(X, Y) = (",X,Y,")\n";
+      Y = Y + 1 in;
+   }
+   X = X + 2 m ;
+}
+
+print "\n ======= TURN OFF/ON Units ======== \n";
+
+print "\n Use < SetUnitsOff > to Turn Off Units Option \n";
+print "\n Use < SetUnitsOn > to Turn On Units Option \n";
+print "\n The Default Units Option is < SetUnitsOn > \n\n";
+
+print  "=======================\n";
+print  "*** End of Control Test\n";
+print  "=======================\n\n";
+
+quit;

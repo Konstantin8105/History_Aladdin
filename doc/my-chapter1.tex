@@ -1,0 +1,382 @@
+
+\chapter{Introduction to ALADDIN}
+
+\section{Problem Statement}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+This report describes the development and capabilities of ALADDIN (Version 1.0),
+an interactive computational toolkit for the matrix
+and finite element analysis of engineering systems.
+The current target application area for ALADDIN is
+design and analysis of traditional Civil Engineering structures,
+such as highway bridges and earthquake-resistant buildings.
+With literally hundreds of engineering analysis and
+optimization computer programs having been written in the past 10-20 years (see
+references ~\cite{abaqus92,balling83,mondkar75,nye87,nye82,nye86,wu86,zienkiewitz89}
+for some examples), a reader might rightfully
+ask {\it who needs to write another engineering analysis package ?}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+We respond to this challenge, and motivate the short- and long-term goals of
+this work by first noting that during the past two decades,
+computers have been providing approximately 25\% more power per dollar per year.
+Advances in computer hardware and software have allowed for
+the exploration of many new ideas, and have been a key catalyst in
+what has led to the maturing of computing as a discipline.
+In the 1970's computers were viewed primarly as
+machines for research engineers and scientists -- compared to today's standards,
+computer memory was very expensive, and central processing units were slow.
+Early versions of structural analysis and finite element computer programs,
+such as ABAQUS \cite{abaqus92}, ANSR ~\cite {mondkar75},
+and FEAP ~\cite{zienkiewitz89} were written in the FORTRAN computer language,
+and were developed with the goal of optimizing
+numerical and/or instructional considerations alone.
+These programs offered a restricted, but well implemented,
+set of numerical procedures for static structural analyses,
+and linear/nonlinear time-history response calculations.
+And even though these early computer programs were not particularly easy to use,
+practising engineers gradually adopted them because they allowed for
+the analysis of new structural systems in a ways that were previously intractable.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+During the past twenty years, the use of computers in engineering
+has matured to the point where importance is now placed on ease of use,
+and a wide-array of services being made available
+to the engineering profession as a whole.
+Computer programs written for engineering computations
+are expected to be fast and accurate, flexible, reliable, and of course, easy to use.
+Whereas an engineer in the 1970's might have been satisfied by a
+computer program that provided numerical solutions to a very specific engineering problem,
+the same engineer today might require the engineering analysis,
+plus computational support for design code checking, optimization,
+interactive computer graphics, network connectivity, and so forth.
+Many of the latter features are not a bottleneck for getting the job done.
+Rather, features such as interactive computer graphics simply make the
+job of describing a problem and interpreting results easier --
+the pathway from ease-of-use to productivity gains is well defined.
+It is also well worth noting that computers once viewed as a tool for computation alone,
+are now seen as an indispensable tool for computation and communications.
+In fact, the merging of computation and communications is making fundamental
+changes to the way an engineer conducts his/her day-to-day business activities.
+Consider, for example, an engineer who has access to a high speed
+personal computer with multimedia interfaces and global network connectivity,
+and who happens to be part of a geographically dispersed development team.
+The team members can use the Internet/E-mail for day-to-day communications,
+to conduct engineering analyses at remote sites,
+and to share design/analysis results among the team members.
+Clear communication of engineering information among the team members
+may be of paramount importance in determining the smooth development of a project.
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+The difficulty in following-up on the abovementioned hardware advances with
+appropriate software developments is clearly reflected in
+the economic costs of project development.
+In the early 1970's software consumed approximately 25\% of total costs,
+and hardware 75\% of total costs for development of data intensive systems.
+Nowadays, development and maintenance of software
+typically consumes more than 80\% of the total project costs.
+This change in economics is the combined result of falling hardware costs,
+and increased software development budgets needed to
+implement systems that are much more complex than they used to be.
+Whereas one or two programmers might have written a complete program twenty years ago,
+today's problems are so complex that teams of programmers are needed
+to understand a problem and fill-in the details of required development.
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+When a computer program has a poorly designed architecture,
+its integration with another package can be very difficult,
+with the result often falling short of users' expectations.
+Let's suppose, for example, that we wanted to interface the
+finite element package FEAP ~\cite{zienkiewitz89} with the interactive
+optimization-based design environment called DELIGHT ~\cite{balling83,nye87,wu86}.
+Since FEAP was not written with interfaces to external environments
+as a design criterion, a programmer(s)
+faced with this task would first have to figure out
+how FEAP and DELIGHT work (not an easy task),
+and then devise a mapping from DELIGHT's external
+interface routines to FEAP's subroutines.
+In the first writer's opinion, such a mapping is likely to exist,
+but only after several subroutines have been added to FEAP.
+The programmer(s) would need the computer skills and tenacity to stick-with the
+lengthy period of code development that would ensue.
+And what about the result ?
+In our experience ~\cite{austin87a,austin87b,balling83},
+the integrated DELIGHT-FEAP tool would most likely do a
+very good job of solving a narrow range of problems.
+Extending DELIGHT-FEAP's capabilities to a wider range of
+applications could be a greater technical challenge than the orginal integration.
+These obstacles, coupled with the marginal benefits, have led us to conclude that
+such an ad-hoc approach to tool integration is not worthwhile.
+A smarter move would be to focus our long-term research efforts
+on the development of methods that will lead to
+the integration of engineering systems in a natural way.
+
+\section{ALADDIN Components}
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+Project ALADDIN is motivated by the lack of structure (i.e. organization) in
+finite element and optimization-based computer programs needed for efficient tool integration.
+The goals of this work are to better understand the structure these
+packages should take -- we will investigate the problem by 
+designing and implementing a system specification for how a
+matrix and finite element system ought to work.
+The system specification will include:
+
+\begin{description}
+\item{[1]}
+{\tt A Model :} The model will include data structures
+for the information to be stored, and a stack machine for the execution
+of the matrix and finite element algorithms.
+
+\item{[2]}
+{\tt A Language :} The language will be a means for describing the
+matrices and finite element mesh -- it will
+act as the user interface to the underlying model.
+
+In traditional approaches to problem solving,
+engineers write the details of a problem and its solution procedure on paper.
+They use physical units to add clarity to the problem description,
+and may specify step-by-step details for a numerical solution to the problem.
+We would like the ALADDIN language to be textually descriptive,
+and strike a balance between simplicity and extensibility.
+It should use a small number of data types and control structures,
+incorporate physical units, and yet, be descriptive enough so
+that the {\it pencil and paper} and
+ALADDIN {\it problem description} files are almost the same.
+
+\item{[3]}
+{\tt Defined Steps and Ordering of the Steps :} The steps will define the
+transformations (e.g. nearly all engineering processes will require iteration and branching)
+that can be carried out on system components.
+
+\item{[4]}
+{\tt Guidance for Applying the Specification :}
+Guidance includes factors such as descriptive problem description
+files and documentation.
+
+\end{description}
+
+\vspace{0.15 in}\noindent
+Our research direction is inspired in part by the systems
+integration methods developed for the European ESPRIT Project ~\cite{kronlof93},
+and by the success of C.
+Although the C programming language has only 32 keywords,
+and a handful of control structures, its judicious combination with
+external libraries has resulted in the language
+being used in a very wide range of applications.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+Figure \ref{fig: aladdin-development} is a
+schematic of the ALADDIN (Version 1.0) architecture,
+and shows its three main parts: (1) the kernel;
+(2) libraries of matrix and finite element functions, and (3) the input file(s).
+
+\begin{figure}[th]
+\epsfxsize=5.5truein
+\centerline{\epsfbox{my-chapter1-fig1.ps}}
+\caption{High Level Components in ALADDIN (Version 1.0)}
+\label{fig: aladdin-development}
+\end{figure}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+Specific engineering problems are defined in ALADDIN problem
+description files, and solved using
+components of ALADDIN that are part interpreter-based, and part compiled C code.
+It is important to keep in mind that as the speed of CPU processors increases,
+the time needed to prepare a problem description increases
+relative to the total time needed to work through an engineering analysis.
+Hence, clarity of an input file's contents is of paramount importance.
+In the design of the ALADDIN language we attempt to achieve these goals with:
+(1) liberal use of comment statements (as with the C programming language,
+comments are inserted between {\tt /* .... */}),
+(2) consistent use of function names and function arguments,
+(3) use of physical units in the problem description, and
+(4) consistent use of variables, matrices,
+and structures to control the flow of program logic.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+ALADDIN problem descriptions and their solution algorithms
+are a composition of three elements:
+(1) data, (2) control, and (3) functions ~\cite{salter76}:
+
+\vspace{0.15 in}\noindent
+{\bf [1] Data :} 
+ALADDIN supports three data types, ``character string'' for variable names,
+physical quantities, and matrices of physical quantities for engineering data.
+For example, the script of code
+
+\begin{footnotesize} 
+\begin{verbatim}
+       xCoord   = 2 m;
+       xVelociy = 2 m / sec;
+\end{verbatim}
+\end{footnotesize} 
+
+\vspace{0.15 in}\noindent
+defines two physical quantities, {\tt xCoord} as 2 meters,
+and {\tt xVelocity} as 2 meters per second.
+Floating point numbers are stored with double precision accuracy, and are
+viewed as physical quantities without units.
+There are no integer data types in ALADDIN.
+
+\vspace{0.15 in}\noindent
+{\bf [2] Control :} Control is the basic mechanisms in a programming
+language for the specification of looping constructs and conditional branching.
+
+\begin{figure}[ht]
+\vspace{0.15 in}
+\epsfxsize=5.0truein
+\centerline{\epsfbox{my-chapter1-fig3.ps}}
+\caption{Branching and Looping Constructs in ALADDIN}
+\label{fig: aladdin-branch-and-loop}
+\end{figure}
+
+\vspace{0.15 in}\noindent
+In Chapter 2 we will see that ALADDIN supports the
+{\tt while} and {\tt for} looping constructs,
+and the {\tt if} and {\tt if-then-else} branching constructs.
+The data and control components of the ALADDIN language are
+implemented as a finite-state stack machine model, which follows in the
+spirit of work presented by Kernighan and Pike ~\cite{kernighan-pike}.
+ALADDIN's stack machine reads blocks of command statements from either a problem
+description file, or the keyboard,
+and converts them into an array of machine instructions.
+The stack machine then executes the statements.
+
+\vspace{0.15 in}\noindent
+{\bf [3] Functions :} 
+The functional components of ALADDIN provide hierarchy to the
+solution of our matrix and finite element processes,
+and are located in libraries of compiled C code,
+as shown on the right-hand side of Figure \ref{fig: aladdin-development}.
+Version 1.0 of ALADDIN has functional support for basic matrix operations,
+that includes numerical solutions to linear equations, 
+and the symmetric eigenvalue problem.
+A library of finite element functions is provided.
+
+\begin{figure}[ht]
+\vspace{0.10 in}
+\epsfxsize=4.5truein
+\centerline{\epsfbox{my-chapter1-fig2.ps}}
+\caption{Schematic of Functions in ALADDIN}
+\label{fig: aladdin-functions}
+\end{figure}
+
+\vspace{0.15 in}\noindent
+Figure ~\ref{fig: aladdin-functions} shows the general
+components of a function call, it's input argument list,
+and the function return type.
+A key objective in the language design is to devise families of
+library functions that will make ALADDIN's problem
+solving ability as wide as possible.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+Version 1.0 of ALADDIN does not support user-defined
+functions in the input-file (or keyboard) command language.
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+The strategy we have followed in ALADDIN's development is to keep
+the number and type of arguments employed in library function calls small.
+Whenever possible, the function's return type and arguments 
+should be of the same data type, thereby allowing the output
+from one or more functions to act as the input to following function call.
+More precisely, we would like to write input code that takes the form
+
+\begin{footnotesize} 
+\begin{verbatim}
+   returntype1 = Function1();                            /* <= application area 1 */
+   returntype2 = Function2();                            /* <= application area 1 */
+
+   returntype3 = Function3( returntype1, returntype2 );  /* <= application area 2 */
+
+or even 
+
+   returntype3 = Function3( Function1(), Function2() );
+\end{verbatim}
+\end{footnotesize} 
+
+\vspace{0.15 in}\noindent
+If {\tt Function1()} and {\tt Function2()} belong to application area 1 (e.g. matrix analysis),
+and {\tt Function3()} belongs to application area 2 (e.g. finite element analysis; optimization),
+then this language structure allows
+application areas 1 and 2 to be combined in a natural way.
+In Chapters 2 to 6, we will see that most of the built-in functions
+accept one or two matrix arguments, and return one matrix argument.
+Occasionally, we will see built-in function that have more than
+two function arguments, and return a quantity instead of a matrix.
+Collections of quantities are returned from functions by
+bundling them into a single matrix -- the individual quantities
+are then extracted as elements of the function return type.
+
+\begin{table}[th]
+\vspace{0.10 in}
+\tablewidth = 5.5truein
+\begintable
+Factor                   | Interpreted Code | Compiled Code  \crthick
+User Control             | High             | Very Low       \cr
+Required User Knowledge  | High             | Medium         \cr
+Speed of Execution       | Slow             | Fast           
+\endtable
+\vspace{0.01 in}
+\caption{Trade-Offs -- Interpreted Code Versus Compiled Code}
+\label{tab: tradeoffs-in-design}
+\end{table}
+
+\vspace{0.15 in}\noindent
+Table \ref{tab: tradeoffs-in-design} contains a summary of trade-offs
+between the use of interpreted code versus compiled C code.
+A key advantage of interpreters is flexibility -- problem parameters and
+algorithms may be modified during the problem solving process,
+and without having to recompile source code.
+This feature reduces the time needed to work
+through an interation of the problem solving process.
+The well known trade-off is speed of execution.
+Interpreted code executes much slower -- approximately ten times slower --
+than compiled C code.
+Consequently, we expect that as ALADDIN evolves, new algorithms
+will be developed in tested as interpreted code,
+and once working, will be converted into libraries of compiled C code having
+an interface that fits-in with the remaining library functions.
+
+
+\section{Scope of this Report}
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+This report is divided into four parts.
+In Part II we will see that the ALADDIN language supports
+variable arithmetic with physical units, matrix operations with units,
+and looping and branching control structures,
+where decisions are made with quantities having physical units.
+Chapters 3 and 4 demonstrate use of the ALADDIN language via
+a suite of problems -- we compute the roots of nonlinear equations,
+demonstrate the Han-Powell method of optimization,
+and solve several problems from structural
+engineering and structural dynamics. 
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+Part III of this report describes the built-in functions for the
+generation of finite element meshes, external loads,
+and finite element modeling assumptions. We demonstrate these
+features by solving a variety two- and three-dimensional finite element problems.
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+We have written Part IV for ALADDIN developers,
+who may need to understand the data structures and algorithms
+used to read and store matrices, to create and store finite element meshes,
+and to construct the stack machine.
+Readers of this section are assumed to have a
+good working knowledge of the C programming language.

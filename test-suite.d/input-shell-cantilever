@@ -1,0 +1,119 @@
+/*
+ *  ======================================================================
+ *  Model of cantilever using 4 node shell finite element.
+ *
+ *  Written By : Mark Austin                                February, 1997
+ *  ======================================================================
+ */
+
+print "*** DEFINE PROBLEM SPECIFIC PARAMETERS \n\n";
+
+NDimension         = 3;
+NDofPerNode        = 6;
+MaxNodesPerElement = 4;
+
+/*
+ *  ===============
+ *  Define the Mesh
+ *  ===============
+ */
+
+StartMesh();
+
+print "*** GENERATE GRID OF NODES FOR FE MODEL \n\n";
+
+z = 0 m;
+AddNode( 1, [  0.0 m,  0 m, 0 m]);  
+AddNode( 2, [  0.0 m, 10 m, 0 m]);  
+AddNode( 3, [ 10.0 m,  0 m, 0 m]);  
+AddNode( 4, [ 10.0 m, 10 m, 0 m]);  
+AddNode( 5, [ 20.0 m,  0 m, 0 m]);  
+AddNode( 6, [ 20.0 m, 10 m, 0 m]);  
+
+print "*** ATTACH ELEMENTS TO GRID OF NODES \n\n";
+
+node_connec = [1, 3, 4, 2];
+AddElmt( 1, node_connec, "name_of_elmt_attr");
+node_connec = [3, 5, 6, 4];
+AddElmt( 2, node_connec, "name_of_elmt_attr");
+
+/*
+ *  ===============================================
+ *  Define Element, Section and Material Properties
+ *  ===============================================
+ */
+
+print "*** DEFINE ELEMENT, SECTION AND MATERIAL PROPERTIES \n\n";
+
+ElementAttr("name_of_elmt_attr") { type     = "SHELL_4NQ";
+                                   section  = "mysection";
+                                   material = "ELASTIC";
+                                  }
+
+MaterialAttr("ELASTIC") { poisson =    0.25;   
+	                  E       = 200 GPa;
+                         }
+
+SectionAttr("mysection") { thickness =   1 cm; }
+
+/*
+ *  =========================
+ *  Setup Boundary Conditions
+ *  =========================
+ */
+
+    print "*** SET UP BOUNDARY CONDITIONS \n\n";
+
+    u_id  = 1; v_id  = 1; w_id  = 1;
+    rx_id = 1; ry_id = 1; rz_id = 1;
+    bc_fc = [u_id,v_id,w_id,rx_id,ry_id,rz_id];
+
+    FixNode( 1, bc_fc);
+    FixNode( 2, bc_fc);
+
+/*
+ *  ==================
+ *  Add external loads
+ *  ==================
+ */
+
+print "*** APPLY EXTERNAL LOADS \n\n";
+
+Fx = 0 N;    Fy = 0 N;    Fz = -10 N;
+Mx = 0 N*m;  My = 0 N*m;  Mz =   0 N*m;
+
+NodeLoad( 5, [Fx, Fy, Fz, Mx, My, Mz]);
+
+/*
+ *  =====================================
+ *  Compile and Print Finite Element Mesh
+ *  =====================================
+ */
+
+EndMesh();
+PrintMesh();
+
+/*
+ *  ==========================
+ *  Compute Stiffness Matrices
+ *  ==========================
+ */
+
+print "\n*** COMPUTE STIFFNESS MATRICES \n\n";
+
+SetUnitsType("SI");
+stiff  = Stiff();
+eload  = ExternalLoad();
+lu     = Decompose(Copy(stiff));
+displ  = Substitution(lu, eload);
+
+/*
+ *  ================================
+ *  Print displacements and stresses
+ *  ================================
+ */
+
+PrintDispl(displ);
+PrintStress(displ);
+
+quit;

@@ -1,0 +1,157 @@
+/* 
+ *  ===================================================== 
+ *  Use BFGS Algorithm to Solve Nonlinear Equations 
+ *
+ *  Function :                                    
+ *              2x[1]^2 + x[2] = 4               
+ *              x[1] + 2x[2]^2 = 5               
+ * 
+ *          R^t     = (4, 5)                    
+ *          F[1]    = 2x[1]^2 + x[2]            
+ *          F[2]    = x[1] + 2x[2]^2            
+ *          K[i][j] = dF[i]/dx[j]         Jacobain matrix
+ * 
+ *  Written By : X.G. Chen                      June 1994
+ *  ===================================================== 
+ */ 
+
+print "\n";
+print "===================================================\n";
+print "*** Use BFGS Algorithm to Solve Nonlinear Equations\n";
+print "===================================================\n\n";
+
+dimen = 2;
+IMAX  = 20;     /* Maximum number of iteration */
+Ef    = 1E-4;
+Ee    = 1.E-5;
+beta  = 1.0;
+STOL  = 0.5;
+EPS   = 1.E-5;
+ii    = 1;
+MaxLineSearchCount = 5;
+
+/*  [a] : Initialize and print problem parameters and initial solution */ 
+
+    x = [7; 10];
+    R = [4; 5];
+
+    print "------initial Guess -----\n";
+    PrintMatrix(x);
+    print "\n------Given R value -----\n";
+    PrintMatrix(R);
+
+    Y       = [2*x[1][1], 1; 1, 2*x[2][1]];
+    K       = [4*x[1][1], 1; 1, 4*x[2][1]];
+    F       = Y*x;
+    Residu0 = R-F;
+    Residu  = R-F;
+    K_inver = Inverse(K);
+
+/*  [b] : Allocate working matrices */
+
+    Residu_old   = Residu;
+    I            = Diag([dimen, 1]);
+    delta_old    = Zero([dimen, 1]);
+
+/*  [c] : Main Loop for Iteration */
+
+    Iter_no = 0;
+    for (ii = 1; ii <= IMAX; ii = ii + 1) {
+    
+        Iter_no = Iter_no + 1;
+        beta    = 1.0;
+        delta   = K_inver*Residu;
+
+     /* [c.1] : Armijo Line Search */
+
+        x_temp  = x + beta*delta; 
+        temp1   = QuanCast(Trans(delta)*Residu); 
+        Y       = [2*x_temp[1][1], 1; 1, 2*x_temp[2][1]];
+        F       = Y*x_temp;
+        Residu  = R- F;
+        temp2   = QuanCast(Trans(delta)*Residu); 
+        counter = 0;
+        while(temp2 > temp1*STOL + EPS) {
+              counter = counter + 1;
+              if(counter > MaxLineSearchCount) then {
+                 print " \n ========== \n Too much iterations for line search \n";
+                 break;
+              } else {
+                 beta = beta/2.0;
+                 x_temp  = x + beta*delta;
+                 Y      = [2*x_temp[1][1], 1; 1, 2*x_temp[2][1]];
+                 F       = Y*x_temp;
+                 Residu  = R-F;
+                 temp2   = QuanCast(Trans(delta)*Residu);
+             }
+        }
+        x = x_temp;
+
+     /* [c.2] : Restart for failed line search */
+
+        if(counter > MaxLineSearchCount) then {
+           ii = 1;
+           print " \n **** Restart at new initial Value \n";
+           Y          = [2*x[1][1], 1; 1, 2*x[2][1]];
+           K          = [4*x[1][1], 1; 1, 4*x[2][1]];
+           F          = Y*x;
+           Residu     = R-F;
+           K_inver    = Inverse(K);
+           Residu_old  = Residu;
+           delta_old   = Zero([dimen, 1]);
+        } else { 
+
+        /* [c.3] : BFGS Update (i.e counter < MaxLineSearchCount) */
+
+           gamma       = Residu_old - Residu;
+           tem1        = QuanCast(Trans(delta)*Residu_old);
+           tem1        = tem1*beta*beta;
+           tem2        = QuanCast(Trans(delta)*gamma);
+           tem2        = tem2*beta;
+           ConditionNo = sqrt(tem2/tem1);
+           V           = -ConditionNo*beta*Residu_old - gamma;
+           W           = beta*delta/tem2;
+           A           = I + V*Trans(W);
+           K_inver     = Trans(A)*K_inver*A;
+
+        /* [c.4] : Check convergence criteria */
+
+           if (ConditionNo > 1E+5) {
+               print"ConditionNo = ", ConditionNo, " \n";
+               print"ERROR -- Condition Number Too Large \n";
+               break;
+           }
+
+        /* [c.5] : Force and energy criteria */
+
+           force_crt1 = L2Norm(Residu);
+           force_crt2 = L2Norm(Residu0)*Ef;
+
+           energy_crt1 = QuanCast(Trans(delta)*Residu_old);
+           energy_crt1 = abs(energy_crt1);
+           if (ii == 1) {
+               energy_crt2 = QuanCast(Trans(delta)*Residu0);
+               energy_crt2 = abs(energy_crt2*Ee);
+           }
+           if((force_crt1 <= force_crt2) && (energy_crt1 < energy_crt2)) {
+               break;
+           }
+           Residu_old  = Residu;
+           delta_old   = delta;
+        }
+    }
+
+ /* [d] : Print results and terminate program execution */
+
+    print" \n RESULTS : \n --------------\n";
+    print" Iteration Number =", Iter_no, "\n";
+    Y          = [2*x[1][1], 1; 1, 2*x[2][1]];
+    F          = Y*x;
+    PrintMatrix(x, F);
+
+    print "\n";
+    print "========================\n";
+    print "*** End of bfgs analysis\n";
+    print "========================\n";
+
+    quit;

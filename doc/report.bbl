@@ -1,0 +1,180 @@
+\begin{thebibliography}{10}
+
+\bibitem{abaqus92}
+{ABAQUS}.
+\newblock {\em {Example Problems Manual, version 5.2}}.
+\newblock {Hibbitt, Karlsson \& Sorensen, Inc.}, {Hibbitt, Karlsson \&
+  Sorensen, Inc., 1080 Main Str., Pawtuchet, RI 02860}, 1992.
+
+\bibitem{aho85}
+{Aho ~A.~V., Sethi ~R., Ullman ~J.~D.}
+\newblock {\em {Compilers : Principles, Techniques and Tools}}.
+\newblock {Addison Wesley}, 1985.
+
+\bibitem{austin87a}
+{Austin ~M.~A., Pister ~K.~S., Mahin ~S.~A.}
+\newblock {A Methodology for the Probabilistic Limit States Design of
+  Earthquake Resistant Structures}.
+\newblock {\em {Journal of the Structural Division, ASCE}}, 113(8):1642--1659,
+  August 1987.
+
+\bibitem{austin87b}
+{Austin ~M.~A., Pister ~K.~S., Mahin ~S.~A.}
+\newblock {Probabilistic Limit States Design of Moment Resistant Frames Under
+  Seismic Loading}.
+\newblock {\em {Journal of the Structural Division, ASCE}}, 113(8):1660--1677,
+  August 1987.
+
+\bibitem{austin95}
+{Austin M.A., Mazzoni D.}
+\newblock {\em {C Programming for Engineers}}.
+\newblock {John-Wiley and Sons}.
+\newblock (Scheduled for publication in 1996).
+
+\bibitem{balling83}
+{Balling ~R. ~J., Pister ~K. ~S., Polak ~E.}
+\newblock {DELIGHT.STRUCT: A Computer-Aided Design Environment for Structural
+  Engineering}.
+\newblock {\em {Computer Methods in Applied Mechanics and Engineering}}, pages
+  237--251, January 1983.
+
+\bibitem{bathe76}
+{Bathe ~K.~J.}
+\newblock {\em {Numerical Methods in Finite Element Analysis}}.
+\newblock {Prentice-Hall}, {Englewood Cliffs, N.J.}, 1976.
+
+\bibitem{bathe82}
+{Bathe ~K.~J.}
+\newblock {\em {Finite Element Procedures in Engineering Analysis}}.
+\newblock {Prentice-Hall}, {Englewood Cliffs, N.J.}, 1982.
+
+\bibitem{bathe80}
+{Bathe ~K.~J., Cimento,~A.~P.}
+\newblock {Some Practical Procedures for the Solution of Nonlinear Finite
+  Element Equations}.
+\newblock {\em {Computer Methods in Applied Mechanics and Engineering}},
+  22:59--85, 1980.
+
+\bibitem{chen95}
+{Chen ~X.G., Austin ~M.A.}
+\newblock {Development of a Shell Finite Element for Project ALADDIN}.
+\newblock Technical report, {University of Maryland, College Park, MD. 20742},
+  1995.
+
+\bibitem{cmelik88}
+{Cmelik ~R.F., Gehani ~N.H.}
+\newblock {Dimensional Analysis with C++}.
+\newblock {\em {IEEE Software}}, pages 21--26, May 1988.
+
+\bibitem{gallopoulos94}
+{Gallopoulos ~E., Houstis ~E.}
+\newblock {Computer as a Thinker/Doer : Problem-Solving Enviroments for
+  Computational Science}.
+\newblock {\em {IEEE Computational Science and Engineering}}, 1(2):11--23,
+  1994.
+
+\bibitem{gehani82}
+{Gehani ~N.H.}
+\newblock {Databases and Units of Measure}.
+\newblock {\em {IEEE Transactions on Software Engineering}}, 8(6):605--611,
+  November 1982.
+
+\bibitem{ghali79}
+{Ghali ~A., Neville ~A.M.}
+\newblock {\em {Structural Analysis : A Unified and Matrix Approach}}.
+\newblock {Chapman and Hall}, {2nd Edition} edition, 1979.
+
+\bibitem{jin94}
+{Jin ~Lanheng.}
+\newblock {Analysis and Evaluation of a Shell Finite Element with Drilling
+  Degree of Freedom}.
+\newblock Technical report, {University of Maryland, College Park, Maryland
+  20742}, 1994.
+
+\bibitem{johnson75}
+{Johnson ~S.~C.}
+\newblock {YACC - Yet another Compiler Compiler}.
+\newblock Technical report, {AT\&T Bell Laboratories, Murray Hill, New Jersey},
+  1975.
+
+\bibitem{karr78}
+{Karr ~M., Loveman ~D.~B.}
+\newblock {Incorporating Units into Programming Languages}.
+\newblock {\em {Communications of the ACM}}, 21(5):385--391, May 1978.
+
+\bibitem{kernighan-pike}
+{Kernighan ~B.~W., Pike ~R.}
+\newblock {\em {The UNIX Programming Environment}}.
+\newblock {Prentice-Hall Software Series}, 1983.
+
+\bibitem{kirkpatrick83}
+{Kirkpatrick S., Gelatt C.D., Vecchi M.P,}.
+\newblock {Optimization by Simulated Annealing}.
+\newblock {\em {Science}}, 220(4598):671--680, {May} 1983.
+
+\bibitem{kronlof93}
+{Kronlof ~K.}
+\newblock {\em {Method Integration : Concepts and Case Studies}}.
+\newblock {John-Wiley and Sons}, 1993.
+
+\bibitem{levine92}
+{Levine ~J.R., Mason ~T., Brown ~D.}
+\newblock {\em {Lex and Yacc}}.
+\newblock {O'Reilly and Associates, Inc}, 1992.
+
+\bibitem{Luenberger84}
+{Luenberger~David~G.}
+\newblock {\em {Linear and Nonlinear Programming}}.
+\newblock {Addison-Wesley Publishing Company}, 1984.
+
+\bibitem{mondkar75}
+{Mondkar ~D.~P., Powell ~G.~H.}
+\newblock {ANSR - 1 General Purpose program for Analysis of Nonlinear
+  Structural Response}.
+\newblock {{\it Report No.} EERC 75-37}, {Earthquake Engineering Research
+  Center}, December 1975.
+
+\bibitem{nye87}
+{Nye ~W. ~T., Riley ~D. ~C., Sangiovanni-Vincentelli ~A. ~L., Tits ~A. ~L.}
+\newblock {DELIGHT.SPICE: An Optimization-Based System for the Design of
+  Integrated Circuits}.
+\newblock {\em {IEEE Trans. CAD Integrated Circuits and Systems, CAD-7}}, pages
+  501--520, 1987.
+
+\bibitem{nye86}
+{Nye ~W. ~T., Tits ~A. ~L.}
+\newblock {An Application-Oriented, Optimization-Based Methodology for
+  Interactive Design of Engineering Systems}.
+\newblock {\em {International Journal of Control}}, 43(6):1693--1721, 1986.
+
+\bibitem{nye82}
+{Nye ~W., Tits ~A.~L.}
+\newblock {DELIGHT FOR BEGINNERS}.
+\newblock {Memorandum No. UCB/ERL M82/55}, {Department of Electrical
+  Engineering}, July 1982.
+
+\bibitem{salter76}
+{Salter K.G.}
+\newblock {A Methodology for Decomposing System Requirements into Data
+  Processing Requirements}.
+\newblock {\em {Proc. 2nd Int. Conf. on Software Engineering}}, 1976.
+
+\bibitem{tesler91}
+{Tesler L.G.}
+\newblock {Networked Computing in the 1990's}.
+\newblock {\em {Scientific American}}, 265(3):{86--93}, September 1991.
+
+\bibitem{wu86}
+{Wu ~T.L.}
+\newblock {DELIGHT.MIMO : An Interactive System for Optimization-Based
+  Multivariable Control System Design}.
+\newblock {Memorandum No. UCB/ERL M86/90}, {Department of Electrical
+  Engineering}, December 1986.
+
+\bibitem{zienkiewitz89}
+{Zienkiewitz O.C., Taylor R.L.}
+\newblock {\em {The Finite Element Method}}.
+\newblock {McGraw-Hill, Inc}, 1989.
+\newblock {For details on FEAP, see Chapter 15}.
+
+\end{thebibliography}

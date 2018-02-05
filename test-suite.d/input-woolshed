@@ -1,0 +1,117 @@
+/* 
+ *  =====================================================================
+ *  Structural Analysis of moment-resistant frame.
+ * 
+ *  Written By: Mark Austin                                 February 1998
+ *  =====================================================================
+ */ 
+
+/* Setup problem specific parameters */
+
+   NDimension         = 2;
+   NDofPerNode        = 3;
+   MaxNodesPerElement = 2;
+
+   StartMesh();
+
+/* Generate line of nodes */
+
+   node = 1;
+   AddNode( node, [  0 m,  0 m ] );
+   node = 2;
+   AddNode( node, [  0 m, 10 m ] );
+   node = 3;
+   AddNode( node, [  8 m, 13 m ] );
+   node = 4;
+   AddNode( node, [ 12 m, 13 m ] );
+   node = 5;
+   AddNode( node, [ 20 m, 10 m ] );
+   node = 6;
+   AddNode( node, [ 20 m,  5 m ] );
+
+/* Attach beam elements to nodes */
+
+   elmtno = 0;
+   for ( ii = 1; ii <= 5 ; ii = ii + 1 ) {
+       elmtno = elmtno + 1;
+       AddElmt( elmtno, [ elmtno , elmtno + 1 ], "mrfelmt");
+   }
+
+/* Define section and material properties */
+
+   ElementAttr("mrfelmt") { type     = "FRAME_2D";
+                            section  = "mrfsection";
+                            material = "mrfmaterial";
+                           }
+
+   SectionAttr("mrfsection") { Izz       = 6.60e8 mm^4;
+                               Iyy       = 6.60e8 mm^4;
+                               area      = 4.26e4 mm^2;
+                             }
+
+   MaterialAttr("mrfmaterial") { poisson = 0.25;
+                                 yield   = 275 MPa;
+                                 E       = 200 GPa;
+                               }
+
+/* Apply full-fixity to columns at foundation level */
+
+   nodeno = 1;
+   FixNode( nodeno, [ 1, 1, 1 ]);
+   nodeno = 6;
+   FixNode( nodeno, [ 1, 1, 1 ]);
+
+/* Apply external forces */
+
+   nodeno = 2;
+   NodeLoad( nodeno, [ 5 kN, -4 kN, 0.0 N*m ]); 
+   nodeno = 3;
+   NodeLoad( nodeno, [ 0 kN, -8 kN, 0.0 N*m ]); 
+   nodeno = 4;
+   NodeLoad( nodeno, [ 0 kN, -8 kN, 0.0 N*m ]); 
+   nodeno = 5;
+   NodeLoad( nodeno, [ 0 kN, -4 kN, 0.0 N*m ]); 
+
+/* Compile and Print Finite Element Mesh */
+
+   EndMesh();
+   PrintMesh();
+
+/* Form global stiffness and external load matrices */
+
+   stiff = Stiff();
+   eload = ExternalLoad();
+
+/* Compute and print displacements and element actions */
+
+   displ = Solve(stiff, eload);
+
+   PrintDispl(displ);
+   PrintStress(displ);
+
+/* Retrieve and print support reactions at node 1 */
+
+   actions = GetStress( [1], displ);
+   PrintMatrix(actions);
+
+   print "\n";
+   print "Left-hand Support Reactions\n";
+   print "===========================\n\n";
+
+   print "  Vertical Reaction = ",  actions[1][3]   (kN), "\n";
+   print "Horizontal Reaction = ", -actions[1][4]   (kN), "\n";
+   print "    Moment Reaction = ",  actions[1][5] (kN*m), "\n";
+
+/* Retrieve and print support reactions at node 5 */
+
+   actions = GetStress( [5], displ);
+
+   print "\n";
+   print "Right-hand Support Reactions\n";
+   print "============================\n\n";
+
+   print "  Vertical Reaction = ", -actions[2][3]   (kN), "\n";
+   print "Horizontal Reaction = ",  actions[2][4]   (kN), "\n";
+   print "    Moment Reaction = ",  actions[2][5] (kN*m), "\n";
+
+   quit;

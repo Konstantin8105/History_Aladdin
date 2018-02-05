@@ -1,0 +1,108 @@
+/* [a] : Parameters for Problem Size/Newmark Integration */
+
+   dt     = 0.03 sec;
+   nsteps =  200;
+   gamma  = 0.50;
+   beta   = 0.25;
+
+/* [b] : Form Mass, stiffness and load matrices */
+
+   mass = ColumnUnits( 1500*[ 1, 0, 0, 0;
+                              0, 2, 0, 0;
+                              0, 0, 2, 0;
+                              0, 0, 0, 3], [kg] );
+
+   stiff = ColumnUnits( 800*[ 1, -1,  0,  0;
+                             -1,  3, -2,  0;
+                              0, -2,  5, -3;
+                              0,  0, -3,  7], [kN/m] );
+
+   PrintMatrix(mass, stiff);
+
+/* 
+ * [c] : Generate and print external saw-tooth external loading matrix. First and
+ *       second columns contain time (sec), and external force (kN), respectively.
+ */ 
+
+   myload = ColumnUnits( Matrix([21,2]), [sec], [1]);
+   myload = ColumnUnits( myload,          [kN], [2]);
+
+   for(i = 1; i <= 6; i = i + 1) {
+       myload[i][1] = (i-1)*dt;
+       myload[i][2] = (2*i-2)*(1 kN);
+   }
+
+   for(i = 7; i <= 16; i = i + 1) {
+       myload[i][1] = (i-1)*dt;
+       myload[i][2] = (22-2*i)*(1 kN);
+   }
+
+   for(i = 17; i <= 21; i = i + 1) {
+       myload[i][1] = (i-1)*dt;
+       myload[i][2] = (2*i-42)*(1 kN);
+   }
+
+   PrintMatrix(myload);
+
+/* [d] : Initialize working displacement, velocity, and acc'n vectors */
+
+   displ  = ColumnUnits( Matrix([4,1]), [m]    );
+   vel    = ColumnUnits( Matrix([4,1]), [m/sec]);
+   accel  = ColumnUnits( Matrix([4,1]), [m/sec/sec]);
+   eload  = ColumnUnits( Matrix([4,1]), [kN]);
+
+/* 
+ * [e] : Allocate Matrix to store three response parameters -- Col 1 = time (sec);
+ *       Col 2 = roof displacement (m); Col 3 = Total energy (N.m)
+ */ 
+
+   response = ColumnUnits( Matrix([nsteps+1,3]), [sec], [1]);
+   response = ColumnUnits( response,  [cm], [2]);
+   response = ColumnUnits( response, [Jou], [3]);
+
+/* [f] : Compute (and compute LU decomposition) effective mass */
+
+   MASS  = mass + stiff*beta*dt*dt;
+   lu    = Decompose(Copy(MASS));
+
+   for(i = 1; i <= nsteps; i = i + 1) {
+
+    /* [f.1] : Update external load */
+
+       if((i+1) <= 21) then {
+          eload[1][1] = myload[i+1][2];
+       } else {
+          eload[1][1] = 0.0 kN;
+       } 
+
+       R = eload - stiff*(displ + vel*dt + accel*(dt*dt/2.0)*(1-2*beta));
+
+    /* [f.2] : Compute new acceleration, velocity and displacement  */
+
+       accel_new = Substitution(lu,R); 
+       vel_new   = vel   + dt*(accel*(1.0-gamma) + gamma*accel_new);
+       displ_new = displ + dt*vel + ((1 - 2*beta)*accel + 2*beta*accel_new)*dt*dt/2;
+
+    /* [f.3] : Update and print new response */
+
+       accel = accel_new;
+       vel   = vel_new;
+       displ = displ_new;
+
+    /* [f.4] : Compute "kinetic + potential energy" */
+
+       e1 = Trans(vel)*mass*vel;
+       e2 = Trans(displ)*stiff*displ;
+       energy = 0.5*(e1 + e2);
+
+    /* [f.5] : Save components of time-history response */
+
+       response[i+1][1] = i*dt;
+       response[i+1][2] =  displ[1][1];
+       response[i+1][3] = energy[1][1];
+   }
+
+/* [g] : Print response matrix and quit */
+
+   PrintMatrix(response);
+   quit;

@@ -1,0 +1,186 @@
+/*  
+ *  ================================================================
+ *  Example Problem 1:                              
+ *  
+ *    minmize f(x) = (x1 -x2)^2 + (x2+x3-2)^2 + (x4-1)^2 + (x5 -1)^2
+ *  
+ *  Subject to constraints:                                   
+ *  
+ *         x1+3*x2            -4 = 0                   
+ *                 x3+x4-2*x5    = 0                   
+ *              x2        -x5    = 0                   
+ *  
+ *  Notation -- f = f(x), G = g(x), Df = grad f(x), Dg = grad g(x).
+ *  
+ *  Written By: X.G. Chen                                  June 1994
+ *  ================================================================
+ */  
+
+SetUnitsOff;
+
+/* [a] : Initialize and print variables and matrices */
+
+   Epsilon = 1E-6;
+   beta    = 0.5;
+   alpha   = 0.1;
+   IMAX    = 20; /* maximum of iterations */
+   n       = 5;  /* number of variables   */
+   M       = 3;  /* number of constriants */
+
+   print "\n ****** Initial Guess Value ******* \n";
+
+   x = [20; 0.1; 10; -1; -10];   /* not feasible */
+   PrintMatrix(x);
+
+   x_old      = x;
+   lambda     = Zero([M, 1]);
+   lambda_old = Zero([M, 1]);
+   temp1 = (x[1][1] -x[2][1])*(x[1][1] -x[2][1]);
+   temp2 = (x[2][1] +x[3][1] -2)*(x[2][1] +x[3][1] - 2);
+   temp3 = (x[4][1] -1)*(x[4][1] -1);
+   temp4 = (x[5][1] -1)*(x[5][1] -1);
+
+   f = temp1 + temp2 + temp3 + temp4;
+   A = Zero([n+M, n+M]);
+   C = Zero([n+M, 1]);
+   B  = Zero([n,n]);
+   Df = Zero([n,1]);
+   DF = Zero([n,1]);
+   b  = Zero([M,1]);
+   d  = Zero([n,1]);
+
+   Df[1][1] =  2*(x[1][1]- x[2][1]);
+   Df[2][1] = -2*(x[1][1]- x[2][1]) + 2*(x[2][1]+ x[3][1] -2);
+   Df[3][1] =  2*(x[2][1]+ x[3][1]-2);
+   Df[4][1] =  2*(x[4][1]- 1);
+   Df[5][1] =  2*(x[5][1]- 1);
+
+   B = Diag([n,1]); /* initialize B as identity matrix */
+
+   b[1][1] = -4;
+   b[2][1] =  0;
+   b[3][1] =  0;
+
+   k = 1;
+   Trans_Dg = [1,3,0,0,0; 0,0,1,1,-2; 0, 1, 0, 0,-1];
+   Dg       = Trans(Trans_Dg);
+   G       = Trans_Dg*x+b;
+
+/* [b] : Initialize matrices A and C */
+
+   for ( i = 1; i <= n+M; i = i + 1) {
+       for(j = 1; j <= n + M; j = j + 1) {
+          if( i <= n) then {
+             C[i][1] = -Df[i][1];
+             if(j <= n) then {
+                A[i][j] = B[i][j];
+             } else {
+                k = j - n;
+                A[i][j] = Dg[i][k];
+             }
+          } else {
+            k = i - n;
+            C[i][1] = -G[k][1];
+            if(j <= n) {
+               A[i][j] = Trans_Dg[k][j];
+            }
+          }
+       }
+   }
+
+   q = Zero([n,1]);
+
+/* [c] : Main Loop */
+
+   for ( ii = 1; ii <= IMAX; ii = ii + 1 ) {
+
+   /* [c.1] : Solve QP for direction d */
+
+      y = Solve(A,C);
+        
+      for ( i = 1; i <= n; i = i + 1) {
+            d[i][1] = y[i][1];
+      }
+
+      for ( i = n+1; i <= n+M; i = i + 1) {
+            j = i-n;
+            lambda[j][1] = y[i][1];
+      }
+
+      if(L2Norm(d) <= Epsilon) {
+         break;
+      }
+
+   /* [c.2] : Line Search with Armijo's Rule */
+
+      t       = 1;
+      x       = x_old + t*d;
+      temp1   = (x[1][1] -x[2][1])*(x[1][1] -x[2][1]);
+      temp2   = (x[2][1] +x[3][1] -2)*(x[2][1] +x[3][1] - 2);
+      temp3   = (x[4][1] -1)*(x[4][1] -1);
+      temp4   = (x[5][1] -1)*(x[5][1] -1);
+      f_new   = temp1 + temp2 + temp3 + temp4;
+
+      temp    = alpha*QuanCast(Trans(Df)*d);
+      counter = 0;
+      while (f_new > f + t*temp) { /* t is too large */
+         counter = counter + 1;
+         t       = t*beta;
+         x       = x_old + t*d;
+         temp1   = (x[1][1] -x[2][1])*(x[1][1] -x[2][1]);
+         temp2   = (x[2][1] +x[3][1] -2)*(x[2][1] +x[3][1] - 2);
+         temp3   = (x[4][1] -1)*(x[4][1] -1);
+         temp4   = (x[5][1] -1)*(x[5][1] -1);
+         f_new   = temp1 + temp2 + temp3 + temp4;
+         if(counter > 5) {
+            print " Too much iterations for line search \n";
+            print " counter =", counter," \n";
+            break;
+         }
+      }
+
+   /* [c.3] : Modified BFGS matrix update */
+
+      DF[1][1] =  2*(x[1][1]- x[2][1]);
+      DF[2][1] = -2*(x[1][1]- x[2][1]) + 2*(x[2][1]+ x[3][1] -2);
+      DF[3][1] =  2*(x[2][1]+ x[3][1]-2);
+      DF[4][1] =  2*(x[4][1]- 1);
+      DF[5][1] =  2*(x[5][1]- 1);
+
+      q     = DF + Dg*lambda - Df - Dg*lambda_old;
+      A1    = QuanCast(Trans(d)*B*d)*t*t;
+      A2    = QuanCast(Trans(d)*q)*t;
+
+      if(A2 >= (0.2*A1)) then {
+         theta = 1.0;
+      } else {
+         theta = 0.8*A1/(A1-A2);
+      } 
+
+      r          = theta*q + (1-theta)*t*B*d;
+      A3         = QuanCast(Trans(d)*r)*t;
+      B          = B - B*d*Trans(d)*B/A1 + r*Trans(r)/A3;
+      Df         = DF;
+      x_old      = x;
+      lambda_old = lambda;
+      G          = Trans_Dg*x+b;
+
+      for ( i = 1; i <= n; i = i + 1) {
+          C[i][1] = -Df[i][1];
+          for(j = 1; j <= n; j = j + 1) {
+              A[i][j] = B[i][j];
+          }
+      }
+
+      for ( i = 1; i <= M; i = i + 1) {
+            k = i + n;
+            C[k][1] = -G[i][1];
+      }
+   }
+
+/* [d] : Print results and terminate program execution */
+
+   print" Results: \n --------------\n";
+   print" Iteration Number =", ii-1, "\n\n";
+   PrintMatrix(x);
+   quit;

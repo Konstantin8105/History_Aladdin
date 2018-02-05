@@ -1,0 +1,180 @@
+/*
+ *  ==========================================================================
+ *  Force-displacement analysis for one lead-rubber isolator modeled with
+ *  FRAME_3DS element having four lead fibers and four rubber fibers.                   
+ * 
+ *  Each fiber in each direction has one individual shear spring.   
+ *                                                                  
+ *  Isolator Geometry and Material Properties
+ *                                                                  
+ *     650mm diameter x 197mm height with 170mm diameter lead plug       
+ *     Axial stiffness for rubber is the same as lead, (E_rubber=E_lead).
+ *     Shear stiffness for lead after yielding is 0, (Gt)lead=0.         
+ *     Shear stiffness for rubber is always elastic.                     
+ *                                                                  
+ *  Written By : Wane-Jang Lin                                       July 1997
+ *  ==========================================================================
+ */
+
+NDimension         = 3;
+NDofPerNode        = 6;
+MaxNodesPerElement = 2;
+GaussIntegPts      = 2;
+
+StartMesh();
+
+iso_h = 197 mm;
+r_dia = 650 mm;
+l_dia = 170 mm;
+Kv = 600 kN/mm;
+Ea = Kv*iso_h/(PI/4*r_dia*r_dia);
+
+E_lead  = Ea;
+G_lead  = 130 MPa;
+fv_lead = 10 MPa;
+
+Kr = 1.75 kN/mm;
+G_rubber = Kr*iso_h/(PI/4*(r_dia*r_dia-l_dia*l_dia));
+E_rubber = Ea;
+
+AddNode( 1, [ 0 m, 0 m, iso_h ] );
+AddNode( 2, [ 0 m, 0 m,   0 m ] );
+
+AddElmt( 1, [1,2], "isolator_attr");
+
+ElementAttr("isolator_attr") { type     = "FIBER_3DS";
+                               section  = "iso_sec";
+                               material = "iso_mat";
+                               fiber    = "iso_fib";
+                             }
+
+SectionAttr("iso_sec") { area  = PI/4*r_dia*r_dia;
+                         depth = r_dia;
+                         width = r_dia;
+                         unit_weight  = 0.0001 kN/m;
+                         shear_factor = 1.0;
+                         J            = PI/32*r_dia^4;
+                       }
+MaterialAttr("iso_mat") { poisson  = 0.4;
+                          E        = 3.562e8 N/m^2;
+                        }
+no_fiber_type = 2;
+divid_no      = 4;
+theta = PI/divid_no;
+l_r = l_dia*sin(theta)/theta/3;
+r_r = r_dia*sin(theta)/theta/3;
+no_fiber = 2*divid_no;
+
+fcoord = Matrix([ 2, no_fiber ]);
+farea  = Matrix([ 1, no_fiber ]);
+fmap   = Matrix([ 1, no_fiber ]);
+for( i=1 ; i<=divid_no ; i=i+1 ) {
+   fcoord[1][i] = l_r*cos((2*i-1)*theta);
+   fcoord[2][i] = l_r*sin((2*i-1)*theta);
+   farea[1][i]  = theta*l_dia*l_dia/4;
+   fmap[1][i]   = 1;
+
+   fcoord[1][i+divid_no] = r_r*cos((2*i-1)*theta);
+   fcoord[2][i+divid_no] = r_r*sin((2*i-1)*theta);
+   farea[1][i+divid_no]  = theta*(r_dia*r_dia - l_dia*l_dia)/4;
+   fmap[1][i+divid_no]   = 2;
+}
+
+fattr  = Matrix([ 6, no_fiber_type ]);
+for( j=1 ; j <= no_fiber_type ; j=j+1 ) {
+   if( j == 1 ) {  /* lead */
+      fattr[1][j] = E_lead;
+      fattr[2][j] = E_lead;
+      fattr[3][j] = 10e6 MPa;
+      fattr[4][j] = G_lead;
+      fattr[5][j] = G_lead*1e-6;
+      fattr[6][j] = fv_lead;
+   }
+   if( j == 2 ) {  /* rubber */
+      fattr[1][j] = E_rubber;
+      fattr[2][j] = E_rubber;
+      fattr[3][j] = 10e6 MPa;
+      fattr[4][j] = G_rubber;
+      fattr[5][j] = G_rubber;
+      fattr[6][j] = 10e6 MPa;
+   }
+}
+
+FiberAttr( no_fiber, "iso_fib" ) { FiberMaterialAttr = fattr;
+                                   FiberCoordinate   = fcoord;
+                                   FiberArea         = farea;
+                                   FiberMaterialMap  = fmap;
+                                 }
+
+FixNode(2,[1,1,1,1,1,1]);
+
+EndMesh();
+
+/* Apply compressive axial load to isolator */
+
+   stiff = Stiff();
+   NodeLoad( 1, [ 0 kN, 0 kN, -3150 kN, 0 kN*m, 0 kN*m, 0 kN*m] );
+   P_old = ExternalLoad();
+   displ = Solve( stiff, P_old );
+   ElmtStateDet( displ );
+   stiff = Stiff();
+
+/* Now apply lateral loads */
+
+   dof     = GetDof([1]);
+   max_dof = dof[1][1];
+
+   print "\n*** Force-displacement hysteretic loop analysis\n"; 
+   print "Step no\t Shear Force\tDisplacement\n";
+   step = 0;
+
+   print step,"\t",P_old[max_dof][1](kN),"\t",displ[max_dof][1](mm),"\n";
+
+   no_step = 180;
+   for( step=1 ; step <= no_step+1 ; step=step+1 ) {
+
+      /* define force-controled load increment */
+
+      if( step == 1 ) then {
+          NodeLoad( 1, [ 200 kN, 0 kN, 0 kN, 0 kN*m, 0 kN*m, 0 kN*m] );
+      } else {
+         if( step <= 21 ) {
+             NodeLoad( 1, [  10 kN, 0 kN, 0 kN, 0 kN*m, 0 kN*m, 0 kN*m] );
+         }
+         if( step > 21  && step <= 101 ) {
+             NodeLoad( 1, [ -10 kN, 0 kN, 0 kN, 0 kN*m, 0 kN*m, 0 kN*m] );
+         }
+         if( step > 101 ) {
+             NodeLoad( 1, [  10 kN, 0 kN, 0 kN, 0 kN*m, 0 kN*m, 0 kN*m] );
+         }
+      }
+
+      P_new = ExternalLoad();
+      dP    = P_new - P_old;
+      P_old = P_new;
+
+      /* Newton-Raphson Iteration for State Determination */
+
+      while( L2Norm(dP) > 0.001 ) {
+
+         dp    = Solve( stiff, dP );
+         displ = displ + dp;
+
+         ElmtStateDet( dp );
+
+         stiff = Stiff();
+         PR    = InternalLoad( displ );
+         dP    = P_new - PR;        /* Compute unbalanced force */
+      }  
+
+      UpdateResponse();
+      print step,"\t",P_new[max_dof][1](kN),"\t",displ[max_dof][1](mm),"\n";
+
+   } 
+
+   print "\n";
+   print "===========================\n";
+   print "Nonlinear Analysis Complete\n";
+   print "===========================\n";
+
+   quit;

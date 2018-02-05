@@ -1,0 +1,185 @@
+/*
+ *  =====================================================================
+ *  Plane strain analysis of circular pipe cross section.
+ *
+ *  Written By : Mark Austin                                 Spring, 1998
+ *  =====================================================================
+ */ 
+
+print "*** DEFINE PROBLEM SPECIFIC PARAMETERS \n\n";
+
+NDimension         = 2;
+NDofPerNode        = 2;
+MaxNodesPerElement = 4;
+
+StartMesh();
+
+print "*** GENERATE GRID OF NODES FOR FE MODEL \n\n";
+
+radius_min  = 10.0 cm;
+radius_max  = 15.0 cm;
+radius_incr =  0.5 cm;
+angle_min   =     0.0; 
+angle_max   =    2*PI;
+angle_incr  =   PI/16;
+
+node  = 0;
+angle = angle_min;
+while( angle <= angle_max ) {
+
+   radius = radius_min;
+   while( radius <= radius_max ) {
+      node = node + 1;
+      x = radius*cos(angle);
+      y = radius*sin(angle);
+
+      if ( abs(x) <= 0.0000001 cm ) { x = 0.0 cm; }
+      if ( abs(y) <= 0.0000001 cm ) { y = 0.0 cm; }
+
+      AddNode(node, [ x, y]);
+      radius = radius + radius_incr;
+   }
+
+   angle = angle + angle_incr;
+}
+
+print "*** ATTACH ELEMENTS TO GRID OF NODES \n\n";
+
+nodeno = 0; elmtno = 0;
+for ( i = 0; i < 31; i = i + 1 ) {
+    nodeno = 11*i;
+    for ( j = 1; j <= 10; j = j + 1 ) {
+        nodeno = nodeno + 1;
+        elmtno = elmtno + 1; 
+        AddElmt( elmtno, [ nodeno, nodeno + 1, nodeno + 12, nodeno + 11 ], "pipe" );
+    }
+}
+
+/* add last row of elements */
+
+nodeno = 11*31;
+for ( j = 1; j <= 10; j = j + 1 ) {
+      nodeno = nodeno + 1;
+      elmtno = elmtno + 1; 
+      AddElmt( elmtno, [ nodeno, nodeno + 1, j+1, j ], "pipe" );
+}
+
+print "*** DEFINE ELEMENT, SECTION, AND MATERIAL PROPERTIES \n\n";
+
+ElementAttr("pipe") { type     = "PLANE_STRAIN";
+                      section  = "mysection";
+                      material = "mymaterial"; }
+
+SectionAttr("mysection") { depth = beam_height;
+                           width = beam_width; }
+
+MaterialAttr("mymaterial") { poisson = 1/3;   
+                             yield   = 36000;  
+			     E       = 20000000 kN/m^2; }
+
+/* Setup boundary conditions */
+
+   FixNode( 264, [1,1] );
+   FixNode( 275, [1,1] );
+   FixNode( 286, [1,1] );
+
+/* Add point nodal loads to end of cantilever */
+
+   Fx =  0.0 kN; Fy = 10.0 kN;
+   NodeLoad( 99, [  Fx, -Fy ]);
+
+/* Compile and print finite element mesh */ 
+
+   EndMesh();
+   PrintMesh();
+
+/* Compute Mass and Stiffness Matrices */
+
+   stiff = Stiff();
+   eload = ExternalLoad();
+
+/* Solve static analysis problem */
+
+   displ  = Solve(stiff, eload);
+   PrintDispl(displ);
+   PrintMatrix(displ);
+
+/* Compute nodal coordinates of structure with scaled displacements */
+
+   print "\n";
+   print "Coordinates of Displaced Pipe \n";
+   print "============================= \n\n";
+
+   scale = 2000.0;
+   for (ii = 1; ii <= 352; ii = ii + 1 ) {
+        coord     = GetCoord([ii]);
+        nodal_dof = GetDof([ii]);
+
+        if( nodal_dof[1][1] > 0 ) {
+            coord[1][1] = coord[1][1] + scale*displ[ nodal_dof[1][1] ][1];
+        }
+        if( nodal_dof[1][2] > 0 ) {
+            coord[1][2] = coord[1][2] + scale*displ[ nodal_dof[1][2] ][1];
+        }
+
+        print ii, coord[1][1], coord[1][2], "\n";
+   }
+
+/* Setup matrix for exptrapolation of stresses */
+
+   M = Zero([4,4]);
+
+   M[1][1] = (sqrt(3) + 1)^2;
+   M[1][2] = 2;
+   M[1][3] = (sqrt(3) - 1)^2;
+   M[1][4] = 2;
+   M[2][1] = 2;
+   M[2][2] = (sqrt(3) + 1)^2;
+   M[2][3] = 2;
+   M[2][4] = (sqrt(3) - 1)^2;
+   M[3][1] = (sqrt(3) - 1)^2;
+   M[3][2] = 2;
+   M[3][3] = (sqrt(3) + 1)^2;
+   M[3][4] = 2;
+   M[4][1] = 2;
+   M[4][2] = (sqrt(3) - 1)^2;
+   M[4][3] = 2;
+   M[4][4] = (sqrt(3) + 1)^2;
+
+   PrintMatrix(M);
+   T = Inverse((1/12)*M);
+  
+/* Systematically retrieve stresses from individual elements */
+
+   print "\n";
+   print "Element Stresses (sigma_xx at the nodal points)\n";
+   print "===============================================\n\n";
+
+   for( ii = 1; ii <= 320 ; ii = ii + 1 ) {
+
+        /* retrieve stresses and extrapolate out to nodal coordinates    */
+
+        actions = GetStress( [ii], displ );
+        extrap  = T*[ actions[1][4];
+                      actions[2][4];
+                      actions[3][4];
+                      actions[4][4] ];
+
+        /* map extrapolated stresses onto nodal coordinate system    */
+
+        extrap = [ 0, 0, 1, 0;
+                   0, 0, 0, 1;
+                   1, 0, 0, 0;
+                   0, 1, 0, 0 ] * extrap;
+       
+        /* print extrapolated stresses in format for MATLAB plotting */
+
+        print ii;
+        print QDimenLess(extrap[1][1]);
+        print QDimenLess(extrap[2][1]);
+        print QDimenLess(extrap[3][1]);
+        print QDimenLess(extrap[4][1]);
+        print "\n";
+   }
+
+quit;

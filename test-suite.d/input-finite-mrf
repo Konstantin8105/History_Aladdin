@@ -1,0 +1,183 @@
+/* 
+ *  =====================================================================
+ *  Analysis of Five Story Steel Moment Resistant Frame 
+ * 
+ *  Written By: Mark Austin                                 October, 1994
+ *  =====================================================================
+ */ 
+
+/* [a] : Setup problem specific parameters */
+
+   NDimension         = 2;
+   NDofPerNode        = 3;
+   MaxNodesPerElement = 2;
+
+   StartMesh();
+
+/* [b] : Generate two-dimensional grid of nodes */
+
+   node = 0;
+   for( y = 0 ft; y <= 50 ft; y = y + 10 ft ) {
+      for( x = 0 ft; x <= 55 ft; x = x + 20 ft ) {
+
+        /* [b.1] : adjust column spacing for central bay */
+
+           if(x == 40 ft) {
+              x = x - 5 ft;
+           }
+
+        /* [b.2] : add new node to finite element mesh */
+
+           node = node + 1;
+           AddNode(node, [ x, y ] );
+      }
+   }
+
+/* [c] : Attach column elements to nodes */
+
+   elmtno = 0;
+   for (  colno = 1;   colno <= 4;   colno = colno + 1) {
+   for (floorno = 1; floorno <= 5; floorno = floorno + 1) {
+        elmtno = elmtno + 1;
+
+        end1 = 4*(floorno - 1) + colno;
+        end2 = end1 + 4;
+
+        AddElmt( elmtno, [ end1 , end2 ], "mycolumn");
+   }
+   }
+
+/* [d] : Attach beam elements to nodes */
+
+   for (floorno = 1; floorno <= 5; floorno = floorno + 1) {
+   for (  bayno = 1;   bayno <= 3;     bayno = bayno + 1) {
+
+        end1 = 4*floorno + bayno;
+        end2 = end1 + 1;
+
+        elmtno = elmtno + 1;
+        AddElmt( elmtno, [ end1 , end2 ], "mybeam");
+   }
+   }
+
+/* [e] : Define section and material properties */
+
+   ElementAttr("mycolumn") { type     = "FRAME_2D";
+                             section  = "mysection1";
+                             material = "mymaterial";
+                           }
+
+   ElementAttr("mybeam") { type     = "FRAME_2D";
+                           section  = "mysection2";
+                           material = "mymaterial";
+                           }
+
+   SectionAttr("mysection1") { Izz       = 1541.9 in^4;
+                               Iyy       =  486.3 in^4;
+                               depth     =   12.0 in;
+                               width     =   12.0 in;
+                               area      =   47.4 in^2;
+                             }
+
+   SectionAttr("mysection2") { Izz       = 1600.3 in^4;
+                               Iyy       =   66.2 in^4;
+                               depth     =   21.0 in;
+                               width     =   8.25 in;
+                               area      =  21.46 in^2;
+                             }
+
+   MaterialAttr("mymaterial") { density = 0.1024E-5 lb/in^3;
+                                poisson = 0.25;
+                                yield   = 36.0   ksi;
+                                E       = 29000  ksi;
+                              }
+
+/* [f] : Apply full-fixity to columns at foundation level */
+
+   for(nodeno = 1; nodeno <= 4; nodeno = nodeno + 1) {
+       FixNode( nodeno, [ 1, 1, 1 ]);
+   }
+
+   LinkNode([  5,  6,  7,  8 ], [ 1, 0, 0] );
+   LinkNode([  9, 10, 11, 12 ], [ 1, 0, 0] );
+   LinkNode([ 13, 14, 15, 16 ], [ 1, 0, 0] );
+   LinkNode([ 17, 18, 19, 20 ], [ 1, 0, 0] );
+   LinkNode([ 21, 22, 23, 24 ], [ 1, 0, 0] );
+
+/* [g] : Compute equivalent nodal loads for distributed "dead + live" loads plus  */
+/*       lateral wind loads                                                       */
+
+   dead_load       = 80 lbf/ft^2;
+   floor_live_load = 40 lbf/ft^2;
+   roof_live_load  = 20 lbf/ft^2;
+   frame_spacing   = 20 ft;
+
+   for (floorno = 1; floorno <= 5; floorno = floorno + 1) {
+
+   /* [g.1] : compute floor-level (and roof-level) uniform loads */
+
+      live_load = floor_live_load;
+      if( floorno == 5) {
+          live_load = roof_live_load;
+      }
+      uniform_load = (dead_load + live_load)*(frame_spacing);
+
+      for (colno = 1;   colno <= 4;     colno = colno + 1) {
+
+         Fx = 0.0 lbf; Fy = 0.0 lbf; Mz = 0.0  lb*in;
+
+      /* [g.2] : compute fixed end shear force for dead/live loads */
+
+         if( colno == 1 || colno == 4) {
+             Fy = -(uniform_load)*(20 ft)/2;
+         }
+
+         if( colno == 2 || colno == 3) {
+             Fy = -(uniform_load)*(35 ft)/2;
+         }
+
+      /* [g.3] : compute fixed end moments for dead/live loads */
+
+         if( colno == 1 ) {
+             Mz = -(uniform_load)*(20 ft)*(20 ft)/12;
+         }
+
+         if( colno == 2 ) {
+             Mz =  (uniform_load)*((20 ft)^2 - (15 ft)^2)/12;
+         }
+
+         if( colno == 3 ) {
+             Mz = -(uniform_load)*((20 ft)^2 - (15 ft)^2)/12;
+         }
+
+         if( colno == 4 ) {
+             Mz =  (uniform_load)*(20 ft)*(20 ft)/12;
+         }
+
+      /* [g.4] : compute horizontal force due to lateral loads */
+
+         if(colno == 1 ) {
+            Fx = 63800*(floorno/15)*(1 lbf);
+         }
+
+         nodeno = 4*floorno + colno;
+         NodeLoad( nodeno, [ Fx, Fy, Mz ]); 
+      }
+   }
+
+/* [h] : Compile and Print Finite Element Mesh */
+
+   EndMesh();
+   PrintMesh();
+
+/* [i] : Compute "stiffness" and "external load" matrices */
+
+   eload = ExternalLoad();
+   stiff = Stiff();
+
+   displ = Solve(stiff, eload);
+
+   SetUnitsType("US");
+   PrintDispl(displ);
+   PrintStress(displ); 
+   quit;

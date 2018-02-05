@@ -1,0 +1,1448 @@
+\chapter{Architecture and Design of ALADDIN}
+
+\section{Introduction}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+A key design objective for ALADDIN is the
+development of a program structure that is very modular.
+We have captured this principle by designing
+the program architecture, and supporting software modules,
+around the compiler construction tool called YACC (an acronym for
+Yet Another Compiler Compiler) ~\cite{johnson75}.
+YACC takes the language description
+and automatically generates C code for a parser that will
+match streams of input against the rules of the language.
+A key advantage in using YACC is that it provided us with the
+freedom to experiment with the language design/semantics,
+and to add and delete new features.
+Experience in other domains (i.e. computer science) indicates such
+strategies result in modular software that is extensible,
+and easier to maintain.
+
+\section{Program Modules and Key Data Structures}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+Figure~\ref{fig:architecture} shows the interfaces and relationships
+among the seven modules in ALADDIN.
+They are (a) Main Module, (b) Pre-Processor Module, (c) Central Control Module,
+(d) Finite Element Base Module, (e) Element Library Module,
+(f) Matrix Module, and (g) an Engineering Units Module.
+A detailed summary is as follows:
+
+\vspace{0.15 in}\noindent
+{\bf Main Module :}
+The main module acts as the entry point for program execution.
+It loads information specificed in ALADDIN's header files into the symbol table,
+directs the source of expected input (i.e. keyboard or files),
+and details of command options, decides whether or not to check the
+input syntax errors with/without execution of commands.
+The main module calls the pre-processor module,
+and executes the program.
+
+\vspace{0.15 in}\noindent
+{\bf Preprocessor Module :}
+ALADDIN's preprocessor module parses input streams
+from either the keyboard of file, and prepares an array of machine instructions
+that will be executed by ALADDIN's stack machine.
+The stack machine is part of the program control module.
+
+\vspace{0.15 in}\noindent
+{\bf Program Control Module :}
+The central control module is composed of a stack machine,
+and is the heart of ALADDIN. The design and implementation
+details for the stack machine will be described in
+the next section of this report.
+
+\begin{figure}[t]
+\epsfxsize=6.0truein
+\centerline{\epsfbox{architecture.ps}} 
+\caption{Architecture of Program}
+\label{fig:architecture}
+\end{figure}
+
+\vspace{0.15 in}\noindent
+{\bf Finite Element Base Module :}
+The finite element base module contains ALADDIN's framework for finite element analysis.
+This module has code to generate nodes and elements in finite element meshes,
+a problem descriptor for boundary and initial conditions,
+material and sections properties,
+and facilities to setup external loads.
+It contains functions to allocate and compute finite element
+mass, stiffness, and external load matrices.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+The heart of the finite element base structure is the data structure {\tt frame}.
+It has been designed to read, store and update information in finite element analysis.
+``frame'' comprises of a set of control parameters and pointers to node,
+element, material and load, which include the basic input formation. 
+
+\begin{footnotesize}
+\begin{verbatim}
+typedef struct frame {
+	char                *name; /* Title */
+        int              no_nodes; /* no of nodes                              */
+        int              no_rigid; /* no of rigid body elements                */
+        int           no_elements; /* no of flexible elements                  */
+        int       no_element_attr; /* no of element attributes                 */
+        int         no_node_loads; /* no of nodal loads                        */
+        int      no_element_loads; /* no of element loads                      */
+        int              no_dimen; /* no of dimension                          */ 
+        int                no_dof; /* no of dof per node--in global            */
+        int     no_nodes_per_elmt; /* max no of nodes per element              */
+        NODE                *node; /* array of nodes                           */
+        RIGID              *rigid; /* rigid body information                   */
+        ELEMENT          *element; /* array of elements                        */
+        ELEMENT_ATTR       *eattr; /* array of element attributes              */
+        NODE_LOADS       *nforces; /* array of nodal forces                    */
+        ELEMENT_LOADS    *eforces; /* array of element forces                  */
+        LOAD_TYPE      *load_type; /* test for dynamic/static problems            */
+        LOAD_HISTORY   *load_hist; /* load_history structure for dynamic analysis */
+        LOAD_STEP      *load_step; /* load_step structure for nonlinear analysis  */
+        TIME                *time; /* time data structure for dynamic analysis    */
+        MATRIX        *eigenvalue; /* Eigenvalue vector */
+} EFRAME;
+\end{verbatim}
+\end{footnotesize}
+  
+\vspace{0.05 in}\noindent
+The control parameters define the problem size and the extend of allocation.
+These are global parameters and keeps constant throughout the analysis.
+The node data structure, NODE, contains the information about the nodes
+coordinates, boundary constraint information of that node, the initial displacement
+and velocity of the nodes. And the element data structure,
+ELEMENT, contains the information of its connection to the nodes in the element,
+the relation between the global and local degree of freedoms, material and geometry
+of the element et al. They are given as:
+
+\begin{footnotesize}
+\begin{verbatim}
+typedef struct node {
+        QUANTITY       *coord;     /* Coordinates of node            */
+        int            *bound_id;  /* Boundary Constraint ID        */
+        int             rb_num;    /* component of rigid body number */
+        QUANTITY       *disp;
+        QUANTITY       *velocity;
+        MATRIX         *TrT;
+} NODE;
+
+typedef struct element_state {
+        int             state; /* state = 1    elastic-plastic deformation */
+                               /* state = 0    elastic deformation         */
+} ELEMENT_STATE;
+
+typedef struct element_response {
+     MATRIX                 *Forces;
+     MATRIX                 *stress;
+     MATRIX                  *displ;
+     MATRIX               *velocity;
+     MATRIX              *strain_pl;
+     double       *effect_pl_strain;
+     QUANTITY            min_moment;
+     QUANTITY       max_moment, Mzc;
+     QUANTITY  min_shear, max_shear;
+} RESPONSE;
+
+typedef struct element {
+        char     *elmt_attr_name;  /* Elmt_Attr name                      */
+        int        *node_connect;  /* List of Nodal Connectivities        */
+        int         elmt_attr_no;  /* Elmt Attribute No (stored in frame) */
+        int             *d_array;  /* Destination array storage           */
+        RESPONSE             *rp;  /* Response Pointer                    */
+        ELEMENT_STATE       *esp;  /* Deformation State of the Element    */
+        MATER_LOAD_CURVE *LC_ptr;  /* properties for describe yield       */
+                                   /* surface and stress-strain curve     */
+
+} ELEMENT;
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.05 in}\noindent
+The element attribute information is included in the ELEMENT\_ATTR data structure.
+
+\begin{footnotesize}
+\begin{verbatim}
+typedef struct elmt_attr {
+        char                    *name;
+        char               *elmt_type;
+        char                *material;
+        char                 *section;
+        int         *map_ldof_to_gdof;
+        QUANTITY       *work_material;   /* Working Array for Material Properties */
+        QUANTITY        *work_section;   /* Working Array for Section  Properties */
+} ELEMENT_ATTR;
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.05 in}\noindent
+There are two working arrays in the element attribute data structure.
+One for the material properties and the other for the section property.
+For given element no, the material and section properties can be
+found directly from these working array instead of looking into the hashing table.
+
+\vspace{0.15 in}\noindent
+{\bf Finite Element Library Module :}
+The finite element library module is a
+collection of finite felement functions.
+Like FEAP, ALADDIN allows engineers to add new finite
+elements to the program without having to interact
+other parts of the program. At the time of writing (December 1994),
+the library contains two- and three- dimensional beam/column elements,
+a plane stress/strain element, and two four node shell elements.
+Each element has code to compute stiffness and mass matrices,
+plus for a given displacement vector,
+a vector of internal forces acting on the nodal degrees of freedom.
+
+\vspace{0.15 in}\noindent
+{\bf Matrix Module :}
+The matrix module contains functions to allocate and deallocate memory for matrices,
+to compute basic operations of matrices, to compute solutions
+to families of linear equations, and to solve the symmetric eigenvalue problem.
+
+\vspace{0.15 in}\noindent
+{\bf Units Module :}
+The units module provides the units operations of engineering quantities and
+matrices for both US and SI systems of units.
+Operations for units conversion are provided,
+as are facilities to turn units operations on/off.
+The following data structure stores details of
+the units name, conversion factor, length, mass,
+and time exponents:
+
+\begin{footnotesize}
+\begin{verbatim}
+   static struct {
+          char         *name;     /* units name   */
+          double  conversion;     /* scale factor */
+          int   length_expnt;   
+          int     mass_expnt;
+          int     time_expnt;
+          int     temp_expnt;
+          int     units_type;
+   } eng_units[] = {
+             "micron",   1E-6,  1,  0,  0, 0, SI,    /* Units of Length */
+                 "mm", 0.0010,  1,  0,  0, 0, SI,
+                 "cm", 0.0100,  1,  0,  0, 0, SI,
+                 "dm", 0.1000,  1,  0,  0, 0, SI,
+                  "m",      1,  1,  0,  0, 0, SI,
+                 "km",   1000,  1,  0,  0, 0, SI,
+                  "g", 0.0010,  0,  1,  0, 0, SI,    /* Units of Mass */
+                 "kg",      1,  0,  1,  0, 0, SI,
+                 "Mg",   1E+6,  0,  1,  0, 0, SI,
+                "sec",      1,  0,  0,  1, 0, SI_US, /* Units of Time */
+                "min",     60,  0,  0,  1, 0, SI_US,
+                 "hr",   3600,  0,  0,  1, 0, SI_US, 
+              "deg_C",      1,  0,  0,  0, 1, SI,    /* Temperature */
+                  "N",      1,  1,  1, -2, 0, SI,    /* Units of Force */
+                 "kN",   1000,  1,  1, -2, 0, SI,
+                "kgf",  9.807,  1,  1, -2, 0, SI,
+                 "Pa",      1, -1,  1, -2, 0, SI,    /* Units of Pressure */
+                "kPa",   1000, -1,  1, -2, 0, SI,
+                "MPa",   1E+6, -1,  1, -2, 0, SI,
+                "GPa",   1E+9, -1,  1, -2, 0, SI,
+                "Jou",      1,  2,  1, -2, 0, SI,    /* Energy Units */
+                 "kJ",   1E+3,  2,  1, -2, 0, SI,
+               "Watt",      1,  2,  1, -3, 0, SI,    /* Power Units */
+                 "kW",   1000,  2,  1, -3, 0, SI,
+    }
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+In the SI units system, for example, we employ the
+character {\tt "N"} to represent one Newton force,
+and the character {\tt "m"} to represent one meter length.
+Both units have a scale\_factor equal to one -- it follows that
+the reference unit for moment would be "N*m",
+with a scale\_factor also equal to 1.0.
+
+\vspace{0.15 in}\noindent
+{\bf Initialization Module :}
+ALADDIN employs a linked list symbol table data structure with operations
+for loading, storing, and retrieving information during a matrix/finite element analysis.
+Items in the symbol table are required to have unique names.
+The heart of the symbol table is defined by the data structure:
+
+\begin{footnotesize}
+\begin{verbatim}
+/* Data Structure for Node in Symbol Table */
+ 
+typedef struct Symbtab_element {
+   char *cpSymName;
+   short      type;
+   union {
+      double                  value;   /* Store a number              */
+      char                     *str;   /* String                      */
+      int                 (*defn)();   /* Function, Procedure         */
+      void             (*voidptr)();   /* Built-in Math/FE Functions  */
+      double         (*doubleptr)();   /* Built-in Math/FE Functions  */
+      MATRIX        *(*matrixptr)();   /* Built-in Matrix Functions   */
+      QUANTITY    *(*quantityptr)();   /* Built-in Quantity Functions */
+      ARRAY          *(*elmt_ptr)();   /* Elmt Library ptr to func    */
+      QUANTITY                   *q;   /* Engineering Quantity        */
+      MATRIX                     *m;   /* Matrix                      */
+      DIMENSIONS             *dimen;   /* Basic Dimension             */
+      ELEMENT_ATTR             *eap;   /* Element Attribute ptr       */
+      SECTION_ATTR             *sap;   /* Section Attribute ptr       */
+      MATERIAL_ATTR            *map;   /* Materials Attribute ptr     */
+   } u;
+   struct  Symbtab_element   *next;
+ } SYMBOL;
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Here, {\tt MATRIX}, {\tt QUANTITY} and {\tt DIMENSIONS} are the data structures 
+for matrix, quantity and units, defined in Chapter 2.
+The names {\tt ARRAY}, {\tt ELEMENT\_ATTR},
+{\tt SECTION\_ATTR} and {\tt MATERIAL\_ATTR} are pointers to the
+element, section and material attributes in finite element analysis.
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+The initialization environment loads keywords, constants,
+finite element analysis information (e.g. material and section properties),
+and built-in functions needed for the command language into ALADDIN's symbol table.
+We use the returned data type, and details of the argument
+list (i.e.  number and types of data), to organize
+built-in functions into six groups.  They are:
+
+\begin{description}
+\item{[1]}
+Functions requiring one matrix argument, and returning a quantity.
+Two examples are {\tt L2Norm()} and {\tt QuanCast()}. 
+\item{[2]}
+Functions requiring no argument, and return a matrix.
+Two examples from the finite element section are {\tt Stiff()} and {\tt Mass()}. 
+\item{[3]}
+Functions requiring one matrix argument, and returning a matrix.
+Two examples are {\tt Copy()} and {\tt Trans()}.
+\item{[4]}
+Functions requiring two matrix arguments, and returning a matrix.
+One example is {\tt Solve(,)}.
+\item{[5]}
+Functions that accept a variable number of matrix arguments, and return a matrix.
+\item{[6]}
+Special functions for the generation of finite element meshes.
+\end{description}
+
+\vspace{0.10 in}\noindent
+The following script of code shows how functions with
+one matrix argument are defined in a data
+structure called {\tt builtin1\_matrix[]},
+and subsequently installed in ALADDIN's symbol table by
+the function {\tt Init\_Problem()}.
+
+\begin{footnotesize}
+\begin{verbatim}
+ /* [a] : Data structure for built-in functions */
+
+    static struct {
+           char           *name;
+           MATRIX    *(*func)();
+    } builtin1_matrix[] = {
+          "Copy",  MatrixCopy,
+         "Trans",  MatrixTranspose,
+    };
+
+ /* [b] : Init_Problem() : Load builtin functions into Symbol Table */
+
+    Init_Problem()
+    {
+    int          i;
+    SYMBOL_PTR spA;
+
+      /* [a] : Load builtin functions into symbol table */
+
+         for (i = 0; i < (sizeof(builtin1_matrix)/sizeof(builtin1_matrix[0])); i++)  {
+              spA = build_table(builtin1_matrix[i].name, BLTIN1_MATRIX, 0.0);
+              spA->u.matrixptr = builtin1_matrix[i].func;
+         }
+    }
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Here we use the C function {\tt build\_table()} to install the function
+names into the symbol table. Pointers to the base address of
+the function are assigned with the statement {\tt spA->u.matrixptr} {\tt =}
+{\tt builtin1\_matrix[i].func}.
+
+\vspace{0.20 in}\noindent
+{\bf Material and Section Property Data Structures :}
+Material and section properties are stored in the material and section attribute data structures:
+MATERIAL\_ATTR, SECTION\_ATTR. They are given as:
+
+\begin{footnotesize}
+\begin{verbatim}
+ typedef struct materials {
+        char                   *name;    /* Material name                    */
+        QUANTITY                   E;    /* Young's modulus                  */
+        QUANTITY                   G;    /* Shear modulus                    */
+        QUANTITY                  fy;    /* Yield stress                     */
+        QUANTITY                  fu;    /* Ultimate stress                  */
+        QUANTITY                  ET;    /* Tangent Young's Modulus          */
+        double                    nu;    /* Poission's ratio                 */
+        QUANTITY             density;
+        QUANTITY      *alpha_thermal;    /* thermal expansion coefficient    */
+        MATER_LOAD_CURVE     *LC_ptr;    /* parameters for describing yield   */
+                                         /* surface and stress strain curve  */
+      } MATERIAL_ATTR;
+
+typedef struct section_attr {
+        char *section_name;
+        int   section_type;
+        QUANTITY   Ixx, Iyy, Izz;
+        QUANTITY   Ixz, Ixy, Iyz;
+        QUANTITY   weight;                   /* Section weight */
+        QUANTITY   bf;                       /* Width of flange         */
+        QUANTITY   tf;                       /* thickness of flange     */
+        QUANTITY   depth;                    /* Section depth           */
+        QUANTITY   area;
+        QUANTITY   plate_thickness;
+        QUANTITY   tor_const;                /* Torsional Constant J    */
+        QUANTITY   x_coord, y_coord, z_coord /* centroid coord          */
+        QUANTITY   rT;                       /* Section Radius of gyration*/
+        QUANTITY   width;                    /* Section width           */
+        QUANTITY   tw;                       /* Thickness of web        */
+      } SECTION_ATTR;
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.05 in}\noindent
+In many of above data structures,
+MATER\_LOAD\_CURVE data structure is
+used to describe the stress-strain
+curve of the material for each element.
+
+\begin{footnotesize}
+\begin{verbatim}
+typedef struct mater_load_curve {
+   char                  *name;   /* load curve type                       */
+   double                   *R;   /* radius of yield surface               */
+   double        **back_stress;   /* back stress vector                    */
+   double                   *H;   /* tangent of stress-plastic strain curve*/
+   double                alpha;   /* parameter for Ramberg-Osgood relation */
+   double                    n;   /* strain hardening exponent             */
+   double                 beta;   /* parameter for strain hardening        */
+                                  /* beta = 0 kinematic hardening          */
+                                  /* beta = 1 isotropic hardening          */
+} MATER_LOAD_CURVE;
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.05 in}\noindent
+Many material properties, such as {\tt R},
+the radius of yield surface in $\pi$-plane and {\tt H},
+the tangent of stress-plastic strain curve, are point dependent.
+Therefore, arrays are used to identify the
+corresponding properties for every integration points.
+The character string {\tt name} identifies the type of the stress-strain curve.
+Two stress strain curves are currently available.
+They are Ramberg-Osgood stress strain curve,
+and the Bi-Linear stress strain curve.
+
+\vspace{0.20 in}\noindent
+{\bf Working Array :}
+The {\tt P\_ARRAY} data structure transfers information between
+finite element base module and element library module.
+This information is used to compute element level mass and
+stiffness matrices, and internal force vectors,
+for both linar and nonlinear problems.
+ 
+\section{Design and Implementation of Stack Machine}
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+ALADDIN employs a finite-state stack machine model, which follows in the
+spirit of work presented by Kernighan and Pike ~\cite{kernighan-pike}.
+Stack machines are suitable for modeling systems that
+have a finite number of internal configurations or states,
+and whose behavior evolves as a linear sequence of discrete points in time.
+ALADDIN's stack machine reads blocks of command statements from either a problem
+description file, or the keyboard, converts them into stack machine instructions,
+and finally, executes the statements.
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+ALADDIN employs three connected data structures -- an array of
+machine instructions, a program stack, and a symbol table --
+plus carefully designed algorithms and software to handle the
+processing of input statements, and blocks of input statements.
+Together these data structures and algorithms
+form the heart of ALADDIN's stack machine.
+The stack machine processes blocks of input statements in two steps:
+
+\begin{description}
+\item{[1]}
+Parse the input statement (or block of statements),
+and construct an array of machine instructions.
+Groups of machine instructions are composed of calls to functions,
+plus instructions to push and pop data and operands to/from the program stack.
+\item{[2]}
+Step through the array of machine instructions,
+and execute the functions pointed to by the machine instructions.
+\end{description}
+
+\vspace{0.05 in}\noindent
+Figure ~\ref{fig: stack_machine} is a simplified schematic of the
+stack machines participating data structures, and their connectivity. 
+
+\begin{figure}[t]
+\epsfxsize=6.0truein
+\centerline{\epsfbox{stack_machine.ps}}
+\caption{Data Structures in ALADDIN's Stack Machine}
+\label{fig: stack_machine}
+\end{figure}
+
+\vspace{0.15 in}\noindent
+{\bf Array of Machine Instructions :}
+The array of machine instructions and program stack are
+declared with the following C statements:
+
+\begin{footnotesize}
+\begin{verbatim}
+        /* Define array of machine instructions */
+
+        typedef int (*Inst)();
+        #define STOP (Inst) 0;
+
+        #define NPROG 5000;
+
+        Inst prog [ NPROG ];
+        Inst *progp;
+        Inst *pc;
+
+        /* Define data structure for program stack */
+
+        typedef union Datum  {
+                QUANTITY    *q;
+                MATRIX      *m;
+                SYMBOL    *sym;
+        } DATUM;
+
+        #define NSTACK 500;
+        static DATUM stack [ NSTACK ];
+\end{verbatim}
+\end{footnotesize}
+
+
+\vspace{0.05 in}\noindent
+The C statement {\tt Inst} {\tt prog} {\tt [ 5000 ]} allocates
+memory for the array of machine instructions.
+Each element of {\tt prog} is a pointer of type int.
+Variables {\tt *progp} and {\tt *pc} are pointers of type {\tt Inst},
+which will be used to track elements in the array of instructions.
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+The data structure DATUM is a union of
+pointers to quantity, matrix and symbol table items.
+Each element of the program stack is either a pointer
+to a quantity, a pointer to a matrix, or a pointer to a symbol table entry.
+The C statement {\tt static} {\tt DATUM} {\tt [ 500 ]} allocates
+a block of memory for the program stack containing
+500 elements of structure {\tt DATUM}.
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+The C function {\tt Code()} plays a central role in the assembly of 
+machine instructions. For example, the function call {\tt Code(Push);}
+will add to the machine array, an element containing a pointer to
+function {\tt Push()}, and then increments the program pointer {\tt progp}.
+
+\begin{footnotesize}
+\begin{verbatim}
+/*  
+ *  ===================================================================== 
+ *  The function code() builds up the machine stack prog, adding data
+ *  types Inst to it. The arguments to code() are pointers
+ *  to the functions defined later on in code.c, and pointers to
+ *  data types SYMBOL, which have been coerced by the use of the 
+ *  cast Inst.
+ *  ===================================================================== 
+ */ 
+
+Inst *Code( Inst f )
+{
+Inst *oprogp = progp;
+
+   if(progp >= &prog[NPROG])
+      ExecutionError("ERROR >> program too big", (char *) 0);
+
+    *progp++ = f;
+
+    return oprogp;
+}
+
+/* 
+ *  ===================================================================== 
+ *  Push DATUM d onto the stack, and increment stackp to next element.
+ *  ===================================================================== 
+ */ 
+
+Push( DATUM d )
+{
+    if(stackp >= &stack[NSTACK])
+       ExecutionError("ERROR >> stack overflow", (char *) 0);
+
+    *stackp++ = d;  /* *stackp=d; stackp++; */
+}
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.05 in}\noindent
+In functions {\tt Code()} and {\tt Push()}, 
+{\tt ExecutionError()} is a function that reports run-time execution errors
+in the interpretation of input commands (e.g overflows of the program stack).
+Function {\tt Code()} has a single argument;
+the function call {\tt Code (Push);} will, for example,
+add to the machine array, an instruction to call function {\tt Push()}.
+
+\vspace{0.15 in}\noindent
+{\bf Execution of Program Stack :}
+An execution pointer marches along the machine array and implements the
+instruction set assembled during step [1] of the input process.
+The machine instructions will push and pop
+items to/from the program stack, and call external C functions 
+as directed by the arguments to {\tt Code(...)}.
+
+\begin{footnotesize}
+\begin{verbatim}
+Execute(p)
+Inst *p;
+{
+     for (pc = p; *pc = STOP; ) {
+          pc = pc + 1;
+          if( Check_Break() != 0) break;
+          (*(*(pc-1)))();
+     }
+} 
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.05 in}\noindent
+The code generated during parsing has been carefully
+arranged so that a {\tt STOP} command terminates each sequence
+of instructions that should be handled by a single call to {\tt Execute()}.
+
+\subsection{Example of Machine Stack Execution}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+We now demonstrate use of the stack machine by working step-by-step through the
+details of processing the assignment {\tt x = 2 in;}. We assume that Step [1] of
+the input process is complete, with the array of machine instructions
+taking the values shown on the left-hand side of Figure~\ref{fig: example_stack}.
+During Step [1] of the input process, the YACC parser -- details to be described
+in the next section -- recognizes that {\tt x} is a variable with data type VAR,
+and {\tt 2 in} as a quantity with number {\tt 2} and a units dimension {\tt in}.
+The grammatical rule for assignment (i.e. {\tt "="}) has right associativity.
+Hence, when the machine is executed, {\tt 2 in} will be pushed onto the stack first,
+and in two steps; first the unit {\tt in} is pushed, and then the number {\tt 2}.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+Detailed snapshots of the program operation for Step [2] of the
+processing are located at the end of this subsection.
+The step-by-step procedure for execution of the stack machine is:
+
+\vspace{0.15 in}\noindent
+\begin{description} 
+\item{[1]}
+Push symbol table pointer onto stack for the variable {\tt in}.
+\item{[2]}
+Push a constant {\tt 2} onto the stack.
+\item{[3]}
+Pop both {\tt 2} and {\tt in} off the stack,
+and combine them into a single quantity {\tt 2 in}.
+The quantity is pushed back onto the stack.
+\item{[4]}
+Push onto the stack, the symbol table pointer to variable {\tt x}.
+\item{[5]}
+Pop {\tt x} and {\tt 2 in} from the stack. Assign {\tt 2 in} to {\tt x}
+and push {\tt x} back onto the stack.
+\item{[6]}
+Data {\tt x} is popped and cleared from the stack. 
+\end{description} 
+
+\begin{figure}[t]
+\epsfxsize=6.0truein
+\centerline{\epsfbox{example_stack.ps}}
+\caption{Schematic of Machine and Stack for x = 2 in }
+\label{fig: example_stack}
+\end{figure}
+
+\vspace{0.15 in}\noindent
+Figures ~\ref{fig: example_stack_1} to ~\ref{fig: example_stack_6} show 
+the relevant details of the machine array, symbol table, and program
+stack for Steps [1] to [6], respectively. In each of these figures,
+{\tt pc} is a program counter that points to elements in
+the array of machine instructions -- the elements of the
+machine array are pointers to C functions.
+The dashed and solid arrows represent the two stages of the {\tt pc} positions.
+As detailed in the C function {\tt Execute()}, and shown in Figure ~\ref{fig: example_stack_1},
+program counter {\tt pc} initially points to {\tt (Inst)} {\tt Push\_Dimension}.
+The position of {\tt pc} is represented by the (dotted)
+left-to-right arrow in Figure ~\ref{fig: example_stack_1}.
+Notice, however, that {\tt pc} is incremented to the (solid) arrow
+position (i.e {\tt pc = pc+1}) before {\tt Push\_Dimension()} is called.
+Now ({\tt pc-1}) points at {\tt (Inst)} {\tt Push\_Dimension}.
+The details of {\tt Push\_Dimension()} are as follows:
+
+\begin{footnotesize}
+\begin{verbatim}
+/* 
+ *  ======================================================= 
+ *  Push_Dimension() : push dimensioned quantity onto stack 
+ *  ======================================================= 
+ */ 
+
+void Push_Dimension()
+{
+DATUM    d;
+int length;
+
+    d.q = (QUANTITY *) MyCalloc(1,sizeof(QUANTITY));
+    d.q->dimen = NULL;
+    d.q->value = ((SYMBOL *) *pc)->u.q->value;
+
+    pc = pc + 1;
+    Push(d);
+}
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+The machine instruction at the new value of {\tt pc} points to a
+quantity stored in the symbol table. {\tt Push\_Dimension()} allocates
+memory of a new quantity (given by {\tt d.q}),
+and copies to it, the contents of the symbol table entry.
+The result is pushed onto the program stack.
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+After unit {\tt in} and number {\tt 2} are both
+pushed onto stack (i.e. {\tt d1} and {\tt d2}
+on the stack shown in Figure ~\ref{fig: example_stack}),
+function {\tt Dimension\_Eval()} pops {\tt d1} and {\tt d2} from the stack,
+assigns the units {\tt in} to number {\tt 2},
+and produces the quantity {\tt 2 in} back onto the stack.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+Next, the symbol table pointer for variable {\tt x} is pushed
+onto the stack by C function {\tt Push\_Variable()}.
+Details of this step are shown in Figure \ref{fig: example_stack_4}.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+The C function {\tt Assign\_Quantity()} assigns the quantity
+{\tt 2 in} to variable {\tt x}, and pushes the new {\tt x} onto stack.
+Details of this step are shown in Figure \ref{fig: example_stack_5}.
+The second-to-last machine instruction pops the last item from the stack,
+as shown in Figure~\ref{fig: example_stack_6}.
+Finally, {\tt (Inst) STOP}, halts the looping mechanism in C function {\tt Execute()}.
+
+\clearpage
+\begin{figure}[h]
+\epsfxsize=5.0truein
+\centerline{\epsfbox{example_stack_1.ps}}
+\caption{Step 1 -- Push Unit onto Stack}
+\label{fig: example_stack_1}
+\end{figure}
+
+\vspace{0.35 in}
+\begin{figure}[h]
+\epsfxsize=5.0truein
+\centerline{\epsfbox{example_stack_2.ps}}
+\caption{Step 2 -- Push Number onto Stack}
+\label{fig: example_stack_2}
+\end{figure}
+
+\clearpage
+\begin{figure}[h]
+\epsfxsize=5.0truein
+\centerline{\epsfbox{example_stack_3.ps}}
+\caption{Step 3 -- Combine Number and Unit into Quantity}
+\label{fig: example_stack_3}
+\end{figure}
+
+\vspace{0.35 in}
+\begin{figure}[h]
+\epsfxsize=5.0truein
+\centerline{\epsfbox{example_stack_4.ps}}
+\caption{Step 4 -- Push Variable onto Stack}
+\label{fig: example_stack_4}
+\end{figure}
+
+\clearpage
+\begin{figure}[h]
+\epsfxsize=5.0truein
+\centerline{\epsfbox{example_stack_5.ps}}
+\caption{Step 5 -- Assign Quantity to Variable}
+\label{fig: example_stack_5}
+\end{figure}
+
+\vspace{0.35 in}
+\begin{figure}[h]
+\epsfxsize=5.0truein
+\centerline{\epsfbox{example_stack_6.ps}}
+\caption{Step 6 -- Clear Top Data from Stack}
+\label{fig: example_stack_6}
+\end{figure}
+
+\clearpage
+\section{Language Design and Implementation}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+We have used the UNIX tool YACC (an acronym for Yet Another Compiler
+Compiler ~\cite{johnson75}) to define a language for the
+definition and solution of matrix and finite element problems.
+For gentle introductions to YACC,
+see Chapter 8 of Kernighan and Pike \cite{kernighan-pike},
+and the O'Reilly text by Levine et al. ~\cite{levine92}.
+For a theoretical discussion on LR parsers, see Aho et al. ~\cite{aho85}.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+In ALADDIN, the details of the YACC grammar and associated C code
+are located in a file called {\it grammar.y},
+which is partitioned into four parts:
+
+\begin{footnotesize}
+\begin{verbatim}
+  %{
+    Part 1 : Optional C statement, declaration;
+  %}
+    Part 2 : YACC declarations, lexical tokens, grammar variable, precedence
+             and associativity information
+  %%
+    Part 3 : Grammar rules and semantic actions
+  %%
+    Part 4 : Lexical analysis with a C function called yylex().
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+YACC takes the specifications in Parts 1 to 3, and generates a C code
+function called {\tt yyparse()} for:
+(a) the matching of tokens and their types
+against the grammatical rules of the language, and
+(b) the handling of semantic actions.
+
+\vspace{0.15 in}\noindent
+{\tt Part 4 :} In Part 4 of the YACC specification,
+we write a C function called {\tt yylex()} to scan streams of input characters,
+and identify token names and their types.
+The names and types of tokens are passed onto {\tt yyparse()} for the
+matching against grammatical rules. Here is an abbreviated version of {\tt yylex()}:
+
+\begin{footnotesize}
+\begin{verbatim}
+yylex()
+{
+double value;
+int finished;
+
+  /* [a] : Eat blank space, tab, and newline input. Read comment statements */
+       
+     while((c = fgetc(fin)) == ' ' || c == '\t' || c == '\n' || c == '/') {
+
+          if(c == '\n') 
+             lineno++;
+
+          if(fin == stdin && finp != stdin) {
+             if(c == '\n') {
+                printf("ALADDIN :");
+                fflush(stdout);
+             }
+             fputc(c, finp);
+          }
+
+          if(c == '/') {
+             if(follow('*', TRUE, FALSE) == TRUE) {
+                c = fgetc(fin);
+                finished = FALSE;
+                while(finished == FALSE) {
+                    c = fgetc(fin);
+
+                    if(c == '\n') 
+                       lineno++;
+
+                    if(c == EOF) 
+                       FatalError("ERROR >> ... file ended with unbalanced comment !!\n",
+                                  (char *)NULL);
+                    if((c == '*') && (follow('/', TRUE, FALSE) == TRUE)) {
+                       finished = TRUE;
+                    }
+               }
+             } else {
+               return c;
+             } 
+          }
+     }
+
+  /* [b] : return end-of-file */
+
+     if(c == EOF) {
+        return END_OF_FILE;
+     }
+
+  /* [c] : read and store floating-point numbers */
+
+     if (c == '.' || isdigit(c)) {
+         ungetc(c, fin);
+         fscanf(fin, "%lf",  &value);
+
+         if(fin == stdin && finp != stdin) fprintf(finp, "%lf", value);
+
+         yylval.sym = build_table("", NUMBER, value);
+         return NUMBER;
+     }
+
+  /* [d] : read and store variable */
+
+     if (isalpha(c) || c == '_') {
+         SYMBOL *s;
+         char sbuf[100], *p = sbuf;
+
+         do {	
+            if(p >= sbuf + sizeof(sbuf) - 1) {
+               p = '\0';
+               ExecutionError("ERROR >> name too long");
+            }
+            *p++ = c;
+	 } while ((( c = fgetc(fin)) != EOF) && (isalnum(c) || (c == '_' )));
+
+         ungetc(c, fin);
+         *p = '\0';
+
+         if(fin == stdin && finp != stdin) fprintf(finp, "%s", sbuf);
+
+         if ((s = lookup(sbuf)) == 0) {
+              s = build_table(sbuf, VAR, 0.0);
+         }
+         yylval.sym = s;
+
+         switch((int) s->type) {
+             case  UNDEF: case  VAR: case  QUAN:
+                   return VAR;
+             default:
+                  return (s->type);
+         }
+     }
+
+  /* [e] : Get Quoted String */
+
+     if (c == '"') {
+         char sbuf[100], *p;
+         if(fin == stdin && finp != stdin) fputc(c, finp);
+
+         for(p = sbuf; (c = fgetc(fin)) != '"'; p++) {
+             if(c == '\n' || c == EOF)
+                ExecutionError("ERROR >> missing quote");
+             if(p >= sbuf + sizeof(sbuf) - 1) {
+                p = '\0';
+                ExecutionError("ERROR >> string name too long");
+             }
+             if((fin == stdin && finp != stdin))
+               fputc(c, finp);
+
+             *p = backslash(c);
+         }
+         *p = 0;
+
+         yylval.sym = (SYMBOL *) SaveString(sbuf);
+
+         if(fin == stdin && finp != stdin)
+            fputc(c, finp);
+
+         return STRING;
+    }
+
+    if(fin == stdin && finp != stdin) {
+       fputc(c, finp);
+    }
+
+    switch(c) {
+        case '>': 
+             return follow('=',  GE,  GT);
+        case '<':
+             return follow('=',  LE,  LT);
+        case '=':
+             return follow('=',  EQ, '=');
+        case '!':
+             return follow('=',  NE, NOT);
+        case '|':
+             return follow('|',  OR, '|');
+        case '&':
+             return follow('&', AND, '&');
+        default:
+	     return c;
+    }
+}
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Here we emphasize only the main components of {\tt yylex()}.
+{\tt yylex()} scans streams of input and automatically
+removes black spaces, tabs, and all input between comment statements.
+Numbers must begin with either a digit of a decimal point -- they are
+temporarily stored in ALADDIN's symbol table.
+Character strings are enclosed within quotes (i.e {"...."}).
+Variables and built-in function names are alphanumeric strings that
+must begin with a character -- the details of keywords in ALADDIN's
+programming language are stored in the symbol table.
+Finally, {\tt yylex()} identifies token types for
+two-character sequences used in relational and logical operators.
+The interested reader should consult the program source code for
+details on functions {\tt backslash()}, {\tt follow()}, {\tt warning()}, and so on.
+Now let's look at the details for our stack machine:
+
+\vspace{0.15 in}\noindent
+{\tt Part 1 :} We use the macro declarations 
+
+\begin{footnotesize}
+\begin{verbatim}
+  %{
+  ... 
+  #define   Code2(c1,c2)     Code(c1); Code(c2)
+  #define   Code3(c1,c2,c3)  Code(c1); Code(c2); Code(c3)
+  ...
+  %}
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.05 in}\noindent
+as short form for calls to function {\tt Code()}.
+
+\vspace{0.15 in}\noindent
+{\tt Part 2 :}
+The YACC declarations begins with character {\tt \%}.
+
+\begin{footnotesize}
+\begin{verbatim}
+  %union {
+       SYMBOL_PTR  sym;
+       Inst      *inst;
+       int        narg;
+  }
+  %token  <sym>   NUMBER 
+  %token  <sym>   VAR
+  %type   <inst>  quantity 
+  %type   <inst>  dimensions
+  %left    '+'   '-'                /* left  associative, same   precedence */
+  %left    '*'  '/'                 /* left  associative, higher precedence */ 
+  %right   '^'                      /* right associative, higher precedence */  
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.05 in}\noindent
+The {\tt union} declares that YACC stack may
+holds three different types of elements;
+a pointer to an item in the symbol table,
+a machine instruction pointer, and an integer {\tt narg}
+to represent the number of arguments in a function.
+The {\tt token} declaration with arguements $<$ sym $>$ says
+that {\tt NUMBER} and {\tt VAR} will be input tokens accessed
+by dereferencing a symbol table pointer.
+In ALADDIN, {\tt NUMBER} and {\tt VAR} are integers generated by YACC
+to represent value of type double and character strings, respectively.
+The {\tt type} declaration specifies that {\tt quantity}
+and {\tt dimensions} will be machine instructions.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+The {\tt left} and {\tt right} keywords specify
+{\tt left} and {\tt right} associativity of operators, respectively.
+In YACC, the precedence of operators is defined by order of appearance,
+with tokens in the same declaration having equal precedence.
+Tokens appearing at the end of the declaration list have higher precedence
+than those at the beginning. Therefore, the operators {\tt +} and {\tt -}
+are left associative, and in the same precedence level.
+The multiply and divide operators have equal precedence, and are left associative.
+They have higher precedence than the add and subtract operators.
+The power ``$\hat{}$'' operator has the highest precedence level, and is right associative.
+
+\vspace{ 0.20 in}\noindent 
+{\tt Part 3 : Grammatical Rules :} ALADDIN has more than 100 grammatical rules.
+Rather than attempt to explain all of them here, we will concentrate only
+on those rules needed to match simple assignment statements,
+to identify matrices, and last, generate a for-looping construct.
+We begin with the collection of rules needed to
+recognize {\tt "2"}, {\tt "2 in"}, {\tt "(2 in)"} and {\tt "{2 in + 3 in}"}.
+
+\begin{footnotesize}
+\begin{verbatim}
+%%
+quantity:  NUMBER  { $$ = Code2(Push_Dimensionless, (Inst) $1);       /* rule 1 */
+                          Code2(Push_Constant, (Inst)$1);
+                          Code(Dimension_Eval); }                     
+        ;
+%%
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Number {\tt 2} is a digit. It is assigned type NUMBER in {\tt yylex()}.
+A stream of input that consists of a number
+alone is matched by rule 1 of the grammar.
+A number without units is considered to be a
+{\tt quantity} (i.e see left-hand side of rule 1).
+The name {\tt \$\$} refers to value of the symbol to the left
+of the colon -- in this case {\tt quantity}.
+The semantic actions for rule 1 are a series of
+machine instructions, via calls to {\tt Code()},
+to push a dimensionless quantity onto the program stack,  
+push a constant onto the program stack, and finally, evaluate the result.
+
+\vspace{ 0.15 in}
+\noindent\hspace{ 0.50 in}
+We now introduce rules of the grammar designed to parse
+units expressions of the form $in^2$, $in*in$, $lb*in$, $in/sec^2$, and so on.
+The grammatical rules are:
+
+\begin{footnotesize}
+\begin{verbatim}
+
+
+dimensions: DIMENSION                 { $$ = Code( Push_Dimension);   /* rule 2 */
+                                        Code( (Inst)$1 );        }
+          |  '(' dimensions ')'       { $$ = $2; }                    /* rule 3 */
+          | dimensions '*' dimensions { Code( Dimension_Mult );  }    /* rule 4 */
+          | dimensions '/' dimensions { Code( Dimension_Div);    }    /* rule 5 */
+          | dimensions '^' quantity   { $$ = $1;                      /* rule 6 */
+                                        Code( Dimension_Power ); }
+          ;
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+YACC uses the vertical bar symbol ``$|$'' to
+separate individual rules in a group -- the symbol
+should be interpreted as meaning or.
+Semantic actions are included inside the \{ \}).
+The input streams {\tt 2 in} and {\tt (2 in)} are
+considered are of type {\tt quantity},
+
+\begin{footnotesize}
+\begin{verbatim}
+quantity:  NUMBER dimensions { Code2(Push_Constant, (Inst)$1);
+                               Code(Dimension_Eval); $$ = $2;}        /* rule 7 */
+        |  '(' quantity ')'  { $$ = $2; }                             /* rule 8 */
+        ;
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.05 in}\noindent
+and are matched by rules 7 and 8. More precisely, {\tt (2 in)} is
+first matched by rule 8, and then by rule 7.
+The units are specified by type {\tt dimension}.
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+With the rules for recognizing a quantity in place,
+it is relatively straight forward to define grammatical
+rules for arithmetic operations on quantities.
+In the input command {\tt 2 in + 3 in},
+the quantities {\tt 2 in} and {\tt 3 in} are first recognized by rule 7,
+and the addition of quantities by the rule 9.
+
+\begin{footnotesize}
+\begin{verbatim}
+%%
+quantity: quantity '+' quantity  { Code(Quantity_Add);  }             /* rule 9 */
+%%
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+The C code located in function {\tt Quantity\_Add()} takes care of
+the appropriate stack operations. Similar rules are written for
+subtraction of two quantities (rule 10),
+multiplication of two quantities (rule 11),
+and division of quantities (rule 12).
+A quantity raised to the power of another
+quantity is considered to be a quantity (rule 13).
+
+\begin{footnotesize}
+\begin{verbatim}
+%%
+quantity  : quantity '-' quantity  { Code(Quantity_Sub);  }           /* rule 10 */
+          | quantity '*' quantity  { Code(Quantity_Mul);  }           /* rule 11 */
+          | quantity '/' quantity  { Code(Quantity_Div);  }           /* rule 12 */
+          | quantity '^' quantity  { Code(Quantity_Power);}           /* rule 13 */
+          ;
+%%
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Again, {\tt Quantity\_Sub()}, {\tt Quantity\_Mul()} and so on, are
+C functions for arithmetic of quantities with appropriate pushing
+and popping of data items to/from ALADDIN's program stack.
+Input commands, such as {\tt x = 3 in} and {\tt y = 2 in + x}
+involve the assignment of a {\tt quantity} to a variable.
+Both cases can be represented the rule:
+
+\begin{footnotesize}
+\begin{verbatim}
+%%
+quantity  : VAR '=' quantity { Code2( Push_Variable, (Inst)$1);       /* rule 14 */
+                               Code( Assign_Quantity); $$ = $3; }     
+          ;
+%%
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Using the rules stated above,
+{\tt 3 in} is recognized as a quantity, and {\tt x} is a variable type.
+The complete input {\tt x = 3 in} is matched by rule 14.
+Moreover, because YACC rules are recursively defined, {\tt 2 in + x} is matched by rule 9.
+Parser trees for the statements
+{\tt x = 3 in} followed by {\tt y = 2 in + x}
+are shown in Figure~\ref{fig: p_tree}.
+
+\begin{figure}[ht]
+\epsfxsize=5.0truein
+\centerline{\epsfbox{my-chapter8-fig1.ps}}
+\caption{Parser Trees for {\tt x = 3 in} and {\tt y = 2 in + x}}
+\label{fig: p_tree}
+\end{figure}
+
+\vspace{0.20 in}\noindent
+{\bf Matrix Generation :}
+As pointed out in the previous chapters,
+two mechanisms exist for the generation of matrices;
+definition of matrices from input, and generation of 
+matrices via built-in matrix functions.
+We will begin with the latter (e.g. as in {\tt A = Zero([2,3]);}).
+
+\begin{footnotesize}
+\begin{verbatim}
+%token  <sym>   MATX
+%%
+matrix : MATX      {$$ = Code( Push_Matrix );                         /* M_rule 1 */
+                         Code( (Inst)$1    );
+                         Code( Matrix_Eval );                          
+%%
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+YACC uses the variable type {\tt MATX} to represent variables of type matrix.
+The semantic action that follows identification of a matrix has two key parts --
+the C function {\tt Push\_Matrix()} pushes a pointer to the symbol table entry
+containing the matrix onto the program stack.
+{\tt Matrix\_Eval()} pops the matrix pointer from the stack,
+allocates memory for a new matrix, and copies the contents of the
+symbol table matrix to the new matrix. Finally, a pointer to
+the new matrix is pushed onto the stack.
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+The second approach is to generate matrices directly from keyboard/file input.
+Matrices generated directly from input are defined as series of quantities inside $[ ]$.
+Consider, for example, the 2x2 matrix:
+
+\[ \left [
+\begin{array}{rr}
+ 2  & 3  \\
+ 3  & 5 
+\end{array}
+\right ] \]
+
+\vspace{0.15 in}\noindent
+which may also be represented as $[$ 2 , 3 ; 3, 5 $]$.
+A matrix row is simply a list of quantities separated by commas.
+Individual matrix rows are separated by semicolons.
+The YACC grammar for identifying matrices is:
+
+\begin{footnotesize}
+\begin{verbatim}
+%type   <narg>  matrix_seq
+%type   <narg>  quantity_row
+
+%%
+matrix : '[' matrix_seq ']'          {$$ = Code( Push_Variable );
+                                           Code( (Inst)$2 );
+                                           Code( Matrix_Build);}      /* M_rule 2 */
+       ;
+matrix_seq: quantity_row                 { Code( Push_Variable );
+                                           Code( (Inst)$1 );
+                                           $$ = 1; }                  /* M_rule 3 */
+          | matrix_seq ';' quantity_row  { Code2( Push_Variable );
+                                           Code( (Inst)$3 );
+                                           $$ = $1 + 1;}              /* M_rule 4 */
+       ;
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.05 in}\noindent
+where {\tt type} specifies that {\tt matrix\_seq}
+and {\tt quantity\_row} are of type $<$ narg $>$.
+{\tt matrix\_seq} records number of rows and the number is pushed onto stack --
+this is done by {\tt M\_rule 3} and {\tt M\_rule 4}.
+As soon as row of quantities is identified,
+{\tt matrix\_seq} is initialized with number = 1 ({\tt M\_rule 2}).
+Then, {\tt matrix\_seq} is increased by 1 for
+each semicolon ``;'' that is parsed,
+with the sum being accumulated recursively via {\tt M\_rule 4}.
+Within each row, columns separated by commas (",") are quantities.
+
+\begin{footnotesize}
+\begin{verbatim}
+quantity_row:                            { $$ = 0; }              
+       | quantity                        { $$ = 1; }                  /* QR_rule 1 */
+       | quantity_row ',' quantity       { $$ = $1 + 1;}              /* QR_rule 2 */
+       ;
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.05 in}\noindent
+Similarly, the number of columns in a matrix is recorded by {\tt quantity\_row}.
+
+\vspace{0.15 in}\noindent
+{\bf Matrix Operations :} The grammatical rules for matrix operations
+are similar to those of engineering quantities.
+
+\begin{footnotesize}
+\begin{verbatim}
+  | matrix '*' matrix   {Code( Bltin_Matrix_Mult);}                   /* M_rule 5  */
+  | matrix '+' matrix   {Code( Bltin_Matrix_Add);}                    /* M_rule 6  */
+  | matrix '-' matrix   {Code( Bltin_Matrix_Sub);}                    /* M_rule 7  */
+  | '(' matrix ')'      {$$ = $2;}                                    /* M_rule 8  */
+  | quantity '*' matrix {Code( Bltin_Quan_Matrix_Mult);
+                         $$ = $3;}                                    /* M_rule 9  */
+  | matrix '*' quantity {Code( Bltin_Matrix_Quan_Mult);}              /* M_rule 10 */
+  | matrix '/' quantity {Code( Bltin_Matrix_Quan_Div);}               /* M_rule 11 */
+  ;
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.05 in}\noindent
+These rules generate an array of machine instructions for 
+matrix addition, subtraction and
+multiplication (i.e. {\tt M\_rule 5}, {\tt M\_rule 6} and {\tt M\_rule 7}).
+They allow for the parsing of a matrix inside parentheses ({\tt M\_rule 8}),
+the multiplication of a quantity times a matrix ({\tt M\_rule 9}),
+a matrix times a quantity ({\tt M\_rule 10}),
+and a matrix divided by a quantity ({\tt M\_rule 11}).
+ 
+\vspace{0.15 in}\noindent
+{\bf For Looping Construct :} The development of a YACC grammar and 
+supporting C code for looping and branching constructs is the most
+complicated part of ALADDIN's programming language. A description
+of the while-looping construct may be found in Chapter 8 of
+Kernighan and Pike~\cite{kernighan-pike}. The purpose of this
+subsection is to explain our implementation of the for-looping construct.
+The family of grammatical rules:
+
+\begin{footnotesize}
+\begin{verbatim}
+
+stmt: for '(' exprlist ';' cond ';' exprlist ')' stmt end {      /* F_rule 0 */
+        ($1)[1] = (Inst) $3;                /* initiation           F_rule 1 */
+        ($1)[2] = (Inst) $5;                /* condition            F_rule 2 */
+        ($1)[3] = (Inst) $9;                /* body of loop         F_rule 3 */
+        ($1)[4] = (Inst) $7;                /* increments           F_rule 4 */
+        ($1)[5] = (Inst) $10;               /* end, if cond fails   F_rule 5 */
+        }
+      ;
+
+for:  FOR { $$ = Code3( For_Code, STOP, STOP); Code2(STOP, STOP); Code(STOP);}
+   ;
+
+exprlist: listlist { Code(STOP); $$ = $1; }
+          ;
+listlist :     { $$ = progp; }                                     /* L_rule 1 */
+         | quantity                                                /* L_rule 2 */
+         | listlist ',' quantity                                   /* L_rule 3 */
+         ;
+cond:  quantity { Code(STOP); $$ = $1; }
+    ;
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+assumes that memory in the array of machine instructions will
+take a form as shown in Figure \ref{fig: for_loop}.
+A for-loop is simply a statement ({\tt stmt}).
+The initiation and incremental steps of the for-loop are
+expressed as {\tt exprlists}, which are themselves subdivided into {\tt listlist}.
+A {\tt listlist} could be a space (nothing) ({\tt L\_rule 1}),
+an engineering quantity ({\tt L\_rule 2}),
+or a series of quantities separated with ``,'' ({\tt L\_rule 3}).
+The body of a for-loop is also a statement({\tt stmt}) -- this
+rule allows for the nesting of for-loop constructs.
+The condition part of the for loop is an engineering quantity.
+
+\begin{figure}[ht]
+\epsfxsize=3.0truein
+\centerline{\epsfbox{for_loop.ps}} 
+\caption{Machine Stack for For-Loop Construct}
+\label{fig: for_loop}
+\end{figure}
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+After the token {\tt FOR} has been recognized,
+five spaces in the array of machine instructions are reserved
+for the storage of pointers to the initiation code ({\tt F\_rule 1}),
+the condition ({\tt F\_rule 2}),
+the incremental steps ({\tt F\_rule 3}),
+the body of the for-loop ({\tt F\_rule 4})
+and the {\tt STOP} instruction ({\tt F\_rule 5}).
+The two character sequence refers {\tt \$n} refers to the value
+of a type stacked n spaces beyond the current namelist production.
+In this particular case, {\tt \$1} is the location in the
+machine of the token identified by {\tt F\_rule 0}.
+The initiation, condition, body, increments, and end components of
+the for loop are access by machine array elements
+{\tt (\$1)[1]} to {\tt (\$1)[5]}, respectively.
+For the sake of completeness, we now include the C code for {\tt For\_Code()}.
+
+\begin{footnotesize}
+\begin{verbatim}
+For_Code()
+{
+DATUM d;
+Inst *savepc = pc;
+
+     Execute(*((Inst **) savepc)) ;     /* initiation */ 
+     Execute(*((Inst **) (savepc+1))) ; /* cond */
+
+     d = Pop();
+     while(d.q->value) {
+        if(Check_Break()) break;
+
+        Execute(*((Inst **)(savepc+2))); /* body of loop */
+        Execute(*((Inst **)(savepc+3))); /* increments */
+        if(returning || Check_Break()) break;
+        Execute(*((Inst **) (savepc+1))) ; /* cond */
+
+        if( CheckUnits()== ON ) {
+            free((char *)d.q->dimen->units_name);
+            free((char *)d.q->dimen);
+            free((char *)d.q);
+        }
+        d = Pop();
+     }
+
+     if(!returning)
+        pc = *((Inst **)(savepc + 4)); /* next statement */
+     After_Break();
+}
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.05 in}\noindent
+Notice how the layout of memory in Figure ~\ref{fig: for_loop} has
+been carefully combined with function calls to {\tt Execute()}.
+

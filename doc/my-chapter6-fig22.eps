@@ -1,0 +1,455 @@
+%!PS-Adobe-2.0 EPSF-1.2
+%%BoundingBox: 0 0 360 144 
+%%EndComments
+ /wpdict 120 dict def  
+ wpdict begin  
+ /bdef	{bind def} bind def  
+   
+ /bflg	false def  
+ /Bfont	0 def  
+ /bon	false def  
+   
+ /psz	0 def  
+ /_S	/show load def  
+ /_t	{0 rmoveto} bdef  
+ /_pixelsnap { transform .25 sub round .25 add 
+ 	 exch .25 sub round .25 add exch 
+ 	 itransform } bdef 
+  
+ /_pixeldsnap { dtransform round exch round exch 
+ 	 idtransform } bdef 
+  
+ /_lt		{_pixelsnap lineto} bdef 
+ /_rlt	{_pixeldsnap rlineto} bdef 
+ /_mt		{_pixelsnap moveto} bdef 
+ /_rmt	{_pixeldsnap rmoveto} bdef 
+  
+ /bshow  
+ { gsave  
+    psz 30 div 0 _rmt dup show  
+   grestore  
+   show  
+ } bdef  
+   
+ /DUx	0 def  
+ /DUy	0 def  
+ /hscl	0 def  
+   
+ /M  
+ { _mt  
+   2 mul -2 2  
+   {	-2 roll  
+ 	0 _rmt  
+ 	_S  
+   } for  
+ } bdef  
+   
+ /makeoutl  
+ {   dup /OutlineFlag known not  
+     {	dup dup length 2 add dict begin  
+ 	{ 1 index /FID ne { def }{ pop pop } ifelse  
+ 	} forall  
+ 	/UniqueID known {/UniqueID UniqueID 10000 add def} if  
+ 	/PaintType PaintType 0 eq { 2 }{ PaintType } ifelse def  
+ 	/StrokeWidth 15 def 	 
+ 	/OutlineFlag true def 		/OutlineFont currentdict end definefont  
+     } if } bdef  
+   
+ /nbuff	32 string def  
+ /orntsv	0 def  
+ /plen	0 def  
+ /pwid	0 def  
+ /picstr 1 string def  
+   
+ /reencode  
+ { dup FontDirectory exch known  
+   { findfont }  
+   {	dup nbuff cvs dup length 1 sub get 82 eq  
+ 	{	dup nbuff cvs dup length 1 sub 0 exch getinterval  
+ 		findfont begin  
+ 		currentdict dup length dict begin  
+ 		    { 1 index /FID ne {def} {pop pop} ifelse } forall  
+ 		    /FontName exch def  
+ 		    /Encoding WPencoding def  
+ 		currentdict dup end end  
+ 		/FontName get exch definefont  
+ 	}  
+ 	{ findfont } ifelse  
+   } ifelse  
+ } bdef  
+   
+ /ron	false def  
+ /sflg	false def  
+ /slan	0 def  
+ /sp 32 def 
+   
+ /sshow  
+ { save exch  
+    gsave  
+     psz 20 div dup neg _rmt dup show  
+    grestore  
+    dup  
+    save exch  
+     Bfont setfont  
+     1 setgray show  
+    restore  
+    currentfont makeoutl setfont show  
+    currentpoint 3 -1 roll  
+   restore _mt  
+ } bdef  
+   
+ /Sx	0 def  
+ /Sy	0 def  
+ /Ux	0 def  
+ /Uy	0 def  
+ /W /widthshow load def 
+   
+ /WPencoding StandardEncoding 256 array copy def 0 [ 127  
+    /Aacute/Acircumflex/Adieresis/Agrave/Aring/Atilde/Ccedilla       /Delta/Eacute/Ecircumflex/Edieresis/Egrave/Eth/Gamma/Iacute/Icircumflex     
+    /Idieresis/Igrave/Lambda/Ntilde/Oacute/Ocircumflex/Odieresis/Ograve  
+    /Omega/Otilde/Phi/Pi/Psi/Scaron/Sigma/TeXtext32/Theta/Thorn  
+   209 /Uacute/Ucircumflex/Udieresis/Ugrave/Upsilon/Xi/Yacute/Ydieresis  
+    /Zcaron/aacute/acircumflex/adieresis/agrave/aring/atilde/brokenbar  
+   228 /ccedilla/copyright/degree/divide  
+   236 /dotlessj/eacute/ecircumflex/edieresis/egrave 242 /eth/ff/ffi  
+   246 /ffl/iacute 252 /icircumflex/idieresis/igrave/logicalnot  
+   1 /minus/mu/multiply/ntilde/oacute/ocircumflex/odieresis/ograve/onehalf  
+    /onequarter/onesuperior/otilde/plusminus/registered/scaron/thorn  
+    /threequarters/threesuperior/trademark/twosuperior/uacute/ucircumflex  
+    /udieresis/ugrave/yacute/ydieresis/zcaron  
+ ]  
+ { dup type /nametype eq  
+   {  WPencoding 2 index 2 index put  
+      pop 1 add  
+   }  
+   {  exch pop  
+   } ifelse  
+ } forall pop  
+   
+ /_B	{/bflg true def  
+ 	 sflg not {/_S /bshow load def /bon true def} if  
+ 	} bdef  
+ /_b	{/bflg false def  
+ 	 bon {/_S /show load def /bon false def} if  
+ 	} bdef  
+ /_bd	{save} bdef  
+ /_bp	{save 2 setmiterlimit .06 .06 scale 0 0 _mt} bdef  
+ /_ccprocs  
+ 	{/proc2 exch cvlit def  
+ 	 /proc1 exch cvlit def  
+ 	 /newproc proc1 length proc2 length add  
+ 	  array def  
+ 	 newproc 0 proc1 putinterval  
+ 	 newproc proc1 length proc2 putinterval  
+ 	 newproc cvx  
+ 	} def  
+ /_clr	{3 {255 div 3 1 roll} repeat  
+ 	 ron  
+ 	  {6 3 roll pop pop pop}  
+ 	  {setrgbcolor} ifelse 	} bdef /_cp	/closepath load def  
+ /_cw	{stroke initclip _mt 0 2 index 
+ 	_rlt 0 _rlt 0 exch neg 
+ 	_rlt clip newpath} bdef  
+ /_d	/setdash load def  
+ /_DU	{ currentpoint /DUy exch def /DUx exch def } bdef  
+ /_du	{gsave  
+ 		save  
+ 		8 setlinewidth  
+ 		currentpoint  
+ 		-30 add _mt  
+ 		DUx DUy -30 add _lt  
+ 		stroke  
+ 		restore  
+ 		8 setlinewidth  
+ 		currentpoint  
+ 		-50 add _mt  
+ 		DUx DUy -50 add _lt  
+ 		stroke  
+ 	grestore} bdef  
+ /_ed	{restore} bdef  
+ /_ep	{showpage restore 0 0 _mt} bdef  
+ /_f	/eofill load def  
+ /_ff  
+ { exch reencode exch  
+   3 div dup /psz exch def  
+   scalefont dup /Bfont exch def setfont  
+ } bdef  
+   
+ /_ffs  
+ { /slan exch 10 div def /hscl exch 1000 div def  
+   /psz exch 3 div def  
+   [ psz hscl mul 0 slan dup sin exch cos div psz mul psz 0 0 ]  
+   exch reencode exch makefont dup /Bfont exch def setfont  
+ } bdef  
+ /_g	/setgray load def  
+ /_gs {neg 100 add 100 div setgray } bdef  
+ /_i	{gsave  
+ 		dup /picstr exch 7 add 8 idiv string def  
+ 		3 1 roll translate dup 1 scale  
+ 		dup 1 1 [5 -1 roll 0 0 1 0 0]  
+ 		{currentfile picstr readhexstring pop} image  
+ 		grestore  
+ 	} bdef  
+ /_is {save 4 1 roll 
+ 		dup /picstr exch 7 add 8 idiv string def 
+ 		3 1 roll translate dup 1 scale 
+ 		dup 1 1 [5 -1 roll 0 0 1 0 0] 
+ 		{currentfile picstr readhexstring pop} image 
+ 		restore 
+ 	} bdef 
+ /_ie	{  
+ 		1 eq {{1 exch sub} currenttransfer _ccprocs settransfer} 		if 		/_isx exch def /_isy exch def  
+ 		_isx mul exch _isy mul translate  
+ 		add 2 div /_txc exch def  
+ 		add 2 div /_tyc exch def  
+ 		_txc _isx mul _tyc _isy mul translate  
+ 		360 exch sub rotate  
+ 		1 eq { _isx neg _isy scale }  
+ 		{ _isx _isy scale }  
+ 		ifelse _txc neg _tyc neg translate  
+ 	} bdef  
+ /_epsi	{  
+ 	  1 eq {{1 exch sub} currenttransfer _ccprocs settransfer} if  
+ 	  /yp exch def /xp exch def	 
+ 	  /dhgt exch def /dwid exch def  
+ 	  4 copy sub /swid exch def 	 
+ 	  sub /shgt exch def 		 
+ 	  add 2 div /icx exch def 	 
+ 	  add 2 div /icy exch def	 
+ 	  xp dwid 2 div add icx sub  
+ 	  yp dhgt 2 div sub 		 
+ 	  icy sub translate		 
+ 	  icx icy translate 		 
+ 	  360 exch sub rotate 
+ 	  dwid swid div /xsc exch def exch 	 
+ 	  dhgt shgt div /ysc exch def exch 	 
+ 	  dup 1 eq {xsc neg /xsc exch def pop}   
+ 	           {dup 2 eq {ysc neg /ysc exch def pop}  
+ 		   {3 eq {ysc neg /ysc exch def xsc neg /xsc exch def}  
+ 			 {} ifelse} ifelse} ifelse 
+ 	  xsc ysc scale			 
+ 	  100 div exch 100 div exch scale	 
+ 	  icx neg icy neg translate	 
+ 	} bind def 
+  
+ /_irms	{ save  
+ 		12 1 roll  
+ 		1 eq {{1 exch sub} currenttransfer _ccprocs settransfer} if  
+ 		/picstr exch string def translate  
+ 		2 index 6 index sub 2 div 2 index 6 index sub 2 div neg  
+ 		translate  
+ 		5 index 5 index 2 div neg exch 2 div exch  
+ 		2 copy neg exch neg exch 5 2 roll translate  
+ 		360 exch sub rotate  
+ 		3 index 3 index 7 index div exch 8 index div exch scale  
+ 		translate pop pop 2 index 2 index scale  
+ 		3 index 0 eq  
+ 		{ [ 3 index 0 0 5 index neg 0 0 ] }  
+ 		{ 3 index 1 eq  
+ 		   { [ 3 index 0 0 5 index 0 7 index ] }  
+ 		   { 3 index 128 eq  
+ 			{ [ 3 index neg 0 0 5 index neg 7 index 0 ] }  
+ 			{ [ 3 index neg 0 0 5 index 7 index 7 index ] }  
+ 			ifelse  
+ 	 	   } ifelse  
+ 		} ifelse  
+  		{currentfile picstr readhexstring pop} image  
+ 		pop  
+ 	restore} bdef  
+   
+ /_l	{_lt} bdef  
+ /_lr {_rlt} bdef  
+ /_m  {_mt} bdef  
+ /_O	{currentfont makeoutl setfont} bdef  
+ /_o	{Bfont setfont} bdef  
+ /_ornt	{/pwid exch def /plen exch def  
+ 	orntsv 1 eq {0 pwid translate -90 rotate} if  
+ 	orntsv 2 eq {pwid plen translate 180 rotate} if  
+ 	orntsv 3 eq {plen 0 translate 90 rotate} if  
+ 	dup 1 eq {pwid 0 translate 90 rotate} if  
+ 	dup 2 eq {pwid plen translate 180 rotate} if  
+ 	dup 3 eq {0 plen translate -90 rotate} if  
+ 	/orntsv exch def  
+ 	} bdef  
+ /_lod1	{currentpoint orntsv plen pwid 6 -1 roll restore save} bdef  
+ /_lod2	{_bp 7 2 roll _ornt _mt} bdef  
+ /_unlod	{currentpoint orntsv plen pwid 7 -2 roll restore restore 	 _bp 6 1 roll _ornt _mt  
+ 	} bdef  
+ /_p	{2 copy _mt 1 0 _rlt _mt} bdef  
+ /_pl	{{_lt} repeat} bdef  
+ /_R	{/ron true def currentrgbcolor 1 .25 .25 setrgbcolor} bdef  
+ /_r	{/ron false def setrgbcolor} bdef /_rm	{0 _rmt} bdef  
+ /_rmxy {_rmt} bdef /_s	/stroke load def  
+ /_SH	{bon {/bon false def} if  
+ 	 /_S /sshow load def /sflg true def 	} bdef  
+ /_sh	{/_S /show load def /sflg false def bflg {_B} if} bdef  
+ /_sp 	{ gsave stroke grestore } bdef  
+ /_ST	{currentpoint /Sy exch def /Sx exch def} bdef  
+ /_st	{gsave  
+ 		currentpoint pop  
+ 		Sx dup Sy _mt sub 
+ 		(\320) stringwidth pop div 
+ 		dup floor cvi dup 
+ 		{(\320) show} repeat sub 
+ 		dup 0 gt {1 scale (\320) show}{pop} ifelse 
+ 	grestore} bdef  
+ /_U	{currentpoint /Uy exch def /Ux exch def} bdef  
+ /_u	{gsave  
+ 		currentpoint  
+ 		-30 add _mt  
+ 		Ux Uy -30 add _lt  
+ 		12 setlinewidth  
+ 		stroke  
+ 	grestore} bdef  
+ /_w	/setlinewidth load def  
+ end  
+/wpdict2 100 dict def
+wpdict begin wpdict2 begin
+_bd
+/_rhs{readhexstring}bdef/_tr{translate}bdef
+/_ix{index}bdef/_mx{matrix}bdef
+/ife{ifelse}bdef/_x{exch}bdef
+/_is{save 4 1 roll
+dup/picstr _x 7 add 8 idiv string def
+3 1 roll _tr dup 1 scale
+dup 1 1[5 -1 roll 0 0 1 0 0]
+{currentfile picstr _rhs pop}image restore}bdef
+/_epsi{1 eq{{1 _x sub}currenttransfer _ccprocs settransfer}if
+/yp _x def/xp _x def/dhgt _x def/dwid _x def
+4 copy sub/swid _x def
+sub/shgt _x def
+add 2 div/icx _x def add 2 div/icy _x def
+xp dwid 2 div add icx sub yp dhgt 2 div sub
+icy sub _tr icx icy _tr
+360 _x sub rotate
+dwid swid div/xsc _x def _x
+dhgt shgt div/ysc _x def _x
+dup 1 eq{xsc neg/xsc _x def pop}
+{dup 2 eq{ysc neg /ysc _x def pop}
+{3 eq{ysc neg/ysc _x def xsc neg/xsc _x def}
+{}ife}ife}ife
+xsc ysc scale
+100 div _x 100 div _x scale
+icx neg icy neg _tr}bdef
+/_c{3{255 div 3 1 roll}repeat setrgbcolor}bdef
+/eq3{3 copy 2 _ix eq{eq{true}{false}ife}{pop
+pop false}ife}bdef
+/g{255 div setgray}bdef
+/_clr{ron{6 3 roll pop pop pop}{eq3{pop
+pop g}{_c}ife}ife}bdef
+/_r{/ron false def eq3{1 sub neg g pop
+pop}{setrgbcolor}ife}bdef
+/_ircms{save 15 1 roll
+1 eq{{1 exch sub}currenttransfer _ccprocs settransfer}if
+/pstr _x string def _tr
+/Cli _x def/USy _x def/USx _x def/Rot _x def/HTd _x def
+/WDd _x def/Bdep _x def/HTs _x def/WDs _x def/MIR _x def
+USx 100 div USy 100 div scale
+WDd WDs sub 2 div HTd HTs sub 2 div neg _tr
+WDs HTs 2 div neg _x 2 div _x _tr
+Rot 360 _x sub rotate WDd HTd HTs div _x WDs div _x scale
+WDs 2 div neg HTs 2 div _tr
+WDs HTs scale WDs HTs Bdep MIR 0
+eq{[WDs 0 0 HTs neg 0 0]}{MIR 1 eq{[WDs 0 0 HTs 0 HTs]}
+{MIR 128 eq{[WDs neg 0 0 HTs neg WDs 0]}
+{[WDs neg 0 0 HTs WDs HTs]}ife}ife}ife
+{currentfile pstr _rhs pop}Cli
+0 eq{image}{false 3 colorimage}ife
+restore}bdef
+/_bp{save 2 setlinecap 2 setmiterlimit
+.06 .06 scale 0 0 moveto}bdef
+/tctm _mx def/trot _mx def/tscale _mx def/rmtx _mx def
+/fr{72 0 rmtx defaultmatrix dtransform
+/yres _x def/xres _x def
+xres dup mul yres dup mul add sqrt}bdef
+/sus{/spotf _x def/sang _x def/csz _x def
+/m tctm currentmatrix def/rm sang trot rotate def
+/sm csz dup tscale scale def
+sm rm m m concatmatrix m concatmatrix pop
+1 0 m dtransform /y1 _x def/x1 _x def
+/veclength x1 dup mul y1 dup mul add sqrt def
+/frcy fr veclength div def /nsang y1 x1 atan def
+frcy nsang/spotf load setscreen}bdef
+/bitis{/ybit _x def /xbit _x def
+/bval bstring ybit bwidth mul xbit 8 idiv add get def
+/mask 1 7 xbit 8 mod sub bitshift def
+bval mask and 0 ne}bdef
+/bps{/y _x def /x _x def
+/xndx x 1 add 2 div bpside mul cvi def
+/yndx y 1 add 2 div bpside mul cvi def
+xndx yndx bitis
+{/onb onb 1 add def 1}{/ofb ofb 1 add def 0}ife}bdef
+/stpatt{/csz _x def /angle _x def /bwidth _x def
+/bpside _x def /bstring _x def
+/onb 0 def /ofb 0 def
+csz angle /bps load
+sus{}settransfer
+ofb ofb onb add div _g}bdef
+/_fp{8 1 0 cpi stpatt}bdef
+/_pf{gsave eofill grestore}bdef
+/_np{newpath}bdef/_lc{setlinecap}bdef
+/_sr{/cpi _x def}bdef
+
+%%EndProlog
+_bp gsave 128 _sr _s 0 0 _m 6000 0 6000 2400 0 2400 3 _pl clip _np 
+[] 0  _d 0 g 20 _w 1380 1596 1620 1596 1620 1596 _m 2 _pl _s 
+1500 1596 1500 1116 _m 1 _pl _s 
+1380 1116 1620 1116 1620 1116 _m 2 _pl _s 
+1980 1596 2220 1596 2220 1596 _m 2 _pl _s 
+2100 1596 2100 1116 _m 1 _pl _s 
+1980 1116 2220 1116 2220 1116 _m 2 _pl _s 
+2580 1596 2820 1596 2820 1596 _m 2 _pl _s 
+2700 1596 2700 1116 _m 1 _pl _s 
+2580 1116 2820 1116 2820 1116 _m 2 _pl _s 
+3180 1596 3420 1596 3420 1596 _m 2 _pl _s 
+3300 1596 3300 1116 _m 1 _pl _s 
+3180 1116 3420 1116 3420 1116 _m 2 _pl _s 
+3780 1596 4020 1596 4020 1596 _m 2 _pl _s 
+3900 1596 3900 1116 _m 1 _pl _s 
+3780 1116 4020 1116 4020 1116 _m 2 _pl _s 
+4380 1596 4620 1596 4620 1596 _m 2 _pl _s 
+4500 1596 4500 1116 _m 1 _pl _s 
+4380 1116 4620 1116 4620 1116 _m 2 _pl _s 
+4980 1596 5220 1596 5220 1596 _m 2 _pl _s 
+5100 1596 5100 1116 _m 1 _pl _s 
+4980 1116 5220 1116 5220 1116 _m 2 _pl _s 
+780 1596 1020 1596 1020 1596 _m 2 _pl _s 
+900 1596 900 1116 _m 1 _pl _s 
+780 1116 1020 1116 1020 1116 _m 2 _pl _s 
+1 _w 660 1836 660 1596 5340 1596 5340 1836 660 1836 _m 4 _pl _s 
+660 1356 660 396 _m 1 _pl _s 
+5340 1356 5340 396 _m 1 _pl _s 
+5100 876 5100 396 _m 1 _pl _s 
+900 876 900 396 _m 1 _pl _s gsave 5126 345 _m
+/Times-RomanR 348 _ff
+(3.5')_S  grestore gsave 686 319 _m
+/Times-RomanR 348 _ff
+(3.5')_S  grestore gsave 2702 2048 _m
+/Times-RomanR 348 _ff
+(7")_S  25 _t
+(slab)_S  grestore gsave 2766 319 _m
+/Times-RomanR 348 _ff
+(7)_S  25 _t
+(@)_S  25 _t
+(7.63')_S  grestore 
+691 637 864 637 _m 1 _pl _s 
+940 638 5063 637 _m 1 _pl _s 
+5128 638 5306 637 _m 1 _pl _s 
+5260 664 _m 5283 636 5262 607 5340 637 3 _pl gsave 0 g _pf grestore _cp _s 
+5181 662 _m 5167 637 5185 611 5102 637 3 _pl gsave 0 g _pf grestore _cp _s 
+822 664 _m 845 636 824 607 902 637 3 _pl gsave 0 g _pf grestore _cp _s 
+978 662 _m 964 637 982 611 899 637 3 _pl gsave 0 g _pf grestore _cp _s 
+739 662 _m 725 637 743 611 660 637 3 _pl gsave 0 g _pf grestore _cp _s 
+5018 664 _m 5041 636 5020 607 5098 637 3 _pl gsave 0 g _pf grestore _cp _s 
+3600 1952 _m 3600 833 4206 833 4206 1952 3 _pl _cp [66 66 0 ] 0  _d 0 _lc _s 
+3794 2028 _m 3810 2003 3839 2004 3782 1950 3 _pl gsave 0 g _pf grestore _cp [] 0  _d 2 _lc _s gsave 4321 2114 _m
+/Times-RomanR 348 _ff
+(Extracted)_S  25 _t
+(Internal)_S  25 _t
+(Girder)_S  grestore 
+2112 1915 _m 2128 1890 2157 1891 2100 1837 3 _pl gsave 0 g _pf grestore _cp _s 
+2115 1869 2129 1899 2143 1927 2157 1952 2170 1976 2183 1998 2195 2018 2208 2037 2220 2054 2232 2069 2244 2083 2256 2096 2267 2107 2279 2118 2291 2127 2315 2143 2327 2149 2339 2151 2351 2151 2364 2149 2375 2144 2387 2139 2399 2132 2411 2124 2433 2106 2455 2090 2465 2082 2475 2076 2485 2072 2494 2069 2512 2066 2529 2065 2545 2065 2560 2067 2574 2069 2600 2079 2611 2086 _m 36 _pl _s 
+3796 1978 3892 2149 4234 2149 _m 2 _pl _s 
+grestore _ep
+_ed end end
+%%Trailer

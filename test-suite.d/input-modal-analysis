@@ -1,0 +1,290 @@
+/*
+ *  ================================================================
+ *  Input file for Modal Analysis
+ *  ================================================================
+ */
+
+/* 
+ *  [a] : Setup Matrix for Piece-wise linear approximation to earthquake
+ *        acceleration Spectra
+ *
+ *        Column 1 : Natural Period (sec)
+ *        Column 2 : Spectral Acceleration (at 2% damping)
+ */ 
+
+   print "*** ACCELERATION SPECTRA FOR MODAL ANALYSIS \n";
+   print "*** ======================================= \n";
+
+   npoints = 18;
+   spectra = Matrix( [ npoints , 2] );
+   spectra = ColumnUnits( spectra, [sec],      [1]);
+   spectra = ColumnUnits( spectra, [cm/sec^2], [2]);
+
+   spectra [ 1][1] = 0.0 sec;  spectra [ 1][2] = 981.0*0.15 cm/sec/sec;
+   spectra [ 2][1] = 0.1 sec;  spectra [ 2][2] = 981.0*0.18 cm/sec/sec;
+   spectra [ 3][1] = 0.2 sec;  spectra [ 3][2] = 981.0*0.25 cm/sec/sec;
+   spectra [ 4][1] = 0.3 sec;  spectra [ 4][2] = 981.0*0.35 cm/sec/sec;
+   spectra [ 5][1] = 0.4 sec;  spectra [ 5][2] = 981.0*0.45 cm/sec/sec;
+   spectra [ 6][1] = 0.5 sec;  spectra [ 6][2] = 981.0*0.45 cm/sec/sec;
+   spectra [ 7][1] = 0.6 sec;  spectra [ 7][2] = 981.0*0.35 cm/sec/sec;
+   spectra [ 8][1] = 0.8 sec;  spectra [ 8][2] = 981.0*0.30 cm/sec/sec;
+   spectra [ 9][1] = 1.0 sec;  spectra [ 9][2] = 981.0*0.25 cm/sec/sec;
+   spectra [10][1] = 1.2 sec;  spectra [10][2] = 981.0*0.15 cm/sec/sec;
+   spectra [11][1] = 1.4 sec;  spectra [11][2] = 981.0*0.14 cm/sec/sec;
+   spectra [12][1] = 1.6 sec;  spectra [12][2] = 981.0*0.13 cm/sec/sec;
+   spectra [13][1] = 1.8 sec;  spectra [13][2] = 981.0*0.12 cm/sec/sec;
+   spectra [14][1] = 2.0 sec;  spectra [14][2] = 981.0*0.10 cm/sec/sec;
+   spectra [15][1] = 2.4 sec;  spectra [15][2] = 981.0*0.08 cm/sec/sec;
+   spectra [16][1] = 2.8 sec;  spectra [16][2] = 981.0*0.06 cm/sec/sec;
+   spectra [17][1] = 3.2 sec;  spectra [17][2] = 981.0*0.05 cm/sec/sec;
+   spectra [18][1] = 3.4 sec;  spectra [18][2] = 981.0*0.04 cm/sec/sec;
+
+   PrintMatrix( spectra );
+
+/* [b] : Setup mass and stiffness matrices */ 
+
+   k1 = 20 kN/cm; k2 = 20 kN/cm; k3 = 20 kN/cm;
+
+   stiff = ColumnUnits( Matrix([3,3]), [ N/m ] );
+   stiff[1][1] = k1 + k2; stiff[1][2]    = - k2; stiff[1][3] = 0.0 N/m;
+   stiff[2][1] =    - k2; stiff[2][2] = k2 + k3; stiff[2][3] =    - k3;
+   stiff[3][1] = 0.0 N/m; stiff[3][2] =    - k3; stiff[3][3] =      k3;
+
+   mass = ColumnUnits( Matrix([3,3]), [ kg ] );
+   mass[1][1] = 2000 kg;
+   mass[2][2] = 2000 kg;
+   mass[3][3] = 2000 kg;
+
+   PrintMatrix( stiff, mass );
+
+/* [c] : Calculate natural periods of vibration and mode shapes */
+
+   no_eigen = 3;
+   eigen       = Eigen( stiff, mass, [ no_eigen ] );
+   eigenvalue  = Eigenvalue( eigen );
+   eigenvector = Eigenvector ( eigen );
+
+   period = ColumnUnits( Matrix( [ no_eigen,1 ] ), [ sec ] );
+   for( ii = 1; ii <= no_eigen; ii = ii + 1 ) {
+        period [ii][1] = 2*PI/sqrt(eigenvalue[ii][1]);
+   }
+
+   print "\n";
+   for( ii = 1; ii <= no_eigen; ii = ii + 1 ) {
+        print "Mode", ii, " : w^2 = ", eigenvalue[ii][1];
+        print " T = ", period [ii][1], "\n";
+   }
+
+   PrintMatrix( period );
+   PrintMatrix( eigenvector );
+
+/* [d] : Find Spectral Accelerations at Modal Periods */
+
+   SpectralAccn = ColumnUnits( Matrix( [ no_eigen,1 ] ), [ m/sec^2 ] );
+   for( ii = 1; ii <= no_eigen; ii = ii + 1 ) {
+        for( ij = 1; ij < npoints; ij = ij + 1 ) {
+             period1 = spectra [  ij][1];
+             period2 = spectra [ij+1][1];
+             if(period [ii][1] >= period1 && period [ii][1] < period2 ) {
+                dAccn   = spectra [ij+1][2] - spectra [ij][2];
+                dPeriod = (period [ii][1] - period1)/(period2 - period1);
+                SpectralAccn[ii][1] = spectra [ij][2] + dPeriod*dAccn;
+             }
+        }
+   }
+
+   PrintMatrix( SpectralAccn );
+
+/* [e] : Generalised mass, stiffness, and loading matrices */
+
+   eigenTrans = Trans (eigenvector);
+   gmass      = eigenTrans*mass*eigenvector;
+   gstiff     = eigenTrans*stiff*eigenvector;
+
+   gload = eigenTrans*mass*[ 1; 1; 1 ];
+
+   PrintMatrix( gmass, gstiff, gload );
+
+/* [f] : Compute and print floor level displacements */
+
+   Y = ColumnUnits( Matrix([no_eigen,no_eigen]), [ m ] );
+   for( ii = 1; ii <= no_eigen; ii = ii + 1 ) {
+        Y [ii][ii] = (gload[ii][1]/gmass[ii][ii]) *
+                     (SpectralAccn[ii][1]/eigenvalue[ii][1]);
+   }
+
+   modaldispl = ColumnUnits ( eigenvector*Y, [cm]);
+   PrintMatrix( Y , modaldispl );
+
+   print "\n";
+   print "Maximum Likely Floor Displacements (using SRSS)     \n";
+   print "===============================================   \n\n";
+   print "     Floor          Mode         Modes         Modes\n";
+   print "        No             1         1 & 2    1, 2 and 3\n";
+
+   for( ii = 1; ii <= 3; ii = ii + 1 ) {
+        print ii;
+        for( ij = 1; ij <= no_eigen; ij = ij + 1 ) {
+             sum = 0.0 m^2;
+             for( ik = 1; ik <= ij; ik = ik + 1 ) {
+                  sum = sum + modaldispl [ii][ik] * modaldispl [ii][ik];
+             }
+             print sqrt(sum) (cm); 
+        }
+        print "\n";
+   }
+ 
+   print "\n";
+   print "Maximum Possible Floor Displacements (absolute values) \n";
+   print "====================================================== \n\n";
+   print "     Floor          Mode         Modes         Modes\n";
+   print "        No             1         1 & 2    1, 2 and 3\n";
+
+   for( ii = 1; ii <= 3; ii = ii + 1 ) {
+        print ii;
+        for( ij = 1; ij <= no_eigen; ij = ij + 1 ) {
+             sum = 0.0 cm;
+             for( ik = 1; ik <= ij; ik = ik + 1 ) {
+                  sum = sum + abs( modaldispl [ii][ik] );
+             }
+             print sum (cm); 
+        }
+        print "\n";
+   }
+
+/* [g] : Compute and print story drifts */
+
+   print "\n";
+   print "Maximum Likely Story Drifts (using SRSS) \n";
+   print "======================================== \n\n";
+   print "     Story          Mode         Modes         Modes\n";
+   print "        No             1         1 & 2    1, 2 and 3\n";
+
+   for( ii = 1; ii <= 3; ii = ii + 1 ) {
+        print ii;
+        for( ij = 1; ij <= no_eigen; ij = ij + 1 ) {
+             sum = 0.0 cm^2;
+             for( ik = 1; ik <= ij; ik = ik + 1 ) {
+                  if (ii == 1) then {
+                      sum = sum + modaldispl[1][ik]^2;
+                  } else {
+                      sum = sum + (modaldispl [ii][ik] - modaldispl [ii-1][ik])^2;
+                  } 
+             }
+             print sqrt(sum) (cm); 
+        }
+        print "\n";
+   }
+
+   print "\n";
+   print "Maximum Possible Story Drifts (absolute values) \n";
+   print "=============================================== \n\n";
+   print "     Story          Mode         Modes         Modes\n";
+   print "        No             1         1 & 2    1, 2 and 3\n";
+
+   for( ii = 1; ii <= 3; ii = ii + 1 ) {
+        print ii;
+        for( ij = 1; ij <= no_eigen; ij = ij + 1 ) {
+             sum = 0.0 cm;
+             for( ik = 1; ik <= ij; ik = ik + 1 ) {
+                  if (ii == 1) then {
+                      sum = sum + abs (modaldispl[1][ik]);
+                  } else {
+                      sum = sum + abs((modaldispl [ii][ik] - modaldispl [ii-1][ik]));
+                  } 
+             }
+             print sum (cm); 
+        }
+        print "\n";
+   }
+
+/* [h] : Compute and print maximum (absolute) floor accelerations */
+
+   print "\n";
+   print "Maximum Likely Absolute Floor Accelerations (using SRSS)  \n";
+   print "========================================================\n\n";
+   print "     Floor                  Mode                 Modes                 Modes\n";
+   print "        No                     1                 1 & 2            1, 2 and 3\n";
+
+   for( ii = 1; ii <= 3; ii = ii + 1 ) {
+        print ii;
+        for( ij = 1; ij <= no_eigen; ij = ij + 1 ) {
+             sum = 0.0 m^2/sec^4;
+             for( ik = 1; ik <= ij; ik = ik + 1 ) {
+                  sum = sum + (modaldispl [ii][ik] * eigenvalue [ik][1])^2;
+             }
+             sum = sum + ( spectra[1][2] )^2;
+             print sqrt(sum) (cm/sec/sec); 
+        }
+        print "\n";
+   }
+ 
+   print "\n";
+   print "Maximum Possible Absolute Floor Accelerations (absolute values)  \n";
+   print "===============================================================\n\n";
+   print "     Floor                  Mode                 Modes                 Modes\n";
+   print "        No                     1                 1 & 2            1, 2 and 3\n";
+
+   for( ii = 1; ii <= 3; ii = ii + 1 ) {
+        print ii;
+        for( ij = 1; ij <= no_eigen; ij = ij + 1 ) {
+             sum = 0.0 m/sec^2;
+             for( ik = 1; ik <= ij; ik = ik + 1 ) {
+                  sum = sum + abs((modaldispl [ii][ik] * eigenvalue [ik][1]));
+             }
+             sum = sum + spectra[1][2];
+             print sum (cm/sec/sec); 
+        }
+        print "\n";
+   }
+
+/* [i] : Compute and print equivalent d.o.f. forces in each mode */
+
+   print "\n";
+   print "Inertia Forces for each mode \n";
+   print "============================ \n\n";
+
+   inertia_forces = stiff*modaldispl;
+   PrintMatrix( inertia_forces );
+
+/* [j] : Compute and print base shear force */
+
+   print "\n";
+   print "Shear Forces (at base of the structure) \n";
+   print "======================================= \n\n";
+
+   base_shear_forces = [1,1,1] * inertia_forces;
+   PrintMatrix( base_shear_forces );
+
+   shear1 = 0.0 N^2; shear2 = 0.0 N;
+   for ( ii = 1; ii <= 3; ii = ii + 1 ) {
+         shear1 = shear1 + base_shear_forces[ 1 ][ ii ]^2;
+         shear2 = shear2 + abs( base_shear_forces[ 1 ][ ii ] );
+   }
+
+   print "\n";
+   print "Base Shear Force : Maximum Likely   = ", sqrt(shear1) ,"\n";
+   print "                 : Maximum Possible = ", shear2       ,"\n";
+
+/* [k] : Compute and print overturning moments */
+
+   print "\n";
+   print "Overturning Moments (at base of the structure) \n";
+   print "============================================== \n\n";
+
+   floor_heights            = [3 m, 6 m, 9 m];
+   base_overturning_moments = floor_heights * inertia_forces;
+   PrintMatrix( base_overturning_moments );
+
+   mom1 = 0.0 N^2*m^2; mom2 = 0.0 N*m;
+   for ( ii = 1; ii <= 3; ii = ii + 1 ) {
+         mom1 = mom1 + base_overturning_moments[ 1 ][ ii ]^2;
+         mom2 = mom2 + abs( base_overturning_moments[ 1 ][ ii ] );
+   }
+
+   print "\n";
+   print "Overturning Moments : Maximum Likely   = ", sqrt(mom1) ,"\n";
+   print "                    : Maximum Possible = ", mom2       ,"\n";
+
+   quit;
+

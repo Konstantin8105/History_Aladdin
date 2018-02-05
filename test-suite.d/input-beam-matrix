@@ -1,0 +1,167 @@
+/*
+ *  =====================================================================
+ *  Structural Analysis of a Three-Span Beam Structure.
+ *
+ *  Written By: Mark Austin                                    March 1998
+ *  =====================================================================
+ */
+
+/* Setup problem specific parameters */
+
+   NDimension         = 2;
+   NDofPerNode        = 3;
+   MaxNodesPerElement = 2;
+
+   StartMesh();
+
+/* Generate line of nodes */
+
+   node = 1;
+   AddNode(node, [  0 m, 0 m ] );
+   node = 2;
+   AddNode(node, [ 10 m, 0 m ] );
+   node = 3;
+   AddNode(node, [ 20 m, 0 m ] );
+   node = 4;
+   AddNode(node, [ 25 m, 0 m ] );
+
+/* Attach beam elements to nodes */
+
+   elmtno = 1;
+   AddElmt( elmtno, [ 1, 2 ], "beamelmt");
+   elmtno = 2;
+   AddElmt( elmtno, [ 2, 3 ], "beamelmt");
+   elmtno = 3;
+   AddElmt( elmtno, [ 3, 4 ], "beamelmt");
+
+/* Define section and material properties */
+
+   ElementAttr("beamelmt") { type     = "FRAME_2D";
+                             section  = "beamsection";
+                             material = "beammaterial";
+                           }
+
+   SectionAttr("beamsection") { Izz    = 6.60e8 mm^4;
+                                area   = 4.26e4 mm^2;
+                              }
+
+   MaterialAttr("beammaterial") { poisson = 0.25;
+                                  E       = 200 GPa;
+                                }
+/* Apply full-fixity at wall support and vertical restraint at  */
+/* supports "B" and "C".                                        */
+
+   nodeno = 1;
+   FixNode( nodeno, [ 1, 1, 1 ]);
+   nodeno = 2;
+   FixNode( nodeno, [ 0, 1, 0 ]);
+   nodeno = 3;
+   FixNode( nodeno, [ 0, 1, 0 ]);
+
+/* Build array of Fixed-End Forces/Moments */
+
+   forces = Matrix( [3,6] );
+   forces = ColumnUnits ( forces, [ N, N, N*m, N, N, N*m ]);
+
+   /* Equivalent concentrated end forces/moments for element 1 */
+
+   L = 10 m; P = 10 kN;
+
+   forces[1][2] = -P/2;
+   forces[1][3] = -P*L/8;
+   forces[1][5] = -P/2;
+   forces[1][6] =  P*L/8;
+
+   /* Equivalent concentrated end forces/moments for element 2 */
+
+   L = 10 m; W = 2 kN/m;
+
+   forces[2][2] = -W*L/2;
+   forces[2][3] = -W*L*L/12;
+   forces[2][5] = -W*L/2;
+   forces[2][6] =  W*L*L/12;
+
+   /* Equivalent concentrated end forces/moments for element 3 */
+
+   L = 5 m; W = 0 kN/m;
+
+   forces[3][2] = -W*L/2;
+   forces[3][3] = -W*L*L/12;
+   forces[3][5] = -W*L/2;
+   forces[3][6] =  W*L*L/12;
+
+/* Apply external forces */
+
+   Fx = forces[1][4] + forces[2][1];  /* Fixed end forces at node 3 */
+   Fy = forces[1][5] + forces[2][2];
+   Mz = forces[1][6] + forces[2][3];
+
+   nodeno = 2;
+   NodeLoad( nodeno, [ Fx, Fy, Mz ]);
+
+   Fx = forces[2][4] + forces[3][1];  /* Fixed end forces at node 3 */
+   Fy = forces[2][5] + forces[3][2];
+   Mz = forces[2][6] + forces[3][3];
+
+   nodeno = 3;
+   NodeLoad( nodeno, [ Fx, Fy, Mz ]);
+
+   Fx = forces[3][4];                 /* Fixed end forces at node 4 */
+   Fy = forces[3][5];
+   Mz = forces[3][6];
+
+   P  = 10 kN;                   /* Vertical load applied to node 4 */
+
+   nodeno = 4;
+   NodeLoad( nodeno, [ Fx, Fy - P, Mz ]);
+
+/* Compile and Print Finite Element Mesh */
+
+   EndMesh();
+   PrintMesh();
+
+/* Compute "stiffness" and "external load" matrices */
+
+   eload = ExternalLoad();
+   stiff = Stiff();
+
+/* Compute and print displacements */
+
+   displ = Solve(stiff, eload);
+   PrintDispl(displ);
+
+/* Print member forces for elements 1 through 3 */
+
+   for ( ii = 1; ii <= 3; ii = ii + 1 ) {
+      print "\nMember forces for Element", ii, "\n\n";
+      elmt = GetStress( [ii], displ );
+
+      print "End 1 : Horizontal =", elmt[1][3] - forces [ ii ][1] ,"\n";
+      print "        Vertical   =", elmt[1][4] - forces [ ii ][2] ,"\n";
+      print "        Moment     =", elmt[1][5] - forces [ ii ][3] ,"\n";
+      print "End 2 : Horizontal =", elmt[2][3] - forces [ ii ][4] ,"\n";
+      print "        Vertical   =", elmt[2][4] - forces [ ii ][5] ,"\n";
+      print "        Moment     =", elmt[2][5] - forces [ ii ][6] ,"\n";
+   }
+
+/* Compute and print support reactions */
+
+   elmt1 = GetStress( [1], displ );
+   elmt2 = GetStress( [2], displ );
+   elmt3 = GetStress( [3], displ );
+
+   print "\nSupport Reactions \n";
+   print "===============================================\n";
+
+   print "Support A : Vertical Reaction =", elmt1[1][4] - forces [1][2] (kN)  ,"\n";
+   print "                  Wall Moment =", elmt1[1][5] - forces [1][3] (kN*m),"\n";
+
+   print "\n";
+   print "Support B : Vertical Reaction =", elmt1[2][4] - forces [1][5]
+                                          + elmt2[1][4] - forces [2][2] (kN),"\n";
+   print "\n";
+   print "Support C : Vertical Reaction =", elmt2[2][4] - forces [2][5]
+                                          + elmt3[1][4] - forces [3][2] (kN),"\n";
+   print "===============================================\n";
+
+   quit;

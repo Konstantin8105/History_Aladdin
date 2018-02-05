@@ -1,0 +1,137 @@
+/*
+ *  ===============================================================================
+ *  Compute natural periods and modes of vibration for supported elastic cantilever
+ *  ===============================================================================
+ */
+
+/* [a] : Define section/material properties */
+
+   E    = 200000   MPa;
+   I    = 15.5E+6 mm^4;
+   L    = 4       m;
+   mbar = 31.6 kg/m;
+
+/* [b] : Define (4x4) stiffness matrix for beam element */
+
+   stiff = Matrix([4,4]);
+   stiff = ColumnUnits( stiff, [N/rad,  N/m,  N/rad,  N/m] );
+   stiff =    RowUnits( stiff, [m], [1] );
+   stiff =    RowUnits( stiff, [m], [3] );
+
+   stiff[1][1] =  4*E*I/L;
+   stiff[1][2] =  6*E*I/(L^2);
+   stiff[1][3] =  2*E*I/L;
+   stiff[1][4] = -6*E*I/(L^2);
+
+   stiff[2][1] =   6*E*I/(L^2);
+   stiff[2][2] =  12*E*I/(L^3);
+   stiff[2][3] =   6*E*I/(L^2);
+   stiff[2][4] = -12*E*I/(L^3);
+
+   stiff[3][1] =  2*E*I/L;
+   stiff[3][2] =  6*E*I/(L^2);
+   stiff[3][3] =  4*E*I/L;
+   stiff[3][4] = -6*E*I/(L^2);
+
+   stiff[4][1] =  -6*E*I/(L^2);
+   stiff[4][2] = -12*E*I/(L^3);
+   stiff[4][3] =  -6*E*I/(L^2);  
+   stiff[4][4] =  12*E*I/(L^3);
+
+   PrintMatrix(stiff);
+
+/* [c] : Define (4x4) consistent mass matrix for beam element */
+
+   mass = Matrix([4,4]);
+   mass = ColumnUnits( mass, [ kg*m, kg, kg*m, kg] );
+   mass =    RowUnits( mass, [m], [1] );
+   mass =    RowUnits( mass, [m], [3] ); 
+
+   mass[1][1] = (mbar*L/420)*4*L*L;
+   mass[2][1] = (mbar*L/420)*22*L;
+   mass[3][1] = (mbar*L/420)*-3*L^2;
+   mass[4][1] = (mbar*L/420)*13*L;
+
+   mass[1][2] = (mbar*L/420)*22*L;
+   mass[2][2] = (mbar*L/420)*156;
+   mass[3][2] = (mbar*L/420)*-13*L;
+   mass[4][2] = (mbar*L/420)*54;
+
+   mass[1][3] = (mbar*L/420)*-3*L^2;
+   mass[2][3] = (mbar*L/420)*-13*L;
+   mass[3][3] = (mbar*L/420)*4*L^2;
+   mass[4][3] = (mbar*L/420)*-22*L  ;
+
+   mass[1][4] = (mbar*L/420)*13*L;
+   mass[2][4] = (mbar*L/420)*54;
+   mass[3][4] = (mbar*L/420)*-22*L;
+   mass[4][4] = (mbar*L/420)*156;
+
+   PrintMatrix(mass);
+
+/* [d] : Destination Array beam element connectivity */
+
+   LD = [ 0, 0, 1, 2  ;
+          1, 2, 3, 4  ; 
+          3, 4, 5, 6  ; 
+          5, 6, 7, 8  ; 
+          7, 8, 9, 0 ]; 
+
+/* [e] : Allocate memory for global mass and stiffness matrices */
+
+   GMASS = Matrix([9,9]);
+   GMASS = ColumnUnits( GMASS, [ kg*m, kg, kg*m, kg, kg*m, kg, kg*m, kg, kg*m ] );
+   GMASS =    RowUnits( GMASS, [m], [1] );
+   GMASS =    RowUnits( GMASS, [m], [3] );
+   GMASS =    RowUnits( GMASS, [m], [5] );
+   GMASS =    RowUnits( GMASS, [m], [7] ); 
+   GMASS =    RowUnits( GMASS, [m], [9] ); 
+
+   GSTIFF = Matrix([9,9]);
+   GSTIFF = ColumnUnits( GSTIFF, [ N/rad, N/m,  N/rad,  N/m, N/rad, N/m, N/rad, N/m, N/rad ] );
+   GSTIFF =    RowUnits( GSTIFF, [m], [1] );
+   GSTIFF =    RowUnits( GSTIFF, [m], [3] );
+   GSTIFF =    RowUnits( GSTIFF, [m], [5] );
+   GSTIFF =    RowUnits( GSTIFF, [m], [7] );
+   GSTIFF =    RowUnits( GSTIFF, [m], [9] );
+
+/* [f] : Assemble Global Stiffness/Mass Matrices for Two Element Cantilever */
+
+   no_elements = 5;
+   for( i = 1; i <= no_elements; i = i + 1) {
+   for( j = 1; j <= 4; j = j + 1) {
+
+   row = LD [i][j];
+   if( row > 0) {
+       for( k = 1; k <= 4; k = k + 1) {
+          col = LD [i][k];
+          if( col > 0) {
+              GMASS [ row ][ col ] = GMASS [ row ][ col ] + mass[j][k];
+              GSTIFF[ row ][ col ] = GSTIFF[ row ][ col ] + stiff[j][k];
+          }
+       }
+   } 
+   }
+   }
+
+/* [g] : Compute and Print Eigenvalues and Eigenvectors */
+
+   no_eigen    = 3;
+   eigen       = Eigen( GSTIFF, GMASS, [ no_eigen ]);
+   eigenvalue  = Eigenvalue(eigen);
+   eigenvector = Eigenvector(eigen);
+
+   for(i = 1; i <= no_eigen; i = i + 1) {
+       print "Mode", i ," : w^2 = ", eigenvalue[i][1];
+       print " : T = ", 2*PI/sqrt(eigenvalue[i][1]) ,"\n";
+   }
+
+   PrintMatrix(eigenvector);
+
+   print "\n";
+   print "===============\n";
+   print "*** End of Test\n";
+   print "===============\n";
+
+   quit;
+

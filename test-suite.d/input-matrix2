@@ -1,0 +1,211 @@
+/* ========================================== */
+/* MATRIX OEPRATION II                        */
+/*                                            */
+/* Test basic matrix operations with units    */
+/* ========================================== */
+
+print "=====================================\n";
+print "*** Operations on matrices with units\n";
+print "=====================================\n\n";
+
+print "\n";
+print "====================================\n";
+print "*** Build a matrix/vector with units\n";
+print "====================================\n\n";
+
+X = [1.0 kN, 2.0 Pa, 3 m];
+Y = [1 kN; 2 Pa; 3 m];
+Z = [1 lbf*ft; 1 m^2; 1 psi*in^2];
+U = [1 m/sec, 1 kg*m/sec^2, 1 in^4];
+PrintMatrix(X, Y, Z, U);
+
+print "\n";
+print "======================================================\n";
+print "*** Build a general matrix with units                 \n";
+print "***                                                   \n";
+print "*** Demonstrate RowUnits() and ColumnUnits() functions\n";
+print "======================================================\n\n";
+
+X  = [1 kN, 2 kg; 3, 4];     /* This is OK     */
+X1 = [1 kN, 2 ; 3 kg, 4];    /* This is NOT OK */
+PrintMatrix(X);
+
+X = Diag([4, 1]);
+Y = One( [4, 2]);
+Y = RowUnits(Y, [kN]);
+PrintMatrix(Y);
+
+print "\n"; 
+print "*** Assign a set of units to column buffer \n"; 
+
+X = ColumnUnits(X, [ksi, ft, N, m]);
+Y = ColumnUnits(Y, [ksi]);
+PrintMatrix(X, Y);
+
+print "\n"; 
+print "*** Assign a set of units to row buffer \n"; 
+
+X = RowUnits(X, [psi, ft, kN, mm]);
+PrintMatrix(X, Y);
+
+X = One([4, 3]);
+
+print "\n"; 
+print "*** Assign an units to column [1] of column buffer \n"; 
+
+X = ColumnUnits(X, [psi], [1]);
+PrintMatrix(X);
+
+print "\n"; 
+print "*** Assign an units to row [2] of row buffer \n"; 
+
+X = RowUnits(X, [ksi], [2]);
+PrintMatrix(X);
+
+print "\n"; 
+print "*** Replace units in column buffer with given matched units  \n"; 
+
+X = One([6]);
+X = ColumnUnits(X, [ton],  [1]);
+X = ColumnUnits(X, [mile],[3]);
+X = ColumnUnits(X, [klb],  [4]);
+
+X = ColumnUnits(X, [ft],   [6]);
+
+Y = ColumnUnits(X, [in, lb]);
+PrintMatrix(X, Y);
+
+print "\n"; 
+print "*** Replace units in row buffer with given matched units  \n";
+
+X = RowUnits(X, [yard, mil, kips, deg_F, psi,rad]);
+Y = RowUnits(X, [ksi, in, lbf, deg_C]);
+PrintMatrix(X, Y);
+
+print "\n"; 
+print "*** Print Matrix\n";
+
+X = One([3, 4]);
+X = ColumnUnits(X, [psi], [1]);
+X = ColumnUnits(X, [kN],  [2]);
+X = ColumnUnits(X, [km],  [4]);
+X = RowUnits(X, [psi, N, mm]);
+PrintMatrix(X);
+
+print "\n"; 
+print "============================================\n";
+print "*** Extract a matrix element from a matrix  \n";
+print "============================================\n\n";
+
+K = [ 3, 4, 5; 6, 79, 100; 3, 4, 5];
+K = RowUnits(K, [km], [1]);
+K = RowUnits(K, [sec], [3]);
+K = ColumnUnits(K, [MPa], [1]);
+K = ColumnUnits(K, [N*m], [3]);
+
+PrintMatrix(K);
+
+print "\n";
+print "   K[1][1] = ", K[1][1], "\n";
+print "   K[1][2] = ", K[1][2], "\n";
+print "   K[1][3] = ", K[1][3], "\n";
+print "   K[2][1] = ", K[2][1], "\n";
+print "   K[2][2] = ", K[2][2], "\n";
+print "   K[2][3] = ", K[2][3], "\n";
+print "   K[3][1] = ", K[3][1], "\n";
+print "   K[3][2] = ", K[3][2], "\n";
+print "   K[3][3] = ", K[3][3], "\n";
+
+print "\n";
+print "*** Assign matrix element with a quantity of same units \n";
+
+K[1][1] = 2*K[1][1];
+K[1][2] = 2*K[1][2];
+K[1][3] = 2*K[1][3];
+K[2][1] = 2*K[2][1];
+K[2][2] = 2*K[2][2];
+K[2][3] = 2*K[2][3];
+K[3][1] = 2*K[3][1];
+K[3][2] = 2*K[3][2];
+K[3][3] = 2*K[3][3];
+
+PrintMatrix(K);
+
+print "\n==== Assign matrix element with a quantity of different units \n";
+K[1][1] = 2 m;
+
+print "\n";
+print "*** K[1][1] = ", K[1][1], "\n";
+
+print "\n";
+print "*** Assign a non-dimensional matrix element with a quantity with units \n";
+
+K[2][2] = 2 m;
+
+print "\n";
+print "*** K[2][2] = ", K[2][2], "\n";
+
+PrintMatrix(X);
+
+print "\n";
+print "*** Cast a 1x1 matrix into a quantity \n";
+
+K = [100 kPa];
+
+PrintMatrix(K);
+
+print "\n";
+print " K = ", QuanCast(K), "\n";
+
+print "\n"; 
+print "============================================\n";
+print "*** Extract Submatrices from larger matrices\n";
+print "============================================\n\n";
+
+print "\n";
+print "*** Extract a 2x2 matrix A from 3x4 matrix X starting at corner (1,1) \n";
+
+A = Matrix([2,2]);
+A = Extract(A,X,[1,1]);
+PrintMatrix(A);
+
+print "\n";
+print "*** Extract 2nd column of matrix X and store in matrix B \n";
+
+B = Matrix([3,1]);
+B = Extract(B,X,[1,2]);
+PrintMatrix(B);
+
+print "\n";
+print "*** Extract 3rd row of matrix X and store in matrix C\n";
+
+C = Matrix([1,4]);
+C = Extract(C,X,[3,1]);
+
+PrintMatrix(C);
+
+print "\n"; 
+print "============================\n";
+print "*** Replace mattrix contents\n";
+print "============================\n\n";
+
+A = [2 , 3 ; 6, 3];
+Y = Put(X, A, [1,1]);
+PrintMatrix(X, Y, A);
+
+print "\n";
+print "===================================\n";
+print "*** Remove dimensions from a matrix\n";
+print "===================================\n\n";
+
+X = One([3, 4]);
+X = ColumnUnits(X, [psi], [1]);
+X = ColumnUnits(X, [kN],  [2]);
+X = ColumnUnits(X, [km],  [4]);
+Y = MDimenLess(X);
+PrintMatrix(X, Y);
+
+print "\n";
+print "===================\n";
+print "*** End of Test ===\n";
+print "===================\n\n";

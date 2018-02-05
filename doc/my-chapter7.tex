@@ -1,0 +1,777 @@
+\chapter{Data Types : Physical Quantity and Matrix Data Structures}
+
+\section{Introduction}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+Basic engineering quantities such as, length, mass, and force,
+are defined by a numerical value (number itself) plus physical units.
+The importance of the engineering units is well known.
+Unfortunately, physical units are not a standard part of main-stream finite element
+software packages -- indeed, most engineering software packages simply
+assume that engineering units will be consistent,
+and leave the details of checking to engineer (in the writers' experience,
+it is not uncommon for engineers to overlook this detail).
+While this practice of implementation may be satisfactory for
+computation of well established algorithms, it is almost certain
+to lead to incorrect results when engineers are working on the
+development of new and innovative computations.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+ALADDIN deviates from this trend by supporting
+the basic data type physical quantity,
+as well as matrices of physical quantities.
+Engineers may define units as part of the problem description,
+and manipulate these quantities via standard arithmetic and matrix operations.
+Any set of valid engineering units can be used.
+For example, {\em mm}, {\em cm}, {\em m}, {\em km}, and {\em in},
+are all valid units of length.
+In this chapter, we discuss the data structures used to
+implement physical quantities, and matrices of physical quantities.
+Special storage techniques for large symmetric matrices are also mentioned.
+
+\section{Physical Quantities}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+Any physical unit can be decomposed into basic units.
+The four basic units needed for engineering analysis are: 
+length unit $\cal L$; mass unit $\cal M$; time unit t; and temperature unit $\cal T $.
+Any engineering unit can be obtained with the following combinations:
+
+ \[ unit =  k {\cal L}^\alpha {\cal M}^\beta t^\gamma {\cal T}^\delta. \]
+
+\vspace{0.15 in}\noindent
+where $\alpha, \beta, \gamma, \delta $ are exponents,
+and k is the scale factor.
+For units of length and mass,
+$[\alpha, \beta, \gamma, \delta ]$ = $[1, 0, 0, 0] $ and
+$[\alpha, \beta, \gamma, \delta ]$ = $[0, 1, 0, 0] $, respectively.
+Non-dimensional quantities (i.e. numbers, degrees, and radians) are given by the
+family of zero exponents $[\alpha, \beta, \gamma, \delta ]$ = $[0, 0, 0, 0]$.
+With this basic units in place,
+we can define the units data structure as:
+
+\begin{footnotesize}
+\begin{verbatim}
+        #define  SI     100
+        #define  US     200
+        #define  SI_US  300
+
+        typedef struct dimensional_exponents {
+                char         *units_name; /* units name               */
+                double      scale_factor; /* scale/conversion factor  */
+                double      length_expnt; /* exponent for length      */
+                double        mass_expnt; /* exponent for mass        */
+                double        time_expnt; /* exponent for time        */
+                double        temp_expnt; /* exponent for temperature */
+                int           units_type; /* US or SI units           */
+        } DIMENSIONS;
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+The character string stores the unit name,
+and scale\_factor, the scale factor with respect to a basic unit.
+For example, in US units the basic unit of length is inch.
+It follows that 12 will be the scale\_factor for one foot.
+The units\_type flag allows for the representation of
+various systems of units (e.g. SI, US, and combined SI\_US).
+SI\_US units are those shared by both US and SI systems -- the
+two most important examples being time and non-dimensional units.
+We use variables of data type double to represent exponents,
+thereby avoiding mathematical difficulties in manipulation
+of quantities. For example, if $ x = y ^{0.5}$,
+the unit exponents of x,  $[\alpha_x, \beta_x, \gamma_x, \delta_x ]$ = 
+$0.5 \times [\alpha_y, \beta_y, \gamma_y, \delta_y]$.
+If the units exponents were defined as integers,
+then x would be incorrectly truncated to
+$[\alpha_x, \beta_x, \gamma_x, \delta_x ]$ = $[0, 0, 0, 0]$.
+With the units data structure in place,
+the quantity data structure is simply defined as
+
+\begin{footnotesize}
+\begin{verbatim}
+        typedef struct engineering_quantity {
+                double       value;
+                DIMENSIONS  *dimen;
+        } QUANTITY;
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Notice that physical units alone are the special
+case of a quantity with numerical value 1.0.
+ 
+\subsection{Relationship between Quantity and Units}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+In engineering applications, there is no need to distinguish
+between different systems of units during calculation.
+The main use of units is for clarification
+of problem input and problem output.
+ALADDIN stores a physical quantity as an {\em unscaled} {\em value}
+with respect to a set of reference units,
+and by default, all quantities are stored internally in the SI units system.
+In the SI system, the reference set of units are
+meter ``m'' for length, kilogram ``kg'' for mass,
+second ``sec'' for time and ``deg\_C'' for temperature.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+Suppose, for example, that we define the quantity, x = 1 km (one kilometer).
+Because 1 km = 1000 m, x will be saved internally as value = 1000,
+In the data structure {\tt DIMENSIONS},
+units\_name will point to the character string ``km''.
+The scale\_factor for ``km'' with respect to reference unit ``m'' is 1000.
+Now lets see what happens when we print x.
+Because the output value = value/scale\_factor = 1.
+``print x'' will still give ``1 km''.
+
+\subsection{US and SI Units Conversion}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+Scale factors are needed to convert units in US to SI, and vice versa.
+All quantities in US units must be converted into SI
+before they can be used in calculations. Fortunately,
+for most sets of units, only a single scale factor is
+needed to convert a quantity from US into SI and
+vice versa (e.g.  1 in = 24.5 mm = 25.4E-3 m).
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+The important exception is temperature units.
+Conversion of temperature units is complicated by the
+nonlinear relationship between systems -- that is
+$x^o F \neq x \times 1^o F$, since $ x^o F = (5/9)(x -32) \times 1^o C $.
+In other words, the value and unit of a temperature quantity can not be treated separately.
+We have to know the value of temperature before we can convert it's units from
+one to another unit system. ALADDIN handles this problem by first installing
+the ``deg\_F'' (unit for $ ^o F $) with scale\_factor = 1 into symbol table.
+When the value (a number) and the unit are combined into a quantity
+we convert the deg\_F into deg\_C. When a temperature quantity is printed out,
+we need to convert it's units to the prefered units.
+A related complication is units for temperature increment.
+One degree of temperature increase is different from one degree temperature.
+To see how this problem arises, let $y = 1^o F$.
+If y is a one degree temperature increase,
+then $ y = (\alpha + 1)^oF - \alpha^oF = 5/9 ^oC$,
+where $\alpha $ is value of previous temperature.
+If, on the other hand, y is at one degree Fahrenheit temperature,
+then $ y = (5/9)(1-32) ^oC = -17.22 ^o C$.
+Similar difficulties crop up in the computation of temperature gradient --
+$ 10 mm/^oF $ can only be considered as a 10 mm extension
+for one Fahrenheit degree temperature increase, which is $ 18 mm/^oC $.
+This cannot be considered as $ (10 mm) / (1^oF)$, which is $ (-0.5806 mm) / (1^oC)$
+(divisions of this kind in real engineering computations are meaningless).
+To avoid these confusions, a new set of units are chosen
+for temperature increments, they are ''DEG\_F and DEG\_C'' to distinguish from ``deg\_F and deg\_C''.
+The conversion between DEG\_F and DEG\_C is DEG\_F = 5/9 DEG\_C.
+And for simplicity, we will ignore the case of $ (10 mm) / (1^oF) $.
+
+\begin{table}[p]
+\tablewidth = 6.0truein
+\begintable
+\multispan{2}\tstrut\hfil Functions for Units Operations    \hfil\crthick
+Function           | \para{Purpose of Function}                       \cr
+SameUnits()        | \para{Check if two units are of same type}       \cr
+UnitsMult()        | \para{Multiply two units}                        \cr
+UnitsDiv()         | \para{Divide two units}                          \cr
+UnitsCopy()        | \para{Make a copy of a unit}                     \cr
+UnitsPower()       | \para{compute a unit raised to a power}          \cr
+UnitsNegate()      | \para{Negate a unit d = 1/d}                     \cr
+UnitsPrint()       | \para{Print name, scalefactor, type and exponents of a unit}   \cr
+ZeroUnits()        | \para{Initialize a unit}                                       \cr
+DefaultUnits()     | \para{Determine pointer on symbol table for a given unit name} \cr
+UnitsSimplify()    | \para{Simplify unit name string with simple character string}  \cr
+RadUnitsSimplify() | \para{Convert a nondimensional unit into a radian unit}        \cr
+UnitsLength()      | \para{Measure the total length of several units names}         \cr
+ConvertTempUnits() | \para{Convert temperature units between SI and US systems}     \cr
+UnitsConvert()     | \para{Convert units between US and SI systems --
+                           except for temperature units}
+\endtable
+\vspace{0.01 in}
+\caption{\bf Functions for Units Operations}
+\label{tab: my-units-functions}
+\end{table}
+
+\vspace{0.20 in}\noindent
+{\bf Library Functions for Internal Operations on Units :}
+ALADDIN also provides functions for internal operations
+on units -- example functions include copying units,
+obtaining default units, checking consistency of units,
+simplifying the units name after various operations,
+calculating the length of units name,
+and printing of units. For a summary of functions,
+see Table~\ref{tab: my-units-functions}.
+{\tt Note :} Some mathematical functions such as
+log(x), ln(x) or exp(x), cannot have units in their argument lists.
+Other mathematical functions, such as sine and cosine,
+can only have degree or radian in their arguments.
+
+\clearpage
+\section{Matrices}
+
+\vspace{0.15 in}\noindent
+ALADDIN's matrix module has following features:
+
+\begin{description}
+\item {[1]}
+It supports wide range of matrix operations, data types (integer, double and complex),
+and storage methods. In this section, only the double and indirect storage methods
+are discussed. The skyline matrix for large degree of freedom will be
+discussed in next section.
+\vspace{0.05 in}
+\item {[2]}
+It allows users to dynamic allocate and deallocate the memory of matrix.
+\vspace{0.05 in}
+\item {[3]}
+It provides the units for each element of the matrix.
+\end{description}
+
+\vspace{0.15 in}\noindent
+Our strategy of development is to devise a software framework that will allow
+any combination of data type and storages scheme to be implemented.
+
+\begin{figure}[h]
+\epsfxsize=6.0truein
+\centerline{\epsfbox{my-chapter7-fig1.ps}}
+\caption{Layout of Memory in Matrix Data Structure}
+\label{fig: my-chapter2-fig1}
+\end{figure}
+
+\vspace{0.15 in}\noindent
+Figure~\ref{fig: my-chapter2-fig1} shows a high-level layout
+of memory for the matrix data structure.
+Details of the matrix data structure are as follows:
+
+\begin{footnotesize}
+\begin{verbatim}
+
+        /* Data Structures for Matrices of Engineering Quantities */
+
+        typedef struct {
+                double dReal, dImaginary;
+        } COMPLEX;
+
+        typedef enum {
+                INTEGER_ARRAY  = 1,
+                DOUBLE_ARRAY   = 2,
+                COMPLEX_ARRAY  = 3
+        } DATA_TYPE;
+
+        typedef enum {
+                SEQUENTIAL = 1,
+                INDIRECT   = 2,
+                SKYLINE    = 3,
+                SPARSE     = 4
+        } INTERNAL_REP;
+
+        typedef struct MATRIX {
+                char      *cpMatrixName;    /*  *name           */
+                int             iNoRows;    /*  no_rows         */
+                int          iNoColumns;    /*  no_columns      */
+                DIMENSIONS  *spRowUnits;    /*  *row_units_buf  */
+                DIMENSIONS  *spColUnits;    /*  *col_units_buf  */
+                INTERNAL_REP       eRep;    /*  storage type    */ 
+                DATA_TYPE         eType;    /*  data type       */
+                union {
+                    int           **iaa;
+                    double        **daa;   
+                    COMPLEX       **caa;
+                } uMatrix;
+        } MATRIX;
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Memory is provided for a character string to the matrix name,
+two integers for the number of matrix rows and columns,
+two one-dimensional arrays of data type {\tt DIMENSIONS},
+and integer flags for the basic data type and storage scheme for matrix elements.
+The union {\tt uMatrix} contains pointers to matrix
+bodies of integers, doubles and {\tt COMPLEX} elements.
+For the purpose of this study, however, we will implement and
+describe algorithms for data type double plus units
+alone (i.e. {\tt DATA\_TYPE} equals {\tt DOUBLE\_ARRAY}).
+
+\begin{figure}[h]
+\epsfxsize=5.0truein
+\centerline{\epsfbox{Units_Buffer.ps}}
+\caption{Matrix with Units Buffers}
+\label{fig: Units_Buffer}
+\end{figure}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+The units for elements in a matrix are stored
+in two one-dimensional arrays of data type DIMENSIONS.
+One array stores column units, and the second array row units.
+The units for matrix element at row {\bf i} and column {\tt j}
+is simply the product of the ${\tt i}^{th}$ element of the
+row units buffer and the ${\tt j}^{th}$ element of column units buffer.
+Figure~\ref{fig: Units_Buffer} shows, for example, a 3x3 stiffness matrix.
+Elements A[1][1] = 10 pa.m = 10 N/m; A[2][3] = 7
+$pa.m^2 $ = 7 N, and A[3][3] = 13 $ pa.m^2*m $ = 13 N.m.
+This strategy for storing units not only requires much less
+memory than complete element-by-element storage of units,
+but it reflects the reality that most engineering matrices
+are in fact, convenient representations of equations of motion and equlibrium.
+The units of individual terms in these equations must be consistent.
+
+
+\begin{figure}[h]
+\vspace{0.10 in}
+\epsfxsize=6.0truein
+\centerline{\epsfbox{my-chapter7-fig2.ps}}
+\caption{Matrix body for Indirect Storage Pattern}
+\label{fig: my-chapter2-fig2}
+\end{figure}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+Matrices generated through the command language and file input are
+stored with an {\tt INDIRECT} storage pattern.
+Details of the latter storage pattern are shown
+in Figure~\ref{fig: my-chapter2-fig2}.
+
+\subsection{Skyline Matrix Storage}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+The method of skyline storage is suitable for large symmetric matrices,
+which are sparsely populated by non-zero
+elements along (or close to) the matrix diagonal.
+ALADDIN uses skyline storage for matrices
+generated during finite element analysis.
+To illustrate the general idea of skyline storage,
+consider symmetric matrix A given by
+
+\[ A = \left [
+\begin{array}{rrrrrr}
+ 10 &  4 & 0 & 0 &  3 &  0 \\
+  4 & 45 & 0 & 1 &  0 &  0 \\
+  0 &  0 & 3 & 0 &  0 &  0 \\
+  0 &  1 & 0 & 1 &  6 &  3 \\
+  3 &  0 & 0 & 6 &  4 & 34 \\
+  0 &  0 & 0 & 3 & 34 & 20 
+\end{array}
+\right] \]
+
+\vspace{0.15 in}\noindent
+We first note that indirect storage of A would require a $(6 \times 1)$ array
+of pointers, plus six one-dimensional arrays,
+each containing 6 elements of data type double.
+On an engineering workstation where pointers are 4 bytes, 
+312 bytes are needed for the matrix body.
+The method of skyline storage reduces memory requirements
+by taking advantage of matrix symmetries,
+and storing in each column, only those matrix
+elements from the matrix diagonal to the uppermost non-zero element.
+The ``distance'' between the diagonal and the
+last non-zero element is called the ``column height.'' 
+Figure~\ref{fig: Matrix_Skyline} shows the layout of
+memory for skyline storage of matrix A.
+In each column, memory is allocated for the 
+memory for the size of ``column height'' plus one,
+with the height stored in the first element of the corresponding array.
+The second component of the column array stores the matrix diagonal,
+and the last element, the upper-most non-zero element in the array.
+The column height is needed for computation of matrix operations --
+for example, matrix element ({\tt iRowNo}, {\tt iColumnNo}) is
+accessed and printed with the formula
+
+\begin{figure}[t]
+\epsfxsize=5.0truein
+\centerline{\epsfbox{Matrix_Skyline.ps}}
+\caption{Method of Skyline Storage for Symmetric Matrix}
+\label{fig: Matrix_Skyline}
+\end{figure}
+
+\begin{footnotesize}
+\begin{verbatim}
+    ik = MIN( iRowNo, iColumnNo );
+    im = MAX( iRowNo, iColumnNo );
+
+    if((im-ik+1) <= spA->uMatrix.daa[im-1][0])
+        printf(" %12.5e ", spA->uMatrix.daa[ im-1 ][ im-ik+1 ]);
+    else
+        printf(" %12.5e ", 0.0);
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Here {\tt MIN()} and {\tt MAX()} are macros that return the
+minimum and maximum of two input arguments, respectively.
+
+\vspace{0.15 in}\noindent
+{\bf Functions in Matrix Library :}
+Table~\ref{tab: my-matrix-operations} contains a
+summary of matrix functions provided by ALADDIN.
+During matrix operations, consistency of units is checked,
+as is compatibility of matrix dimensions.
+Readers should notice the subtle difference between function pairs
+MatrixAdd() and MatrixAddReplace(),
+MatrixSub() and MatrixSubReplace(), and
+MatrixMult() and MatrixMultReplace().
+In the functions MatrixInverseIteration() and MatrixHouseHolder(),
+matrices A and B must be symmetric.
+
+\begin{table}[hp]
+\tablewidth = 6.0truein
+\begintable
+\multispan{2}\tstrut\hfil Matrix Function and Purpose       \hfil\crthick
+Function           | \para{Purpose of Function}                       \cr
+MatrixAlloc()      | \para{Allocate memory for matrix}                \cr
+MatrixFree()       | \para{Free memory for matrix}                    \cr
+MatrixPrint()      | \para{Print content of matrix}                   \cr
+MatrixCopy()       | \para{Make a copy of matrix}                     \cr
+MatrixTranspose()  | \para{Compute transpose of matrix}               \cr
+MatrixAdd()        | \para{Compute sum of two matrices $[C] = [A] + [B]$} \cr
+MatrixSub()        | \para{Compute difference of two matrices $[C] = [A] - [B]$} \cr
+MatrixMult()       | \para{Compute product of matrices}                \cr
+MatrixNegate()     | \para{Negate matrix [B] = -[A]}                   \cr
+MatrixAddReplace() | \para{Replacement sum of two matrices $[A] = [A] + [B]$} \cr
+MatrixSubReplace() | \para{Replacement difference of two matrices $[A] = [A] - [B]$} \cr
+MatrixMultReplace()| \para{Replacement product of two matrices $[A] = [A].[B]$} \cr
+MatrixNegateReplace() | \para{Negate matrix replacement [A] = -[A]}    \cr
+MatrixSubstitute() | \para{Substitute small matrix into larger matrix} \cr
+MatrixExtract()    | \para{Extract small matrix from larger matrix}    \cr
+MatrixSolve()      | \para{Solve linear equations $[A]\{x\} = \{b\}$}  \cr
+MatrixInverse()    | \para{Compute matrix inverse $[A]^{-1}$}          \cr
+MatrixInverseIteration() | \para{Use inverse iteration to solve symmetric
+                                 eigenvalue problem $[A]\{x\} = \lambda [B]\{x\}$
+                                 for lowest eigenvalue and eigenvector}\cr
+MatrixHouseHolder() | \para{Use Householder transformation and QL Algorithm
+                            to solve $[A]\{x\} = \lambda \{x\}$}
+\endtable
+\vspace{0.01 in}
+\caption{\bf Selected Matrix Operations}
+\label{tab: my-matrix-operations}
+\end{table}
+
+\subsection{Units Buffers for Matrix Multiplication}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+The handling of units in multiplication of two
+dimensional matrices needs special attention. 
+Let A be a $(p \times q)$ matrix with row units
+buffer [ $ a_1, a_2, \cdots, a_p $ ] and column units buffer[ $ b_1, b_2, \cdots, b_r $].
+And let B be a $(q \times r)$ matrix with row units buffer
+[ $ c_1, c_2, \cdots, c_q $ ] and a column units buffer [$ d_1, d_2, \cdots, d_q $].
+The units for elements $(A)_{ik}$ and $(B)_{kj}$
+are $ a_i*b_k $ and $ c_k*d_j $, respectively.
+Moreover, let C be the product of A and B. From basic linear algebra
+we know that $(C)_{ij} = A_{ik}*B_{kj}$, with summation implied on indice {\tt k}.
+The units accompanying $ (C)_{ij} $ are $a_i b_k * c_k d_j$ for k = 1, 2, ..., q.
+Due to the consistency condition, all of the terms in 
+$\sum_{k = 1}^q A_{ik}*B_{kj}$ must have same units.
+Put another way, the exponents of units must satisfy the product constraint
+$a_i b_1 c_1 d_j = a_i b_2 c_2 d_j = \cdots = a_i b_q c_q d_j $.
+The units for $ C_{ij} $ are $ a_i b_1 c_1 d_j $.
+
+\begin{figure}[h]
+\epsfxsize=5.5truein
+\centerline{\epsfbox{M_Mult.ps}}
+\caption{Units Buffer Multiplication of Two Matrices}
+\label{fig: M_Mult}
+\end{figure}
+
+\vspace{0.15 in}\noindent
+The units buffers for matrix C are written as a
+row units buffer [ $ a_1c_1, a_2 c_1, \cdots, a_p c_1 $],
+and a column buffer is [ $ d_1b_1, d_2 b_1, \cdots, d_r b_1 $].
+This arrangement of units exponents is graphically displayed in Figure ~\ref{fig: M_Mult}.
+It is important to notice that although the units for C matrix are unique,
+the solution for the units buffers is not unique.
+
+\subsection{Units Buffers for Inverse Matrix}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+The units buffers for an inverse matrix may be
+obtained as the special case of above results.
+Again let A be the square matrix of interest,
+with number of rows and columns equal (i.e. p = q).
+Let matrix B be the inverse matrix of matrix A. From the previous section
+we know that the units for element $ C_{ij} $ are $ a_i b_k c_k d_j $,
+and because B is the inverse of matrix A,
+the diagonal elements of the matrix C must be dimensionless
+(i.e. $a_i b_k c_k d_i = 1$ for $k = 1,2 \cdots p$ and $i = 1,2 \cdots p$).
+However, because contents of the units buffers need not be unique, and
+
+\[ c_k d_i = {1 \over { a_i b_k}} \]
+
+\vspace{0.15 in}\noindent
+we can arbitrarily select $c_k$ and $d_j$
+with the following set as the units buffers: 
+
+\[ c_k = {1 \over {b_k}} \]
+
+\vspace{0.15 in}\noindent
+for $ k = 1,2, \cdots p$, and $d_i = {1/{a_i}}$ for $i = 1,2, \cdots p$.
+The reader should notice that in this arrangement of units exponents,
+the row units buffer of inverse matrix of A
+is the inverse of A's column units buffer,
+and the column buffer of inverse matrix of A
+is the inverse if A's row units buffer.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+Let [M] be a $(n \times n)$ square matrix, $[M]^{-1}$ it's inverse.
+In expanded matrix form (i.e. including units buffers),
+[M] and $[M]^{-1}$ can be written:
+
+\[ [M] =  \left [
+\begin{array}{rrrrr}
+units  & b_1     & b_2    & \cdots & b_n    \\
+a_1    &  M_{11} & M_{12} & \cdots & M_{1n} \\
+a_2    &  M_{21} & M_{22} & \cdots & M_{2n} \\
+\cdots &  \cdots & \cdots & \cdots & \cdots \\
+a_n    &  M_{31} & M_{32} & \cdots & M_{nn}
+\end{array}
+\right]
+ \]
+
+\[ [M]^{-1} =  \left [
+\begin{array}{rrrrr}
+units      & {a_1}^{-1} & {a_2}^{-1} & \cdots & {a_n}^{-1} \\
+{b_1}^{-1} &  M^*_{11}  & M^*_{12}   & \cdots & M^*_{1n}   \\
+{b_2}^{-1} &  M^*_{21}  & M^*_{22}   & \cdots & M^*_{2n}   \\
+\cdots     &  \cdots    & \cdots     & \cdots & \cdots     \\
+{b_n}^{-1} &  M^*_{31}  & M^*_{32}   & \cdots & M^*_{nn}
+\end{array}
+\right]
+ \]
+
+\vspace{0.15 in}\noindent
+The corresponding [IR] and [IL] are :
+
+\[ [IR] = [M]\times [M]^{-1} 
+ = \left [  
+\begin{array}{rrrrr}
+units           & b_1.{a_1}^{-1} & b_1.{a_2}^{-1} & \cdots & b_1.{a_n}^{-1}    \\
+a_1.{b_1}^{-1}  &  1             & 0              & \cdots & 0      \\
+a_2.{b_1}^{-1}  &  0             & 0              & \cdots & 0      \\
+\cdots          &  \cdots        & \cdots         & \cdots & \cdots \\
+a_n.{b_1}^{-1}  &  0             & 0              & \cdots & 1
+\end{array} 
+\right ]  
+\]
+
+\[
+= \left [ 
+\begin{array}{rrrrr}
+units  & {a_1}^{-1}     & {a_2}^{-1} & \cdots & {a_n}^{-1}  \\
+a_1    &  1             & 0               & \cdots & 0      \\
+a_2    &  0             & 0               & \cdots & 0      \\
+\cdots &  \cdots        & \cdots          & \cdots & \cdots \\
+a_n    &  0             & 0               & \cdots & 1
+\end{array}
+\right ]
+\]
+
+\[ [IL] = [M]^{-1}\times [M] = \left [
+\begin{array}{rrrrr}
+units       & a_1    & a_2     & \cdots & a_n    \\
+{a_1}^{-1}  &  1     & 0       & \cdots & 0      \\
+{a_2}^{-1}  &  0     & 0       & \cdots & 0      \\
+\cdots      & \cdots & \cdots  & \cdots & \cdots \\
+{a_n}^{-1}  &  0     & 0       & \cdots & 1
+\end{array}
+\right]
+\]
+
+\vspace{0.15 in}\noindent
+We observe that the units of [IL] and [IR] depend only
+on the row units buffer of the matrix [M].
+
+\vspace{0.15 in}\noindent
+{\bf Example from Structural Engineering :}
+In undergraduate structural analysis classes we learn that
+an external force vector \{f\} can be written as the product 
+of a stiffness matrix {\tt K} and displacement vector {\tt d}.
+
+\[ [K] \{ d\} = \{f\} \]
+
+\vspace{0.15 in}\noindent
+Suppose that we are working in a three dimensional coordinate space (x,y,z).
+Without a loss of generality in discussion,
+we can limit the total number of degrees of freedom to three;
+two translations $u$ and $v$ in directions x and y, respectively,
+and a rotational degree of freedom $\theta$ about the z axis,
+The translational forces and moment in
+vector \{f\} are $ f_1, f_2 $, and $ M $.
+In expanded form the abovementioned equation is:
+
+\[ \left [
+\begin{array}{rrr}
+ k_{11} & k_{12} & k_{13} \\
+ k_{21} & k_{22} & k_{23} \\
+ k_{31} & k_{32} & k_{33}
+\end{array}
+\right] \; \times
+\left \{
+\begin{array}{r}
+ u  \\
+ v \\
+ \theta
+\end{array}
+\right \} = 
+\left \{
+\begin{array}{r}
+ f_1  \\
+ f_2 \\
+ M
+\end{array}
+\right \} 
+ \]
+
+\vspace{0.15 in}\noindent
+Because $u$ and $v$ are translational displacements,
+they will have length units, ``m'' or ``in.''
+External forces $f_1$ and $f_2$ will have units newton ``N,'' or pound force ``lbf''.
+For the underlying equations of equilibrium to be consistent,
+units for $k_{11}, k_{12}, k_{21}$ and $k_{22}$ must be ``N/m'' or ``lbf/in.''
+And because $\theta$ has non-dimensional radian units,
+$k_{13}$ and $k_{23}$ have units  ``N'' or ``lbf.''
+The third equation represents rotational equilibrium,
+with its right-hand side having units of moment (i.e ``N.m'' or ``lbf.in'').
+The units for $k_{31}$ and $k_{32}$ are ``N'' or ``lbf,''
+and units for $k_{33}$, ``N.m'' or ``lbf.in.''
+For SI units we write:
+
+\[ [K] =  \left [
+\begin{array}{rrrr}
+units & N/m & N/m & N \\
+ \;   &  k_{11} & k_{12} & k_{13} \\
+ \;   &  k_{21} & k_{22} & k_{23} \\
+ m    & k_{31} & k_{32} & k_{33}
+\end{array}
+\right] 
+\]
+
+\noindent
+and for US units:
+\[ [K] =  \left [
+\begin{array}{rrrr}
+units & lbf/in & lbf/in & lbf \\
+ \;   &  k_{11} & k_{12} & k_{13} \\
+ \;   &  k_{21} & k_{22} & k_{23} \\
+ in   &  k_{31} & k_{32} & k_{33}
+\end{array}
+\right].
+ \]
+
+\vspace{0.15 in}\noindent
+The equations of equilibrium
+and units buffers for the corresponding compliance matrix are:
+
+\[ \left [
+\begin{array}{rrr}
+ c_{11} & c_{12} & c_{13} \\
+ c_{21} & c_{22} & c_{23} \\
+ c_{31} & c_{32} & c_{33}
+\end{array}
+\right] \; \times
+\left \{
+\begin{array}{r}
+ f_1  \\
+ f_2 \\
+ M
+\end{array}
+\right \} =
+\left \{
+\begin{array}{r}
+ u  \\
+ v \\
+ \theta
+\end{array}
+\right \}
+ \]
+
+\noindent
+For SI units,
+
+\[ [C] =  \left [
+\begin{array}{rrrr}
+units & \;      & \;     &  1/m \\
+ m/N  &  c_{11} & c_{12} & c_{13} \\
+ m/N  &  c_{21} & c_{22} & c_{23} \\
+ 1/N  &  c_{31} & c_{32} & c_{33}
+\end{array}
+\right] 
+ \]
+
+\vspace{0.15 in}\noindent
+A similar matrix C can be written for US units.
+We observe that the units buffers for the compliance matrix,
+which is the inverse of the stiffness matrix,
+follows the general rule stated at
+the conclusion of the previous section.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+Now let's look at the numerical details and units of
+the matrix product $[K] \times [C]$ -- for notational convenience,
+we will call the identity product [IR]. 
+The elements first and second rows of $[IR]$ have
+units of [ 1, 1, 1/m], and the third row of $[IR]$, units [m,m,1].
+In expanded matrix form, we have:
+
+\[ [IR] = [K]\times [C] = \left [
+\begin{array}{rrrr}
+units  & \;& \;& 1/m \\
+\; & 1 & 0 & 0 \\
+\; & 0 & 1 & 0 \\
+ m & 0 & 0 & 1
+\end{array}
+\right]
+ \]
+
+\vspace{0.15 in}\noindent
+Similarly we have
+
+\[ [IL] = [C]\times [K] = \left [
+\begin{array}{rrrr}
+units  & \;& \;& m \\
+\;  & 1 & 0 & 0 \\
+\;  & 0 & 1 & 0 \\
+1/m & 0 & 0 & 1
+\end{array}
+\right]
+ \]
+
+\vspace{0.15 in}\noindent
+Three points are noted about this result.
+Matrices [IL] and [IR] are not equal as most engineers might expect --
+instead, [IL] is the transpose of [IR].
+Second, [IL] and [IR] are not symmetric with respect
+to the units or units buffers.
+Finally, these ``identity'' matrices are not dimensionless.
+Even though the values of off-diagonal elements are all zero,
+some of them have non-dimensional units.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+Some readers may feel uncomfortable knowing that
+so-called ``indentity'' matrices are not dimensionless,
+and may wonder how could that be.
+Actually, when you look carefully into the equations,
+the results are not surprising.
+For example, let's take the first column of compliance matrix [C]
+and label it $\{C_1\} = [ c_{11}, c_{21}, c_{31} ] ^T $.
+When [K] $\{C_1\}$ is compared to [K] $\{d\}$,
+one quickly realizes that $ [ c_{11}, c_{21}, c_{31} ]$
+takes the place of [u, v, $\theta$] (here $c_{11}, c_{21}$ are
+the displacement per unit force, and $c_{31}$ is the rotation per unit moment).
+Given that the units for \{f\} are $ [force, force, moment]^T $,
+then units for the first column of matrix [IR]
+will be [force/force, force/force, moment/force] (or [1, 1, m]).
+Similar results may be derived for the remaining columns of C,
+and in fact, may be generalized.
+

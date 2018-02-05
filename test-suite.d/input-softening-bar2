@@ -1,0 +1,225 @@
+/* 
+ *  =======================================================================
+ *  Compute force-displacement relationship for a material softening bar.
+ *
+ *    -- One element remains elastic.
+ *    -- A second element has material softening behavior with Et = -0.1*E.
+ *
+ *  The element behavior is modeled with FIBER_2D finite elements.
+ *
+ *  Written By : Wane-Jang Lin                                    July 1997
+ *  =======================================================================
+ */ 
+
+/* Define problem specific parameters */ 
+
+NDimension         = 2;
+NDofPerNode        = 3;
+MaxNodesPerElement = 2;
+GaussIntegPts      = 2;
+
+/* Define material and section properties for element 1 */
+
+   L1 = 2 m;
+   h1 = 30 cm;         b1 = 10 cm;
+   E1 = 30000 N/m^2;  Et1 = -0.1*E1;  fy1 = 1000 N/m^2;
+
+/* Define material and section properties for element 2 */
+
+   L2 = 1.5 m;
+   h2 = 20 cm;         b2 = 10 cm;
+   E2 = 20000 N/m^2;  Et2 = E2;       fy2 = 2500 N/m^2;
+
+/* Generate grid of nodes for finite element model */
+
+   total_node = 3;
+   total_elmt = 2;
+
+   StartMesh();
+   AddNode(1, [  0 m,   0 m]);
+   AddNode(2, [  L1,    0 m]);
+   AddNode(3, [ L1+L2,  0 m]);
+
+/* Attach elements to grid of nodes */
+
+   AddElmt( 1, [1, 2], "elmt_attr1");
+   AddElmt( 2, [2, 3], "elmt_attr2");
+
+/* Define element, section, and material properties */
+
+   ElementAttr("elmt_attr1") { type     = "FIBER_2D";
+                               section  = "section1";
+                               material = "material1";
+                               fiber    = "fib_name1"; }
+   ElementAttr("elmt_attr2") { type     = "FIBER_2D";
+                               section  = "section2";
+                               material = "material2";
+                               fiber    = "fib_name2"; }
+   SectionAttr("section1")   { width = b1; depth = h1; area = b1*h1; }
+   SectionAttr("section2")   { width = b2; depth = h2; area = b2*h2; }
+   MaterialAttr("material1") { poisson = 0.25;
+                               E = E1;   Et = Et1;  yield = fy1; }
+   MaterialAttr("material2") { poisson = 0.25;
+                               E = E2;   Et = Et2;  yield = fy2; }
+
+/* Define fiber attributes for element 1 */
+
+   no_fiber = 4;  no_fiber_type = 1;
+   b  = b1;  h  = h1;   dh = h/no_fiber;
+   ks = E1;  kt = Et1;  fy = fy1;
+
+   fcoord = Matrix([ 1, no_fiber ]);
+   farea  = Matrix([ 1, no_fiber ]);
+   fmap   = Matrix([ 1, no_fiber ]);
+
+   for( i=1 ; i <= no_fiber ; i=i+1 ) {
+      fcoord[1][i] = h/2 - dh/2 - (i-1)*dh;
+      farea[1][i]  = b*h/no_fiber;
+      fmap[1][i]   = 1;
+   }
+
+   fattr  = Matrix([ 3, 1 ]);
+   for( j=1 ; j <= no_fiber_type ; j=j+1 ) {
+      fattr[1][j] = ks;
+      fattr[2][j] = kt;
+      fattr[3][j] = fy;
+   }
+
+   FiberAttr( no_fiber, "fib_name1" ) { FiberMaterialAttr = fattr;
+                                        FiberCoordinate   = fcoord;
+                                        FiberArea         = farea;
+                                        FiberMaterialMap  = fmap; }
+
+/* Define fiber attributes for element 2 */
+
+   no_fiber = 4;  no_fiber_type = 1;
+   b  = b2;  h  = h2;   dh = h/no_fiber;
+   ks = E2;  kt = Et2;  fy = fy2;
+
+   fcoord = Matrix([ 1, no_fiber ]);
+   farea  = Matrix([ 1, no_fiber ]);
+   fmap   = Matrix([ 1, no_fiber ]);
+
+   for( i=1 ; i <= no_fiber ; i=i+1 ) {
+      fcoord[1][i] = h/2 - dh/2 - (i-1)*dh;
+      farea[1][i]  = b*h/no_fiber;
+      fmap[1][i]   = 1;
+   }
+
+   fattr  = Matrix([ 3, 1 ]);
+   for( j=1 ; j <= no_fiber_type ; j=j+1 ) {
+      fattr[1][j] = ks;
+      fattr[2][j] = kt;
+      fattr[3][j] = fy;
+   }
+
+   FiberAttr( no_fiber, "fib_name2" ) { FiberMaterialAttr = fattr;
+                                        FiberCoordinate   = fcoord;
+                                        FiberArea         = farea;
+                                        FiberMaterialMap  = fmap; }
+
+/* Setup Boundary Conditions */
+
+   FixNode(1, [1,1,1]);
+   FixNode(2, [0,1,1]);
+   FixNode(3, [0,1,1]);
+
+   EndMesh();
+
+/* Get the initial stiffness, force, and system displacement */
+
+   Ks = Stiff();
+   NodeLoad( total_node, [ 0 N, 0 N, 0 N*m ] ); 
+   dP    = ExternalLoad();
+   displ = Solve( Ks, dP );
+
+/* Get d.o.f. in x- direction at nodes 2 and 3 */
+
+   load_dir = 1;
+   dof_matrix = GetDof([2]);
+   dof1 = dof_matrix[1][load_dir];
+   dof_matrix = GetDof([3]);
+   dof2 = dof_matrix[1][load_dir];
+
+/* Allocate memory for response matrix [total_step+1][4] */
+
+   print "                                      \n";
+   print "* Column [1] -- resistant force      *\n";
+   print "* Column [2] -- total elongation     *\n";
+   print "* Column [3] -- element elongation 1 *\n";
+   print "* Column [4] -- element elongation 2 *\n";
+
+   total_step = 45;
+   response = ColumnUnits( Zero([total_step+1,4]), [N,cm,cm,cm] );
+
+   response[1][1] =    dP[dof2][1];
+   response[1][2] = displ[dof2][1];
+   response[1][3] = displ[dof1][1];
+   response[1][4] = displ[dof2][1] - displ[dof1][1];
+
+/* Apply unit load and compute displacement increment */
+
+   NodeLoad( total_node, [  1 N, 0 N, 0 N*m ] ); 
+   dP = ExternalLoad();
+   dp = Solve( Ks, dP );
+
+   NodeLoad( total_node, [ -1 N, 0 N, 0 N*m ] ); 
+   dP = ExternalLoad();
+
+/* Incremental displacement added */
+
+   index = 0;
+   for( step=1 ; step <= total_step ; step = step + 1 ) {
+
+      /* Increment displacement by "dp"           */
+
+      displ = displ + dp;
+
+      /* State determination for all elements     */
+
+      ElmtStateDet( dp ); 
+
+      /* Assemble structure resistant force       */
+
+      PR = InternalLoad( displ );
+      PrintMatrix(PR);
+
+      /* Update element information               */
+
+      UpdateResponse(); 
+
+      /* Store displacements in "response" matrix */
+
+      response[step+1][1] = PR[dof2][1];
+      response[step+1][2] = displ[dof2][1];
+      response[step+1][3] = displ[dof1][1];
+      response[step+1][4] = displ[dof2][1] - displ[dof1][1];
+
+      /* Calculate new delta displacement after yielding */
+
+      if(index == 1 ) { 
+         NodeLoad( total_node, [ -1 N, 0 N, 0 N*m ] ); 
+         dP = ExternalLoad();
+         dp = Solve( Ks, dP );
+         index = 0;
+      }
+
+      /* Adjust delta displacement at yielding step */
+
+      if( abs(PR[dof1][1]) > 0.01 N ) {
+         Ks    = Stiff();      /* assemble new structure stiffness */
+         index = 1;
+         step  = step - 1;
+         dp[dof1][1] = 0 m;
+         dp[dof2][1] = PR[dof1][1]/Ks[2][2];
+      }
+   }
+
+   PrintMatrix(response);
+
+   print "\n";
+   print "===========================\n";
+   print "Nonlinear Analysis Complete\n";
+   print "===========================\n";
+
+   quit;

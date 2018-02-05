@@ -1,0 +1,152 @@
+/* [a] : Parameters for Modal Analysis and embedded Newmark Integration */
+
+   no_eigen = 2;
+   dt       = 0.03 sec;
+   nsteps   = 200;
+   beta     = 0.25;
+   gamma    = 0.50;
+
+/* [b] : Form Mass and stiffness matrices */
+
+   mass = ColumnUnits( 1500*[ 1, 0, 0, 0;
+                              0, 2, 0, 0;
+                              0, 0, 2, 0;
+                              0, 0, 0, 3], [kg] );
+
+   stiff = ColumnUnits( 800*[ 1, -1,  0,  0;
+                             -1,  3, -2,  0;
+                              0, -2,  5, -3;
+                              0,  0, -3,  7], [kN/m] );
+
+   PrintMatrix(mass, stiff);
+
+/* [c] : First two eigenvalues, periods, and eigenvectors */
+
+   eigen       = Eigen(stiff, mass, [no_eigen]);
+   eigenvalue  = Eigenvalue(eigen);
+   eigenvector = Eigenvector(eigen);
+
+   for(i = 1; i <= no_eigen; i = i + 1) {
+       print "Mode", i ," : w^2 = ", eigenvalue[i][1];
+       print " : T = ", 2*PI/sqrt(eigenvalue[i][1]) ,"\n";
+   }
+
+   PrintMatrix(eigenvector);
+
+/* [d] : Generalized mass and stiffness matrices */
+
+   EigenTrans = Trans(eigenvector);
+   Mstar   = EigenTrans*mass*eigenvector;
+   Kstar   = EigenTrans*stiff*eigenvector;
+
+   PrintMatrix( Mstar );
+   PrintMatrix( Kstar );
+
+/* 
+ * [e] : Generate and print external saw-tooth external loading matrix. First and
+ *       second columns contain time (sec), and external force (kN), respectively.
+ */ 
+
+   myload = ColumnUnits( Matrix([21,2]), [sec], [1]);
+   myload = ColumnUnits( myload,          [kN], [2]);
+
+   for(i = 1; i <= 6; i = i + 1) {
+       myload[i][1] = (i-1)*dt;
+       myload[i][2] = (2*i-2)*(1 kN);
+   }
+
+   for(i = 7; i <= 16; i = i + 1) {
+       myload[i][1] = (i-1)*dt;
+       myload[i][2] = (22-2*i)*(1 kN);
+   }
+
+   for(i = 17; i <= 21; i = i + 1) {
+       myload[i][1] = (i-1)*dt;
+       myload[i][2] = (2*i-42)*(1 kN);
+   }
+
+   PrintMatrix(myload);
+
+/* [f] : Initialize system displacement, velocity, and load vectors */
+
+   displ  = ColumnUnits( Matrix([4,1]), [m]    );
+   vel    = ColumnUnits( Matrix([4,1]), [m/sec]);
+   eload  = ColumnUnits( Matrix([4,1]), [kN]);
+
+/* [g] : Initialize modal displacement, velocity, and acc'n vectors */
+
+   Mdispl  = ColumnUnits( Matrix([ no_eigen,1 ]), [m]    );
+   Mvel    = ColumnUnits( Matrix([ no_eigen,1 ]), [m/sec]);
+   Maccel  = ColumnUnits( Matrix([ no_eigen,1 ]), [m/sec/sec]);
+
+/* 
+ * [g] : Allocate Matrix to store five response parameters --
+ *       Col 1 = time (sec);
+ *       Col 2 = 1st mode displacement (cm);
+ *       Col 3 = 2nd mode displacement (cm);
+ *       Col 4 = 1st + 2nd mode displacement (cm);
+ *       Col 5 = Total energy (Joules)
+ */ 
+
+   response = ColumnUnits( Matrix([nsteps+1,5]), [sec], [1]);
+   response = ColumnUnits( response,  [cm], [2]);
+   response = ColumnUnits( response,  [cm], [3]);
+   response = ColumnUnits( response,  [cm], [4]);
+   response = ColumnUnits( response, [Jou], [5]);
+
+/* [h] : Compute (and compute LU decomposition) effective mass */
+
+   MASS  = Mstar + Kstar*beta*dt*dt;
+   lu    = Decompose(MASS);
+
+/* [i] : Mode-Displacement Solution for Response of Undamped MDOF System  */
+
+   for(i = 1; i <= nsteps; i = i + 1) {
+
+    /* [i.1] : Update external load */
+
+       if((i+1) <= 21) then {
+          eload[1][1] = myload[i+1][2];
+       } else {
+          eload[1][1] = 0.0 kN;
+       } 
+
+       Pstar = EigenTrans*eload;
+       R = Pstar - Kstar*(Mdispl + Mvel*dt + Maccel*(dt*dt/2.0)*(1-2*beta));
+
+    /* [i.2] : Compute new acceleration, velocity and displacement  */
+
+       Maccel_new = Substitution(lu,R); 
+       Mvel_new   = Mvel   + dt*(Maccel*(1.0-gamma) + gamma*Maccel_new);
+       Mdispl_new = Mdispl + dt*Mvel + ((1 - 2*beta)*Maccel + 2*beta*Maccel_new)*dt*dt/2;
+
+    /* [i.3] : Update and print new response */
+
+       Maccel = Maccel_new;
+       Mvel   = Mvel_new;
+       Mdispl = Mdispl_new;
+
+    /* [i.4] : Combine Modes */
+
+       displ = eigenvector*Mdispl;
+       vel   = eigenvector*Mvel;
+
+    /* [i.5] : Compute Total System Energy */
+
+       e1 = Trans(vel)*mass*vel;
+       e2 = Trans(displ)*stiff*displ;
+       energy = 0.5*(e1 + e2);
+
+    /* [i.6] : Save components of time-history response */
+
+       response[i+1][1] = i*dt;                            /* Time                  */
+       response[i+1][2] = eigenvector[1][1]*Mdispl[1][1];  /* 1st mode displacement */
+       response[i+1][3] = eigenvector[1][2]*Mdispl[2][1];  /* 2nd mode displacement */
+       response[i+1][4] = displ[1][1];               /* 1st + 2nd mode displacement */
+       response[i+1][5] = energy[1][1];                    /* System Energy         */
+   }
+
+/* [j] : Print response matrix and quit */
+
+   PrintMatrix(response);
+   quit;

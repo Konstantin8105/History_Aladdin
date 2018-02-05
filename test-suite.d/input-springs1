@@ -1,0 +1,113 @@
+/* 
+ *  =====================================================================
+ *  Plastic Analysis of One Degree Spring Element
+ *  fixed displacement increment, example on p86,87 of report
+ * 
+ *  Written By: Wane-Jang Lin                               October, 1995
+ *  =====================================================================
+ */ 
+
+/* Spring A */
+
+   fAel = 1.0 cm/N;
+
+/* Spring B */
+
+   fBel =  0.5 cm/N;
+   fBpl = -2.0 cm/N;
+   fy   =   10 N;
+
+/* Initial condition, unstressed */
+
+   Q  = 0 N;
+   DA = 0 N;
+   DB = 0 N;
+   q  = 0 cm;
+   dA = 0 cm;
+   dB = 0 cm;
+
+/* Assemble initial stiffness matrix Ks */
+
+   fA = fAel;
+   fB = fBel;
+   F = fA + fB;
+   K = 1/F;
+
+/* Main loop for displacement control */
+
+   print "Total Load & Deformation\n";
+   print "      Q     \t       q\n";
+   print "  ----------\t  ----------\n";
+
+   d_q = 1 cm;
+   for ( i=1; i<=20 ; i=i+1 ) {
+
+       rA = 0 cm;
+       rB = 0 cm;
+       s  = 1E+7 cm;
+
+       d_Q = K*d_q;
+       q = q + d_q;
+
+       /* State determination of each element */
+
+       while( abs(s) > 0.00001 cm ) {
+          Q = Q + d_Q;
+          d_DA = d_Q;
+          d_DB = d_Q;
+          d_dA = fA*d_DA;
+          d_dB = fB*d_DB;
+
+          /* Update element deformations and forces and get new flexibilities */
+
+          dA = dA + d_dA + rA;
+          dB = dB + d_dB + rB;
+          DA = DA + d_DA;
+          DB = DB + d_DB;
+          fA = fAel;
+          if ( DB <= fy ) then {
+               fB = fBel;
+          } else {
+               fB = fBpl;
+          }
+
+          /* Compute resisting forces and corresponding unbalanced forces */
+
+          DAr = dA/fAel;
+          if ( dB <= fy*fBel ) then {
+               DBr = dB/fBel;
+          } else {
+               DBr = fy + (dB-fy*fBel)/fBpl;
+          }
+
+          DAu = DA - DAr;
+          DBu = DB - DBr;
+
+          /* Compute the residual spring deformations */
+
+          rA = fA*DAu;
+          rB = fB*DBu;
+
+          /* Update the element flexibility and stiffness matrices */
+
+          F = fA + fB;
+          K = 1/F;
+
+          /* Check for element convergence */
+
+          s = rA + rB;
+          d_Q = -K*s;
+
+       }
+
+       print Q(N), q(cm), "\n";
+  }
+
+  print "\n";
+  print "=================\n";
+  print "Analysis Complete\n";
+  print "=================\n";
+
+  quit;
+
+

@@ -1,0 +1,33 @@
+/* ================================================================ */
+/* Test linear equation solvers and eigenvalue/eigenvector routines */
+/* ================================================================ */
+
+print "\n";
+print "=============================================\n";
+print "*** Basic eigenvalue/eigenvector calculations\n";
+print "=============================================\n\n";
+
+/* Setup (2x2) [K] matrix and [M] = [I] */ 
+
+K = [  2,  -2; -2,   4 ];
+M = [  1,   0;  0,   1 ];
+
+PrintMatrix(K,M);
+
+/* Compute eigenvalues and eigenvectors */ 
+
+eigen = Eigen ( K, M, [2]);
+eigenvalue  = Eigenvalue ( eigen );
+eigenvector = Eigenvector ( eigen );
+
+/* Print eigenvalues and eigenvectors */ 
+
+PrintMatrix( eigenvalue );
+PrintMatrix( eigenvector );
+
+print "\n";
+print "===============\n";
+print "*** End of Test\n";
+print "===============\n";
+
+quit;

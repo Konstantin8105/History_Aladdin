@@ -1,0 +1,830 @@
+This is TeX, Version 3.1415 (C version 6.1) (format=lplain 94.2.10)  17 AUG 1995 15:14
+**report
+(report.tex
+LaTeX Version 2.09 <25 March 1992>
+(epsf.tex
+\epsffilein=\read1
+\epsfxsize=\dimen99
+\epsfysize=\dimen100
+\epsftsize=\dimen101
+\epsfrsize=\dimen102
+\epsftmp=\dimen103
+\pspoints=\dimen104
+) (table.sty
+\hdbox=\box25
+\hdrows=\count79
+\multispancount=\count80
+\ncase=\count81
+\ncols=\count82
+\nrows=\count83
+\nspan=\count84
+\ntemp=\count85
+\hdsize=\dimen105
+\newhdsize=\dimen106
+\parasize=\dimen107
+\spreadwidth=\dimen108
+\thicksize=\dimen109
+\thinsize=\dimen110
+\tablewidth=\dimen111
+\dbt=\toks11
+\hdtks=\toks12
+\savetks=\toks13
+\tableLETtokens=\toks14
+\tabletokens=\toks15
+\widthspec=\toks16
+) (/usr/local/tex/lib/texmf///tex/latex/base/report.sty
+Standard Document Style `report' <14 Jan 92>.
+(/usr/local/tex/lib/texmf///tex/latex/base/rep12.sty)
+\descriptionmargin=\dimen112
+\c@part=\count86
+\c@chapter=\count87
+\c@section=\count88
+\c@subsection=\count89
+\c@subsubsection=\count90
+\c@paragraph=\count91
+\c@subparagraph=\count92
+\c@figure=\count93
+\c@table=\count94
+
+(/usr/local/tex/lib/texmf///tex/latex/base/titlepag.sty
+Document Style Option `titlepage' -- Released 16 June 1991.
+)) (report.aux) [0] [0] (report.toc [1
+
+] [2])
+\tf@toc=\write3
+ [3] [4
+
+] (my-chapter1.tex
+Chapter 1.
+LaTeX Warning: Citation `abaqus92' on page 5 undefined on input line 16.
+LaTeX Warning: Citation `balling83' on page 5 undefined on input line 16.
+LaTeX Warning: Citation `mondkar75' on page 5 undefined on input line 16.
+LaTeX Warning: Citation `nye87' on page 5 undefined on input line 16.
+LaTeX Warning: Citation `nye82' on page 5 undefined on input line 16.
+LaTeX Warning: Citation `nye86' on page 5 undefined on input line 16.
+LaTeX Warning: Citation `wu86' on page 5 undefined on input line 16.
+LaTeX Warning: Citation `zienkiewitz89' on page 5 undefined on input line 16.
+LaTeX Warning: Citation `abaqus92' on page 5 undefined on input line 32.
+LaTeX Warning: Citation `mondkar75' on page 5 undefined on input line 32.
+LaTeX Warning: Citation `zienkiewitz89' on page 5 undefined on input line 33.
+[5
+
+]
+LaTeX Warning: Citation `zienkiewitz89' on page 6 undefined on input line 95.
+LaTeX Warning: Citation `balling83' on page 6 undefined on input line 96.
+LaTeX Warning: Citation `nye87' on page 6 undefined on input line 96.
+LaTeX Warning: Citation `wu86' on page 6 undefined on input line 96.
+LaTeX Warning: Citation `austin87a' on page 6 undefined on input line 108.
+LaTeX Warning: Citation `austin87b' on page 6 undefined on input line 108.
+LaTeX Warning: Citation `balling83' on page 6 undefined on input line 108.
+[6]
+LaTeX Warning: Citation `kronlof93' on page 7 undefined on input line 167.
+LaTeX Warning: Reference `fig: aladdin-development' on page 7 undefined on inpu
+t line 176.
+[7]
+LaTeX Warning: Citation `salter76' on page 8 undefined on input line 209.
+[8]
+LaTeX Warning: Citation `kernighan-pike' on page 9 undefined on input line 249.
+
+LaTeX Warning: Reference `fig: aladdin-development' on page 9 undefined on inpu
+t line 260.
+LaTeX Warning: Reference `fig: aladdin-functions' on page 9 undefined on input 
+line 275.
+[9]
+[Nrows=4, Ncols=3]
+LaTeX Warning: Reference `tab: tradeoffs-in-design' on page 10 undefined on inp
+ut line 337.
+[10]) [11] [12
+
+] (my-chapter2.tex
+Chapter 2.
+[13
+
+] [14]
+LaTeX Warning: Citation `cmelik88' on page 15 undefined on input line 137.
+LaTeX Warning: Citation `gehani82' on page 15 undefined on input line 137.
+LaTeX Warning: Citation `karr78' on page 15 undefined on input line 137.
+[15] [16]
+LaTeX Warning: Reference `tab: my-keywords-and-constants' on page 17 undefined 
+on input line 299.
+LaTeX Warning: Reference `tab: my-mathematical-functions' on page 17 undefined 
+on input line 300.
+LaTeX Warning: Reference `tab: my-builtin-matrix-allocation-functions' on page 
+17 undefined on input line 304.
+LaTeX Warning: Reference `tab: my-basic-matrix-operations' on page 17 undefined
+ on input line 305.
+LaTeX Warning: Reference `tab: my-linear-equation-functions' on page 17 undefin
+ed on input line 309.
+LaTeX Warning: Reference `tab: my-eigenvalue-functions' on page 17 undefined on
+ input line 309.
+LaTeX Warning: Reference `tab: my-section-properties' on page 17 undefined on i
+nput line 310.
+LaTeX Warning: Reference `tab: my-material-properties' on page 17 undefined on 
+input line 310.
+[17] [18] [19] [20] [21]
+[Nrows=5, Ncols=2]
+[Nrows=11, Ncols=2]
+[22]
+LaTeX Warning: Reference `fig: aladdin-branch-and-loop-part2' on page 23 undefi
+ned on input line 608.
+[23
+
+] [24] [25] [26] [27] [28]
+[Nrows=10, Ncols=2]
+LaTeX Warning: Reference `tab: my-builtin-matrix-allocation-functions' on page 
+29 undefined on input line 1079.
+[29] [30] [31] [32] [33] [34] [35]
+[Nrows=8, Ncols=2]
+[36] [37] [38] [39] [40]
+LaTeX Warning: Reference `tab: my-basic-matrix-operations' on page 41 undefined
+ on input line 1842.
+[41] [42] [43]
+LaTeX Warning: Reference `eqn:linear-equation1' on page 44 undefined on input l
+ine 1945.
+LaTeX Warning: Reference `fig:solution-stragies' on page 44 undefined on input 
+line 1963.
+[44
+
+]
+LaTeX Warning: Reference `fig:solution-stragies' on page 45 undefined on input 
+line 1986.
+[Nrows=6, Ncols=2]
+LaTeX Warning: Reference `tab: my-linear-equation-functions' on page 45 undefin
+ed on input line 2025.
+
+Overfull \hbox (0.12337pt too wide) in paragraph at lines 2020--2026
+  \twlrm AL-ADDIN pro-vides three func-tions, \twltt Decompose()\twlrm , \twltt
+ Substitution()\twlrm , and \twltt Solve()
+
+\hbox(8.33331+2.66666)x455.30121, glue set - 1.0
+.\glue 36.135
+.\glue 3.91663 plus 1.95831 minus 1.30554
+.\twlrm A
+.\twlrm L
+.\discretionary
+..\twlrm -
+.etc.
+
+[45]
+LaTeX Warning: Reference `fig:prismatic-beam' on page 46 undefined on input lin
+e 2090.
+[46] [47] [48] [49] [50] [51] [52] [53]
+LaTeX Warning: Reference `eqn: eigen-basic1' on page 54 undefined on input line
+ 2600.
+LaTeX Warning: Reference `eqn: eigen-basic1' on page 54 undefined on input line
+ 2603.
+LaTeX Warning: Reference `eqn: eigen-basic1' on page 54 undefined on input line
+ 2604.
+LaTeX Warning: Reference `eqn: eigen1' on page 54 undefined on input line 2619.
+
+LaTeX Warning: Reference `eqn: eigen2' on page 54 undefined on input line 2657.
+
+LaTeX Warning: Reference `eqn: eigen3' on page 54 undefined on input line 2665.
+
+LaTeX Warning: Reference `eqn: eigen4' on page 54 undefined on input line 2665.
+
+[54
+
+]
+LaTeX Warning: Reference `eqn: eigen1' on page 55 undefined on input line 2673.
+
+LaTeX Warning: Reference `eqn: eigen4' on page 55 undefined on input line 2673.
+
+LaTeX Warning: Citation `bathe76' on page 55 undefined on input line 2674.
+LaTeX Warning: Citation `austin95' on page 55 undefined on input line 2675.
+[Nrows=4, Ncols=2]
+LaTeX Warning: Reference `tab: my-eigenvalue-functions' on page 55 undefined on
+ input line 2698.
+
+Overfull \hbox (3.38722pt too wide) in paragraph at lines 2694--2705
+  \twlrm AL-ADDIN pro-vides three func-tions, \twltt Eigen()\twlrm , \twltt Eig
+envalue()\twlrm , and \twltt Eigenvector()\twlrm ,
+
+\hbox(8.33331+2.66666)x455.30121, glue set - 1.0
+.\glue 36.135
+.\glue 3.91663 plus 1.95831 minus 1.30554
+.\twlrm A
+.\twlrm L
+.\discretionary
+..\twlrm -
+.etc.
+
+LaTeX Warning: Reference `fig:buckling-of-rod1' on page 55 undefined on input l
+ine 2732.
+[55]
+LaTeX Warning: Reference `eq: buckle-part1' on page 56 undefined on input line 
+2745.
+[56]
+LaTeX Warning: Reference `eq: buckle-part1' on page 57 undefined on input line 
+2792.
+LaTeX Warning: Reference `fig:buckling-of-rod1' on page 57 undefined on input l
+ine 2797.
+LaTeX Warning: Citation `ghali79' on page 57 undefined on input line 2801.
+LaTeX Warning: Reference `eq: buckle-part1' on page 57 undefined on input line 
+2802.
+LaTeX Warning: Reference `eq: buckle-part6' on page 57 undefined on input line 
+2826.
+[57] [58]
+LaTeX Warning: Reference `fig:buckling-of-rod1' on page 59 undefined on input l
+ine 2984.
+LaTeX Warning: Reference `eq: buckle-part4' on page 59 undefined on input line 
+2987.
+LaTeX Warning: Reference `eq: buckle-part5' on page 59 undefined on input line 
+2987.
+[59]
+LaTeX Warning: Reference `fig:elastic-beam-geometry' on page 60 undefined on in
+put line 3021.
+LaTeX Warning: Reference `fig:elastic-beam-geometry' on page 60 undefined on in
+put line 3037.
+LaTeX Warning: Reference `fig:elastic-beam-geometry' on page 60 undefined on in
+put line 3042.
+[60
+
+] [61]
+Overfull \hbox (2.68327pt too wide) in paragraph at lines 3136--3138
+[] \tenrm AB-BRE-VI-ATED IN-PUT FILE [] 
+
+\hbox(6.83331+0.0)x455.30121, glue set - 1.0
+.\hbox(2.52971+0.0)x158.99377
+..\rule(2.52971+0.0)x158.99377
+.\glue 3.33333 plus 1.66666 minus 1.11111
+.\tenrm A
+.\tenrm B
+.\discretionary
+..\tenrm -
+.etc.
+
+[62] [63] [64] [65]
+LaTeX Warning: Reference `fig:elastic-beam-mode-shape' on page 66 undefined on 
+input line 3361.
+) (my-chapter3.tex [66]
+Chapter 3.
+LaTeX Warning: Citation `chen95' on page 67 undefined on input line 14.
+LaTeX Warning: Reference `eq: Roots' on page 67 undefined on input line 35.
+[67
+
+]
+LaTeX Warning: Citation `bathe76' on page 68 undefined on input line 73.
+LaTeX Warning: Citation `bathe80' on page 68 undefined on input line 73.
+LaTeX Warning: Reference `eq: Newton' on page 68 undefined on input line 80.
+LaTeX Warning: Reference `fig:scant_method' on page 68 undefined on input line 
+102.
+[68]
+LaTeX Warning: Citation `bathe80' on page 69 undefined on input line 132.
+LaTeX Warning: Reference `eq: LS_crit' on page 69 undefined on input line 176.
+LaTeX Warning: Reference `eq: LS_crit' on page 69 undefined on input line 179.
+[69]
+LaTeX Warning: Reference `eq: BFGS-1' on page 70 undefined on input line 186.
+LaTeX Warning: Reference `eq: LS_crit' on page 70 undefined on input line 189.
+LaTeX Warning: Reference `eq: BFGS-1' on page 70 undefined on input line 195.
+LaTeX Warning: Reference `eq: delta' on page 70 undefined on input line 208.
+LaTeX Warning: Reference `eq: gamma' on page 70 undefined on input line 208.
+LaTeX Warning: Citation `bathe80' on page 70 undefined on input line 213.
+LaTeX Warning: Citation `bathe80' on page 70 undefined on input line 264.
+[70] [71] [72] [73] [74] [75]
+LaTeX Warning: Citation `Luenberger84' on page 76 undefined on input line 566.
+LaTeX Warning: Reference `eq: min_func' on page 76 undefined on input line 618.
+
+[76
+
+]
+LaTeX Warning: Citation `Luenberger84' on page 77 undefined on input line 655.
+LaTeX Warning: Reference `eq: min_QPLagrange' on page 77 undefined on input lin
+e 656.
+LaTeX Warning: Reference `eq: min_lagrange' on page 77 undefined on input line 
+708.
+[77]
+LaTeX Warning: Reference `eq: Struct_Newton' on page 78 undefined on input line
+ 753.
+LaTeX Warning: Reference `eq: min_QPLagrange-part2' on page 78 undefined on inp
+ut line 758.
+LaTeX Warning: Reference `eq: Quasi_NewtonQP' on page 78 undefined on input lin
+e 766.
+LaTeX Warning: Reference `eq: BFGS_OP' on page 78 undefined on input line 776.
+LaTeX Warning: Reference `eq: Quasi_NewtonQP' on page 78 undefined on input lin
+e 778.
+LaTeX Warning: Reference `eq: min_QP' on page 78 undefined on input line 792.
+LaTeX Warning: Reference `eq: min_lagrange' on page 78 undefined on input line 
+795.
+[78]
+LaTeX Warning: Reference `eq: min_QP' on page 79 undefined on input line 814.
+LaTeX Warning: Citation `Luenberger84' on page 79 undefined on input line 827.
+[79] [80] [81] [82] [83] [84] [85]) (my-chapter4.tex [86]
+Chapter 4.
+LaTeX Warning: Reference `eq: equl' on page 87 undefined on input line 18.
+LaTeX Warning: Citation `bathe82' on page 87 undefined on input line 38.
+[87
+
+]
+LaTeX Warning: Reference `eq: equl-1' on page 88 undefined on input line 59.
+LaTeX Warning: Reference `eq: equl-2' on page 88 undefined on input line 60.
+LaTeX Warning: Reference `eq: equl-2' on page 88 undefined on input line 97.
+[88]
+LaTeX Warning: Reference `fig:solution-shear-building' on page 89 undefined on 
+input line 138.
+LaTeX Warning: Reference `fig:applied-force-versus-time' on page 89 undefined o
+n input line 138.
+LaTeX Warning: Reference `fig:solution-shear-building' on page 89 undefined on 
+input line 160.
+LaTeX Warning: Reference `fig:solution-eigen-problem' on page 89 undefined on i
+nput line 168.
+[89]
+LaTeX Warning: Reference `fig:applied-force-versus-time' on page 90 undefined o
+n input line 183.
+[90]
+LaTeX Warning: Reference `eq: equl-1' on page 91 undefined on input line 212.
+LaTeX Warning: Reference `eq: equl3' on page 91 undefined on input line 222.
+[91] [92] [93]
+LaTeX Warning: Reference `fig: shear-displacement-versus-time' on page 94 undef
+ined on input line 406.
+LaTeX Warning: Reference `fig: modal-results-4' on page 94 undefined on input l
+ine 406.
+[94]
+LaTeX Warning: Reference `fig: shear-displacement-versus-time' on page 95 undef
+ined on input line 476.
+LaTeX Warning: Reference `fig: shear-energy-versus-time' on page 95 undefined o
+n input line 476.
+LaTeX Warning: Reference `fig:applied-force-versus-time' on page 95 undefined o
+n input line 480.
+LaTeX Warning: Reference `fig: shear-displacement-versus-time' on page 95 undef
+ined on input line 484.
+[95] [96]
+LaTeX Warning: Reference `eq: equl' on page 97 undefined on input line 520.
+LaTeX Warning: Reference `eq:modal-1' on page 97 undefined on input line 522.
+LaTeX Warning: Reference `eq: equl' on page 97 undefined on input line 522.
+LaTeX Warning: Reference `eq: equl' on page 97 undefined on input line 523.
+LaTeX Warning: Reference `eq:modal-2' on page 97 undefined on input line 534.
+LaTeX Warning: Reference `eq:modal-2' on page 97 undefined on input line 543.
+LaTeX Warning: Reference `eq:modal-3' on page 97 undefined on input line 553.
+LaTeX Warning: Reference `eq: equl' on page 97 undefined on input line 554.
+LaTeX Warning: Reference `eq:modal-4' on page 97 undefined on input line 572.
+[97
+
+]
+LaTeX Warning: Reference `eq:modal-5' on page 98 undefined on input line 605.
+LaTeX Warning: Reference `eq: equl' on page 98 undefined on input line 665.
+[98]
+LaTeX Warning: Reference `eq:uncoupled-5' on page 99 undefined on input line 71
+4.
+LaTeX Warning: Reference `fig:solution-shear-building' on page 99 undefined on 
+input line 726.
+LaTeX Warning: Reference `fig:applied-force-versus-time' on page 99 undefined o
+n input line 726.
+[99] [100] [101]
+Overfull \hbox (11.94472pt too wide) in paragraph at lines 904--904
+[]       \tentt Mdispl_new = Mdispl + dt*Mvel + ((1 - 2*beta)*Maccel + 2*beta*M
+accel_new)*dt*dt/2;[] 
+
+\hbox(6.94444+2.22223)x455.30121
+.\hbox(0.0+0.0)x0.0
+.\penalty 10000
+.\glue 5.24995
+.\penalty 10000
+.\glue 5.24995
+.etc.
+
+LaTeX Warning: Reference `eq:modal-6' on page 102 undefined on input line 923.
+[102] [103]
+LaTeX Warning: Reference `fig: modal-results-1' on page 104 undefined on input 
+line 1013.
+LaTeX Warning: Reference `fig: modal-results-2' on page 104 undefined on input 
+line 1013.
+LaTeX Warning: Reference `fig:solution-eigen-problem' on page 104 undefined on 
+input line 1020.
+LaTeX Warning: Reference `fig: modal-results-3' on page 104 undefined on input 
+line 1023.
+LaTeX Warning: Reference `fig: modal-results-4' on page 104 undefined on input 
+line 1028.
+[104] [105]) [106] [107
+
+] (my-chapter5.tex
+Chapter 5.
+[108
+
+] [109]
+LaTeX Warning: Reference `ref:material-and-section' on page 110 undefined on in
+put line 195.
+[110
+
+]
+LaTeX Warning: Reference `fig:fe-cantilever-mesh' on page 111 undefined on inpu
+t line 199.
+[111]
+LaTeX Warning: Reference `section-finite-element-library' on page 112 undefined
+ on input line 274.
+LaTeX Warning: Reference `tab: my-section-properties' on page 112 undefined on 
+input line 286.
+LaTeX Warning: Reference `tab: my-material-properties' on page 112 undefined on
+ input line 293.
+
+Overfull \hbox (0.55849pt too wide) in paragraph at lines 290--296
+[] []\twltt MaterialAttr("name[]of[]material[]attr") $[]\twlrm ;$. Here \twltt 
+"name[]of[]material[]attr"
+
+\hbox(9.0+3.0)x425.92651, glue set - 1.0
+.\hbox(0.0+0.0)x0.0
+.\glue 0.0
+.\hbox(5.33334+0.0)x0.0
+..\glue 0.0
+..\glue -23.49976
+..\glue -5.87494
+..\hbox(5.33334+0.0)x23.49976, glue set 23.49976fil
+...\glue 0.0 plus 1.0fil minus 1.0fil
+...\hbox(5.33334+0.0)x0.0, glue set - 6.00002fil []
+..\glue 5.87494
+.\penalty 0
+.\twltt M
+.etc.
+
+[112]
+LaTeX Warning: Reference `section-finite-element-library' on page 113 undefined
+ on input line 357.
+[Nrows=15, Ncols=3]
+[Nrows=12, Ncols=3]
+[113] [114] [115]
+Overfull \hbox (2.45346pt too wide) in paragraph at lines 530--535
+\twlrm loads to node num-ber \twltt nodeno\twlrm . Here \twltt load[]vector \tw
+lrm = $[\twlmi F[]; F[]; M[]\twlrm ]$ for two-dimensional
+
+\hbox(9.0+3.35555)x425.92651, glue set - 1.0
+.\twlrm l
+.\twlrm o
+.\twlrm a
+.\twlrm d
+.\twlrm s
+.etc.
+
+
+Overfull \hbox (2.26683pt too wide) in paragraph at lines 530--535
+\twlrm prob-lems, and \twltt load[]vector \twlrm = $[\twlmi F[]; F[]; F[]; M[];
+ M[]; M[]\twlrm ]$ for three-dimensional prob-
+
+\hbox(9.0+3.35555)x425.92651, glue set - 1.0
+.\twlrm p
+.\twlrm r
+.\twlrm o
+.\twlrm b
+.\discretionary
+..\twlrm -
+.etc.
+
+[116]
+LaTeX Warning: Reference `section-structure-of-input-files' on page 117 undefin
+ed on input line 611.
+
+Overfull \hbox (6.17104pt too wide) in paragraph at lines 625--631
+[] []\twltt InternalLoad(displacement, IncrementalDisplacement) \twlrm The two 
+ar-gu-ment ver-
+
+\hbox(8.33331+2.66666)x425.92651, glue set - 1.0
+.\hbox(0.0+0.0)x0.0
+.\glue 0.0
+.\hbox(5.33334+0.0)x0.0
+..\glue 0.0
+..\glue -23.49976
+..\glue -5.87494
+..\hbox(5.33334+0.0)x23.49976, glue set 23.49976fil
+...\glue 0.0 plus 1.0fil minus 1.0fil
+...\hbox(5.33334+0.0)x0.0, glue set - 6.00002fil []
+..\glue 5.87494
+.\penalty 0
+.\twltt I
+.etc.
+
+
+Overfull \hbox (44.40521pt too wide) in paragraph at lines 625--631
+\twlrm place-ment and dis-place-ment in-cre-ment. Here \twltt displacement \twl
+rm and \twltt IncrementalDisplacement
+
+\hbox(8.33331+2.66666)x425.92651, glue set - 1.0
+.\twlrm p
+.\twlrm l
+.\twlrm a
+.\twlrm c
+.\twlrm e
+.etc.
+
+[117]
+Overfull \hbox (2.22598pt too wide) in paragraph at lines 694--703
+\twlrm dimensional frame el-e-ment, n = 6, and (m[1][1],m[1][2],m[1][3],m[1][4]
+,m[1][5],m[1][6])
+
+\hbox(9.0+3.0)x425.92651, glue set - 1.0
+.\twlrm d
+.\twlrm i
+.\twlrm m
+.\twlrm e
+.\twlrm n
+.etc.
+
+[118] [119]
+Overfull \hbox (1.44481pt too wide) in paragraph at lines 810--810
+[]       \tentt AddElmt( elmtno, [nodeno+3, nodeno+1, nodeno+2, nodeno+4], "nam
+e_of_elmt_attr");[] 
+
+\hbox(6.94444+1.38887)x455.30121
+.\hbox(0.0+0.0)x0.0
+.\penalty 10000
+.\glue 5.24995
+.\penalty 10000
+.\glue 5.24995
+.etc.
+
+[120
+
+] [121
+
+] [122
+
+]
+LaTeX Warning: Citation `chen95' on page 123 undefined on input line 952.
+
+Overfull \hbox (17.70515pt too wide) in paragraph at lines 965--968
+  \twlrm The ma-te-rial types are \twltt ELASTIC\twlrm , \twltt ELASTIC[]PLASTI
+C \twlrm and \twltt ELASTIC[]PERFECTLY[]PLASTIC\twlrm . 
+
+\hbox(8.33331+2.33331)x455.30121, glue set - 1.0
+.\glue 36.135
+.\glue 3.91663 plus 1.95831 minus 1.30554
+.\twlrm T
+.\twlrm h
+.\twlrm e
+.etc.
+
+[123
+
+]
+LaTeX Warning: Citation `jin94' on page 124 undefined on input line 1018.
+[124]
+LaTeX Warning: Reference `fig:fe-plate' on page 125 undefined on input line 105
+7.
+
+Overfull \hbox (10.74728pt too wide) in paragraph at lines 1066--1072
+\twlbf Section Prop-er-ties and Ma-te-rial Prop-er-ties : \twlrm The sec-tion p
+rop-erty is plate \twltt thickness\twlrm .
+
+\hbox(8.33331+2.33331)x455.30121, glue set - 1.0
+.\twlbf S
+.\twlbf e
+.\twlbf c
+.\twlbf t
+.\twlbf i
+.etc.
+
+[125]) (my-chapter6.tex [126]
+Chapter 6.
+LaTeX Warning: Citation `chen95' on page 127 undefined on input line 28.
+LaTeX Warning: Reference `fig: five-story-building-elevation-view' on page 127 
+undefined on input line 40.
+LaTeX Warning: Reference `fig: five-story-building-plan-view' on page 127 undef
+ined on input line 42.
+[127
+
+] [128]
+LaTeX Warning: Reference `fig: five-story-building-load-distribution' on page 1
+29 undefined on input line 104.
+[129
+
+] [130] [131] [132] [133] [134] [135] [136] [137] [138] [139]
+LaTeX Warning: Reference `fig: wsd-cross-section' on page 140 undefined on inpu
+t line 712.
+LaTeX Warning: Reference `fig: wsd-cross-section' on page 140 undefined on inpu
+t line 713.
+LaTeX Warning: Reference `fig: wsd-elevation-of-beam' on page 140 undefined on 
+input line 734.
+LaTeX Warning: Reference `fig: wsd-section-properties' on page 140 undefined on
+ input line 738.
+[140
+
+]
+Overfull \hbox (15.0043pt too wide) in paragraph at lines 760--763
+\twlbf Input File : \twlrm The single-span bridge girder is mod-eled with 10 tw
+o-dimensional beam/column
+
+\hbox(9.0+3.0)x455.30121, glue set - 1.0
+.\twlbf I
+.\twlbf n
+.\twlbf p
+.\twlbf u
+.\twlbf t
+.etc.
+
+[141] [142] [143] [144] [145] [146] [147] [148] [149] [150]
+LaTeX Warning: Reference `fig: mom_diag' on page 151 undefined on input line 13
+17.
+LaTeX Warning: Reference `fig: influ_s' on page 151 undefined on input line 131
+7.
+[151]
+LaTeX Warning: Reference `fig: influ_m' on page 152 undefined on input line 135
+2.
+LaTeX Warning: Reference `fig: influ_s' on page 152 undefined on input line 135
+7.
+LaTeX Warning: Reference `fig: mom_diag' on page 152 undefined on input line 13
+60.
+[152] [153] [154]
+LaTeX Warning: Reference `fig: bridge-plan-and-elevation' on page 155 undefined
+ on input line 1429.
+LaTeX Warning: Reference `fig: bridge-cross-section' on page 155 undefined on i
+nput line 1433.
+[155
+
+] [156] [157] [158] [159] [160] [161] [162] [163] [164]
+LaTeX Warning: Reference `fig: bridge-deck-deflection-part1' on page 165 undefi
+ned on input line 1965.
+LaTeX Warning: Reference `fig: bridge-deck-deflection-part2' on page 165 undefi
+ned on input line 1965.
+LaTeX Warning: Reference `fig: bridge-deck-deflection-part2' on page 165 undefi
+ned on input line 1967.
+[165] [166]
+LaTeX Warning: Reference `fig: bridge-moving-load-part1' on page 167 undefined 
+on input line 2006.
+LaTeX Warning: Reference `fig: bridge-moving-load-part2' on page 167 undefined 
+on input line 2009.
+[167
+
+] [168]
+LaTeX Warning: Reference `fig: bridge-deck-influence-part1' on page 169 undefin
+ed on input line 2115.
+LaTeX Warning: Reference `fig: bridge-deck-influence-part2' on page 169 undefin
+ed on input line 2118.
+[169] [170]
+LaTeX Warning: Reference `fig: elevation-and-model' on page 171 undefined on in
+put line 2174.
+LaTeX Warning: Reference `fig: five-story-building-elevation-view' on page 171 
+undefined on input line 2176.
+LaTeX Warning: Reference `fig: elevation-and-model' on page 171 undefined on in
+put line 2184.
+LaTeX Warning: Reference `fig: elcentro-1979' on page 171 undefined on input li
+ne 2198.
+[171
+
+] [172] [173] [174] [175] [176] [177] [178] [179] [180]
+LaTeX Warning: Reference `fig: bmodal-results-1' on page 181 undefined on input
+ line 2732.
+LaTeX Warning: Reference `fig: bmodal-results-4' on page 181 undefined on input
+ line 2732.
+LaTeX Warning: Reference `fig: bmodal-results-1' on page 181 undefined on input
+ line 2734.
+LaTeX Warning: Reference `fig: bmodal-results-2' on page 181 undefined on input
+ line 2735.
+LaTeX Warning: Reference `fig: bmodal-results-3' on page 181 undefined on input
+ line 2736.
+LaTeX Warning: Reference `fig: bmodal-results-4' on page 181 undefined on input
+ line 2737.
+LaTeX Warning: Reference `fig: bmodal-results-5' on page 181 undefined on input
+ line 2744.
+LaTeX Warning: Reference `fig: bmodal-results-5' on page 181 undefined on input
+ line 2744.
+[181] [182] [183]) [184] [185
+
+] (my-chapter7.tex
+Chapter 7.
+[186
+
+] [187]
+[Nrows=16, Ncols=2]
+LaTeX Warning: Reference `tab: my-units-functions' on page 188 undefined on inp
+ut line 209.
+[188] [189]
+LaTeX Warning: Reference `fig: my-chapter2-fig1' on page 190 undefined on input
+ line 247.
+[190
+
+]
+LaTeX Warning: Reference `fig: Units_Buffer' on page 191 undefined on input lin
+e 316.
+[191]
+LaTeX Warning: Reference `fig: my-chapter2-fig2' on page 192 undefined on input
+ line 339.
+LaTeX Warning: Reference `fig: Matrix_Skyline' on page 192 undefined on input l
+ine 376.
+[192]
+LaTeX Warning: Reference `tab: my-matrix-operations' on page 193 undefined on i
+nput line 412.
+[Nrows=21, Ncols=2]
+
+Underfull \hbox (badness 1264) in paragraph at lines 450--450
+\twlrm Use in-verse it-er-a-tion to solve sym-met-ric eigen-value
+
+\hbox(8.33331+2.33331)x289.07999, glue set 2.33093
+.\twlrm U
+.\twlrm s
+.\twlrm e
+.\glue 3.91663 plus 1.95831 minus 1.30554
+.\twlrm i
+.etc.
+
+[193] [194]
+LaTeX Warning: Reference `fig: M_Mult' on page 195 undefined on input line 488.
+
+[195] [196] [197]) (my-chapter8.tex [198] [199]
+Chapter 8.
+LaTeX Warning: Citation `johnson75' on page 200 undefined on input line 12.
+LaTeX Warning: Reference `fig:architecture' on page 200 undefined on input line
+ 27.
+[200
+
+] [201] [202] [203] [204] [205] [206]
+LaTeX Warning: Citation `kernighan-pike' on page 207 undefined on input line 46
+0.
+[207]
+LaTeX Warning: Reference `fig: stack_machine' on page 208 undefined on input li
+ne 490.
+[208] [209]
+LaTeX Warning: Reference `fig: example_stack' on page 210 undefined on input li
+ne 638.
+[210]
+LaTeX Warning: Reference `fig: example_stack_1' on page 211 undefined on input 
+line 679.
+LaTeX Warning: Reference `fig: example_stack_6' on page 211 undefined on input 
+line 679.
+LaTeX Warning: Reference `fig: example_stack_1' on page 211 undefined on input 
+line 686.
+LaTeX Warning: Reference `fig: example_stack_1' on page 211 undefined on input 
+line 689.
+[211]
+LaTeX Warning: Reference `fig: example_stack' on page 212 undefined on input li
+ne 729.
+LaTeX Warning: Reference `fig: example_stack_4' on page 212 undefined on input 
+line 738.
+LaTeX Warning: Reference `fig: example_stack_5' on page 212 undefined on input 
+line 744.
+LaTeX Warning: Reference `fig: example_stack_6' on page 212 undefined on input 
+line 746.
+[212] [213] [214] [215]
+LaTeX Warning: Citation `johnson75' on page 216 undefined on input line 803.
+LaTeX Warning: Citation `kernighan-pike' on page 216 undefined on input line 80
+6.
+LaTeX Warning: Citation `levine92' on page 216 undefined on input line 807.
+LaTeX Warning: Citation `aho85' on page 216 undefined on input line 808.
+[216
+
+]
+Overfull \hbox (11.94472pt too wide) in paragraph at lines 988--988
+[]                       \tentt FatalError("ERROR >> ... file ended with unbala
+nced comment !!\n",[] 
+
+\hbox(6.94444+1.38887)x455.30121
+.\hbox(0.0+0.0)x0.0
+.\penalty 10000
+.\glue 5.24995
+.\penalty 10000
+.\glue 5.24995
+.etc.
+
+[217] [218] [219] [220]
+LaTeX Warning: Reference `fig: p_tree' on page 221 undefined on input line 1210
+.
+[221] [222]
+Overfull \hbox (2.05338pt too wide) in paragraph at lines 1287--1298
+\twlrm where \twltt type \twlrm spec-i-fies that \twltt matrix[]seq \twlrm and 
+\twltt quantity[]row \twlrm are of type $\twlmi <$ \twlrm narg $\twlmi >$\twlrm
+ . \twltt matrix[]seq
+
+\hbox(8.33331+2.66666)x455.30121, glue set - 1.0
+.\twlrm w
+.\twlrm h
+.\twlrm e
+.\twlrm r
+.\twlrm e
+.etc.
+
+[223]
+LaTeX Warning: Citation `kernighan-pike' on page 224 undefined on input line 13
+43.
+LaTeX Warning: Reference `fig: for_loop' on page 224 undefined on input line 13
+75.
+[224] [225]
+LaTeX Warning: Reference `fig: for_loop' on page 226 undefined on input line 14
+46.
+) [226] [227
+
+] (my-chapter9.tex
+Chapter 9.
+LaTeX Warning: Citation `gallopoulos94' on page 228 undefined on input line 30.
+
+LaTeX Warning: Citation `tesler91' on page 228 undefined on input line 30.
+LaTeX Warning: Citation `austin95' on page 228 undefined on input line 57.
+[228
+
+]
+LaTeX Warning: Reference `fig: aladdin-future-development' on page 229 undefine
+d on input line 80.
+LaTeX Warning: Citation `chen95' on page 229 undefined on input line 99.
+LaTeX Warning: Citation `kirkpatrick83' on page 229 undefined on input line 115
+.
+[229] [230]) (report.bbl [231] [232
+
+] [233]) [234] (report.aux)
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+ ) 
+Here is how much of TeX's memory you used:
+ 678 strings out of 11977
+ 8194 string characters out of 87109
+ 52692 words of memory out of 262141
+ 2444 multiletter control sequences out of 9500
+ 19612 words of font info for 74 fonts, out of 100000 for 255
+ 14 hyphenation exceptions out of 607
+ 16i,9n,19p,266b,387s stack positions out of 300i,40n,60p,3000b,4000s
+
+Output written on report.dvi (236 pages, 508368 bytes).

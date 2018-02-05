@@ -1,0 +1,132 @@
+/* 
+ *  ===========================================================================
+ *  Plane stress analysis of rectangular cantilever beam subject to tip loading
+ *  
+ *  Written By : Mark Austin, X.G. Chen                           November 1996  
+ *  ===========================================================================
+ */ 
+
+print "*** DEFINE PROBLEM SPECIFIC PARAMETERS \n\n";
+
+NDimension         = 2;
+NDofPerNode        = 2;
+MaxNodesPerElement = 4;
+
+StartMesh();
+
+print "*** GENERATE GRID OF NODES FOR FE MODEL \n\n";
+
+/* Plane stress/plane strain rectangular beam */
+/* Generate a 1x4 rectangular 4-node element */
+
+beam_length  = 10 m;
+beam_width   =  1 m;
+beam_height  =  2 m;
+
+node = 0;
+x = 0 m ; y = beam_height; 
+
+while(x <= beam_length) {
+      node = node + 1;
+      AddNode(node, [x, y]);
+
+      y = y - beam_height/2;
+      node = node + 1;
+      AddNode(node, [x, y]);
+
+      y = y - beam_height/2;
+      node = node + 1;
+      AddNode(node, [x, y]);
+
+      x = x + beam_length/5;
+      y = y + beam_height;
+}
+
+print "*** ATTACH ELEMENTS TO GRID OF NODES \n\n";
+
+i = 1; elmtno = 1;
+while(elmtno <= 9) {
+
+      AddElmt( elmtno, [i+3,   i, i+1, i+4], "name_of_elmt_attr");
+      elmtno = elmtno + 1;
+
+      AddElmt( elmtno, [i+4, i+1, i+2, i+5], "name_of_elmt_attr");
+      elmtno = elmtno + 1;
+
+      i = i + 3;
+}
+
+print "*** DEFINE ELEMENT, SECTION, AND MATERIAL PROPERTIES \n\n";
+
+ElementAttr("name_of_elmt_attr") { type     = "PLANE_STRAIN";
+                                   section  = "mysection";
+                                   material = "mymaterial"; }
+
+SectionAttr("mysection") { depth   = beam_height;
+                           width   = beam_width; }
+
+MaterialAttr("mymaterial") { density = 10000 kg/m^3;    
+                             poisson = 1.0/3.0;   
+                             yield   = 36000;  
+		             E       = 100000 kN/m^2; }
+
+/* 
+ *  ===========================================================================
+ *  Setup boundary conditions : apply full-fixity to nodes 1 and a roller to 2.
+ *  ===========================================================================
+ */ 
+
+    FixNode( 1, [1,1] );
+    FixNode( 2, [1,0] );
+    FixNode( 3, [1,0] );
+
+/* 
+ *  ==========================================
+ *  Add point nodal loads to end of cantilever
+ *  ==========================================
+ */ 
+
+    Fx = 5.0 kN; Fy = 0.0 kN;
+
+    NodeLoad( 16, [   Fx,   Fy]); 
+    NodeLoad( 17, [ 2*Fx, 2*Fy]); 
+    NodeLoad( 18, [   Fx,   Fy]); 
+
+/* 
+ *  =====================================
+ *  Compile and print finite element mesh
+ *  =====================================
+ */ 
+
+EndMesh();
+PrintMesh();
+
+/* Compute Mass and Stiffness Matrices */
+
+print "*** COMPUTE AND PRINT STIFFNESS, MASS, AND EXTERNAL LOAD MATRICES \n\n";
+
+stiff = Stiff();
+eload = ExternalLoad();
+
+/* Solve static analysis problem */
+
+print "\n*** STATIC ANALYSIS PROBLEM \n\n";
+
+displ  = Solve(stiff, eload);
+
+SetUnitsType("US");
+PrintDispl(displ);
+residual = eload - InternalLoad(displ);
+PrintMatrix(residual);
+PrintStress(displ);
+quit;
+
+mass  = Mass([1]);
+eigen  = Eigen( stiff, mass, [2] );
+PrintEigen(eigen);
+
+Consistent = [-1];
+mass  = Mass(Consistent);
+PrintMatrix(mass);
+
+quit;

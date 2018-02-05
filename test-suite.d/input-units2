@@ -1,0 +1,266 @@
+/*  =======================================================  */
+/*  SI and US CONVERSIONS                                    */
+/*                                                           */
+/*  Tests casting of units in different units systems        */
+/*  =======================================================  */
+
+print  "\n";
+print  "==============================================\n";
+print  "Test casting of units in various units systems\n";
+print  "==============================================\n\n";
+
+/* UNITS of LENGTH     */
+
+print " LENGTH UNITS \n";
+
+v =  1 km;
+w =  1 mile;
+
+print  "v    = ", v       , "\n";
+print  "v    = ", v (in)  , "\n";
+print  "v    = ", v (ft)  , "\n";
+print  "v    = ", v (yard), "\n";
+print  "v    = ", v (mile), "\n";
+
+print "\n";
+
+print  "w    = ", w       , "\n";
+print  "w    = ", w (mm)  , "\n";
+print  "w    = ", w (cm)  , "\n";
+print  "w    = ", w (dm)  , "\n";
+print  "w    = ", w (m )  , "\n";
+print  "w    = ", w (km)  , "\n";
+
+print "\n";
+W = v + w;
+V = v - w;
+U = v * w;
+X = v / w;
+Y = sqrt(v*w);
+
+print "v + w = ", W     , "\n";
+print "v + w = ", W (mile), "\n";
+print "v - w = ", V       , "\n";
+print "v * w = ", U       , "\n";
+print "v * w = ", U (ft^2), "\n";
+print "v * w = ", U (m^2), "\n";
+print "v / w = ", X       , "\n";
+print "sqrt(v*w) = ", Y   , "\n";
+print "sqrt(v*w) = ", Y(m), "\n";
+
+print "\n";
+
+/* ====================*/
+/* UNITS of VOLUME     */
+/* ====================*/
+
+print "\n VOLUME UNITS \n";
+x =  1       gallon;
+y =  1       barrel;
+
+print  "x = ", x     , "\n";
+print  "x = ", x (m^3), "\n";
+print  "x = ", x (cm^3), "\n";
+print  "x = ", x (ft^3), "\n";
+print  "x = ", x (in^3), "\n";
+print  "x = ", x (barrel), "\n";
+
+print "\n";
+
+print  "y = ", y, "\n";
+print  "y = ", y (m^3), "\n";
+print  "y = ", y (cm^3), "\n";
+print  "y = ", y (ft^3), "\n";
+print  "y = ", y (in^3), "\n";
+print  "y = ", y (gallon), "\n";
+
+/* ====================*/
+/* UNITS of MASS       */
+/* ====================*/
+
+print "\n";
+print "\n MASS UNITS \n";
+
+x = 1 kg;
+y = 1 klb;
+
+print  "x = ", x     , "\n";
+print  "x = ", x (lb), "\n";
+print  "x = ", x (klb), "\n";
+print  "x = ", x (ton), "\n";
+
+print "\n";
+print  "y = ", y     , "\n";
+print  "y = ", y (kg), "\n";
+
+print "\n";
+W = x + y;
+
+print "x + y = ", W      , "\n";
+print "x + y = ", W (klb), "\n";
+ 
+print "\n";
+/* ====================*/
+/* UNITS of TIME       */
+/* ====================*/
+
+print " TIME UNITS \n";
+x =  1  hr;
+
+print  "x = ", x, "\n";
+print  "x = ", x (min), "\n";
+print  "x = ", x (sec), "\n";
+
+/* =====================*/
+/* UNITS of TEMPERATURE */
+/* =====================*/
+
+print "\n";
+print "\n TEMPERATURE UNITS \n";
+
+x = 1 deg_C;
+y = 1 deg_F;
+u = 10 mm/deg_C;   /* not properiate units */ 
+v = 10 in/deg_F;   /* Worng */
+U = 10 mm/DEG_C;   
+V = 10 in/DEG_F;
+
+print  "x = ", x        , "\n";
+print  "x = ", x (deg_F), "\n";
+
+print "y = ", y        , "\n";
+print  "y = ", y (deg_C), "\n";
+print "\n";
+
+print  "u = ", u , "\n";
+print  "v = ", v , "\n";
+print  "U = ", U , "\n";
+print  "V = ", V , "\n";
+
+print "\n";
+
+print "u*(1 deg_C) = ", u*(1 deg_C) (mm), "\n";
+print "u*(1 deg_F) = ", u*(1 deg_F) (mm), " WRONG !!\n";
+print "\n";
+print "U*(1      DEG_C) = ", U*(1      DEG_C) (mm), "\n";
+print "U*(1.8    DEG_F) = ", U*(1.8    DEG_F) (mm), "\n";
+print "V*(0.5556 DEG_C) = ", V*(0.5556 DEG_C) (in), "\n";
+print "V*(1      DEG_F) = ", V*(1      DEG_F) (in), "\n";
+
+print "\n";
+print "v*(1 deg_C) = ", v*(1 deg_C) (in), "\n";
+print "v*(1 deg_F) = ", v*(1 deg_F) (in), " WRONG !!\n";
+print "U*(1 DEG_C) = ", U*(1 DEG_C) (mm), "\n";
+print "U*(1 DEG_F) = ", U*(1 DEG_F) (mm), "\n";
+print "V*(1 DEG_C) = ", V*(1 DEG_C) (in), "\n";
+print "V*(1 DEG_F) = ", V*(1 DEG_F) (in), "\n";
+
+/* ===========================*/
+/* UNITS of FREQUENCY & SPEED */
+/* ===========================*/
+
+print "\n FREQUENCY & SPEED UNITS \n";
+
+y = 60 rpm;     /* rev. per min  */
+
+print  "y = ", y, "\n";
+print  "y = ", y (Hz), "\n";
+print  "y = ", y (cps), "\n";
+
+/* ===========================*/
+/* UNITS of FORCE             */
+/* ===========================*/
+
+print "\n FORCE UNITS \n";
+x =  1  kN;
+y =  1 kips;
+
+print  "x = ", x      , "\n";
+print  "x = ", x (kgf), "\n";
+print  "x = ", x (kips), "\n";
+print  "x = ", x (lbf), "\n";
+print "\n";
+print  "y = ", y, "\n";
+print  "y = ", y (kN), "\n";
+print  "y = ", y (kgf), "\n";
+
+/* ===========================*/
+/* UNITS of PRESSURE          */
+/* ===========================*/
+
+print "\n PRESSURE UNITS \n";
+x =  1  kPa;
+y =  1  ksi;
+
+print  "x = ", x, "\n";
+print  "x = ", x (psi), "\n";
+
+print  "y = ", y, "\n";
+print  "y = ", y (kPa), "\n";
+
+/* ===========================*/
+/* UNITS of ENERGY            */
+/* ===========================*/
+
+print "\n ENERGY UNITS \n";
+x =  1  kJ;
+print  "x = ", x, "\n";
+print  "x = ", x (Jou), "\n";
+
+/* ===========================*/
+/* UNITS of POWER             */
+/* ===========================*/
+
+print "\n POWER UNITS \n";
+x =  1  kW;
+print  "x = ", x, "\n";
+print  "x = ", x (Watt), "\n";
+
+/* ===========================*/
+/* UNITS of PLANE ANGLE       */
+/* ===========================*/
+
+print "\n PLANE ANGLE UNITS \n";
+
+circle =  360 deg;
+angle  = 2*PI rad;
+w1 = 2.5 rad/sec;
+w2 = 5.0 rad/sec;
+
+print " circle       = ", circle       ,"\n";
+print " circle (rad) = ", circle (rad) ,"\n";
+print "  angle       = ",  angle       ,"\n";
+print "  angle (deg) = ",  angle (deg) ,"\n";
+print "     w1 = ",     w1 ,"\n";
+print "     w2 = ",     w2 ,"\n";
+
+/* Distinction between rad/sec and 1/sec */
+
+print " Test (rad/sec) w2       = ",       w2 ,"\n";
+print "        (1/sec) w2/angle = ", w2/angle ,"\n";
+
+/* Arithmetic with radians */
+
+print "T = 2*PI/w1 = ", (2*PI rad)/w1 ,"\n";
+print "T = 2*PI/w2 = ", (2*PI rad)/w2 ,"\n";
+print "    w1 + w2  = ",       w1 + w2 ,"\n";
+print "      w1/w2  = ",         w1/w2 ,"\n";
+print "      w1*w2  = ",         w1*w2 ,"\n";
+
+/* Energy calculation */
+
+print "\n";
+print "==================\n";
+print "Energy Calculation\n";
+print "==================\n\n";
+
+I  = 4.0 kg*m^2;
+print " Inertia I = ",      I ,"\n";
+
+print " Energy = 0.5*I*w1*w1 = ", 0.5*I*w1*w1 (Jou),"\n";
+print " Energy = 0.5*I*w2*w2 = ", 0.5*I*w2*w2 (Jou),"\n";
+
+print  "\n";
+print  "===================\n";
+print  "*** End of Test ***\n";
+print  "===================\n";

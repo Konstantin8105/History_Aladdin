@@ -1,0 +1,1063 @@
+
+\chapter{Computational Methods for Dynamic Analysis of Structures}
+
+\section{Introduction}
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+In this section we demonstrate how ALADDIN may be used to compute the
+time-history response of a linear elastic multi-degree of freedom system 
+defined by the equation of equilibrium
+
+\begin{equation}
+{\bf M} \ddot X(t) + {\bf C} {\dot X}(t) + {\bf K} X(t) = {\bf P}(t).
+\label{eq: equl}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+In equation (\ref{eq: equl}) {\bf M}, {\bf C},
+and {\bf K} are $(n \times n)$ mass,
+damping, and stiffness matrices, respectively.
+${\bf P}(t)$, ${\tt X}(t)$, $\dot{\tt X}{(t)}$, and $\ddot{X}{(t)}$
+are $(n \times 1)$ external load, displacement, velocity,
+and acceleration vectors at time {\tt t}.
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+Two numerical procedures are described and demonstrated in this chapter.
+We begin with the method of Newmark Integration to compute the time-history
+response of a four story shear structure. 
+Then we repeat the analysis using the method of Modal Analysis.
+In both cases, the shear structure is acted upon by a saw-toothed 
+external force applied to the roof-level degree of freedom.
+
+\section{Method of Newmark Integration}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+Newmark integration methods ~\cite{bathe82} approximate the time
+dependent response of linear and nonlinear 2nd-order equations by insisting
+that equilibrium be satisfied only at a discrete number of points (or timesteps).
+If $(t)$ and $(t+\triangle t)$ are successive timesteps in the integration procedure,
+the two equations of equilibrium that must be satisfied are 
+
+\begin{equation}
+{\bf M} \ddot{X}(t) + {\bf C} \dot{X}(t) + {\bf K} {X}(t) = {\bf P}(t),
+\label{eq: equl-1}
+\end{equation}
+
+\vspace{0.01 in}\noindent
+and
+
+\begin{equation}
+{\bf M} \ddot{X}(t+\triangle t) + {\bf C} \dot{X}(t+\triangle t) +
+{\bf K}      {X}(t+\triangle t) = {\bf P}(t+\triangle t).
+\label{eq: equl-2}
+\end{equation}
+
+\vspace{0.05 in}\noindent
+Now let's assume that solutions to equation (\ref{eq: equl-1}) are known,
+and (\ref{eq: equl-2}) needs to be solved.
+At each timestep there are $3n$ unknowns corresponding to
+the displacement, velocity, and acceleration of each component of $X$.
+Since we only have $n$ equations, the natural relationship existing between the
+acceleration and velocity,
+
+\begin{eqnarray}
+{\dot X} (t+\triangle t) &= {\dot X}(t) + \int_{(t)}^{(t+\triangle t)} {\ddot X}(\tau) d \tau,
+\end{eqnarray}
+
+\vspace{0.05 in}\noindent
+and velocity and displacement
+
+\begin{eqnarray}
+{X} (t+\triangle t) &= {X}(t) + \int_{(t)}^{(t+\triangle t)} {\dot  X}(\tau) d \tau,
+\end{eqnarray}
+
+\vspace{0.05 in}\noindent
+must be enforced to reduce the number of unknowns to $n$.
+${\ddot X}(\tau)$ is an unknown function for the acceleration across the timestep.
+The Newmark family of integration methods assume that:
+(1) acceleration within the timestep behaves in a prescribed manner, and
+(2) the integral of acceleration across the timestep may be expressed
+as a linear combination of accelerations at the endpoints.
+Discrete counterparts to the continuous update in velocity and displacement are:
+
+\begin{eqnarray}
+{\dot X}(t+\triangle t) &= &{\dot X}(t) +
+{\triangle t} {\left[ (1-\gamma){{\ddot X}(t)} + \gamma {\ddot X}(t+\triangle t) \right]} \\
+     {X}(t+\triangle t) &= &{X}(t) + {\triangle t} {\dot X}(t) +
+{{{\triangle t}^2} \over 2} {\left[(1-2\beta){{\ddot X}(t)} + 2\beta {\ddot X}(t+\triangle t) \right]}
+\end{eqnarray}
+
+\vspace{0.10 in}\noindent
+with the parameters $\gamma$ and $\beta$ determining the accuracy and stability
+of the method under consideration.
+The equations for discrete update in velocity and displacement are
+substituted into equation (\ref{eq: equl-2}) and rearranged to give:
+
+\begin{equation}
+\hat{\bf M} \ddot{X}(t+\triangle t) = \hat{\bf P}{(t + \triangle t)}
+\label{eq: equl3}
+\end{equation}
+
+\vspace{0.05 in}\noindent
+where
+
+\begin{equation}
+\hat{\bf M} = {\bf M} + \gamma {\triangle t} {\bf C} + \beta {\triangle t}^2 {\bf K}
+\label{eq: equl4}
+\end{equation}
+
+\vspace{0.05 in}\noindent
+and
+
+\begin{eqnarray}
+\hat{\bf P}{(t + \triangle t)} &= {\bf P}{(t + \triangle t)} - {\bf C} \dot{X}(t) - {\bf K} {X}(t) -
+{\triangle t} \left[ {\bf K} \right]  \dot{X}(t) - \nonumber \\
+& {\triangle t}
+{\left[ (1- \gamma) {\bf C} + {{\triangle t} \over 2} (1 - 2 \beta) {\bf K} \right]} \ddot{\bf X}(t).  
+\end{eqnarray}
+
+\vspace{0.15 in}\noindent
+It is well known that when $\gamma = 1/2$ and $\beta=1/4$,
+acceleration is constant within the timestep $t \in \left[ t, {t+\triangle t} \right]$,
+and equal to the average of the endpoint accelerations.
+In such cases, approximations to the velocity and displacement
+will be linear and parabolic, respectively.
+Moreover, this discrete approximation is second order accurate and unconditionally stable.
+It conserves energy exactly for the free response vibration of linear undamped SDOF
+systems (we will check for conservation of energy in the numerical examples that follow).
+
+\vspace{0.25 in}\noindent
+{\bf Numerical Example :}
+The method of Newmark Integration is demonstrated by computing the
+time-history response of the four story building structure caused by a
+time-varying external load applied to the roof level.
+Details of the shear building and external loading are shown in
+Figures \ref{fig:solution-shear-building} and \ref{fig:applied-force-versus-time}.
+
+\begin{figure} [h]
+\epsfxsize=6.0truein
+\centerline{\epsfbox{my-chapter3-fig5.ps}}
+\caption{Schematic of Shear Building for Newmark Analysis}
+\label{fig:solution-shear-building}
+\end{figure}
+
+\vspace{0.15 in}\noindent
+A simplified model of the building is obtained by
+assuming that all of the building mass is lumped at the floor levels,
+that the floor beams are rigid, and that the columns are axially rigid.
+Together these assumptions generate model that is commonly
+known as a shear-type building model, where displacements at
+each floor level may be described by one degree-of-freedom alone.
+Only four degrees of freedom are needed to
+describe total displacements of the structure.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+Details of the mass and stiffness matrices are shown on the right-hand
+side of Figure \ref{fig:solution-shear-building}. From a physical point
+of view, element {\tt (i,j)} of the stiffness matrix corresponds to the
+nodal force that must be applied to degree of freedom {\tt j} in order
+to produce a unit displacement at degree of freedom {\tt i}, and zero
+displacements at all other degrees of freedom.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+Figure \ref{fig:solution-eigen-problem} summarizes the
+mode shape, circular frequencies and natural period for each of
+the modes in the shear building.
+The shear building has a fundamental period of 0.5789 seconds.
+
+\vspace{0.10 in}
+\begin{figure} [th]
+\epsfxsize=6.0truein
+\centerline{\epsfbox{my-chapter3-fig6.ps}}
+\caption{Mode Shapes and Natural Periods for Shear Building}
+\label{fig:solution-eigen-problem}
+\end{figure}
+
+\vspace{0.15 in}\noindent
+The dynamic behavior of the shear building is generated by the
+external force, shown in Figure \ref{fig:applied-force-versus-time},
+applied to the roof-level degree of freedom.
+
+\begin{figure} [h]
+\epsfxsize=5.0truein
+\centerline{\epsfbox{my-chapter3-fig2.ps}}
+\caption{Externally Applied Force (kN) versus Time (sec)}
+\label{fig:applied-force-versus-time}
+\end{figure}
+
+\vspace{0.15 in}\noindent
+Notice that we have selected the time-scale of the applied
+force so that it has a period close to the first
+natural period of the structure (i.e. 0.5789 seconds
+versus 0.6 seconds period for the applied load).
+
+\vspace{0.15 in}\noindent
+{\bf Input File :} A seven-part input file is needed to define the
+mass and stiffness matrices, external loading, and solution
+procedure via the method of Newmark Integration.
+The step-by-step details of our Newmark Algorithm are:
+
+\begin{description}
+\item{[1]}
+Form the stiffness matrix {\bf K},
+the mass matrix {\bf M}, and the damping matrix {\bf C}.
+Compute the effective mass matrix $\hat{\bf M}$.
+\item{[2]}
+Initialize the displacement ${X}(0)$ and velocity $\dot{X}(0)$ at time $0$.
+Backsubstitute ${X}(0)$ and $\dot{X}(0)$ into equation (\ref{eq: equl-1}),
+and solve for $\ddot{X}(0)$.
+\item{[3]}
+Select an integration time step $\triangle t$,
+and Newmark parameters $\gamma$ and $\beta$.
+\item{[4]}
+Enter Main Loop of Newmark Integration.
+\item{[5]}
+Compute the effective load vector $\hat{\bf P}{(t+\triangle t)}$.
+\item{[6]}
+Solve equation (\ref{eq: equl3}) for acceleration $\ddot{\bf X}{(t + \triangle t)}$.
+\item{[7]}
+Compute $\dot{\bf X}{(t + \triangle t)}$ and ${\bf X}{(t + \triangle t)}$
+by backsubstituting $\ddot{\bf X}{(t + \triangle t)}$ into the
+equations for discrete update in velocity and displacement.
+\item{[8]}
+Go to Step [4].
+\end{description}
+
+\vspace{0.15 in}\noindent
+Structural damping in the shear building is ignored.
+
+\vspace{0.15 in}\noindent
+{\bf Input File :} The four story shear building, external loading,
+and newmark algorithm are defined in a seven-part input file.
+
+\begin{footnotesize}
+\vspace{0.20 in}
+\noindent
+{\rule{2.3 in}{0.035 in} START OF INPUT FILE \rule{2.3 in}{0.035 in} }
+\begin{verbatim}
+/* [a] : Parameters for Problem Size/Newmark Integration */
+
+   dt     = 0.03 sec;
+   nsteps =  200;
+   gamma  = 0.50;
+   beta   = 0.25;
+
+/* [b] : Form Mass, stiffness and load matrices */
+
+   mass = ColumnUnits( 1500*[ 1, 0, 0, 0;
+                              0, 2, 0, 0;
+                              0, 0, 2, 0;
+                              0, 0, 0, 3], [kg] );
+
+   stiff = ColumnUnits( 800*[ 1, -1,  0,  0;
+                             -1,  3, -2,  0;
+                              0, -2,  5, -3;
+                              0,  0, -3,  7], [kN/m] );
+
+   PrintMatrix(mass, stiff);
+
+/* 
+ * [c] : Generate and print external saw-tooth external loading matrix. First and
+ *       second columns contain time (sec), and external force (kN), respectively.
+ */ 
+
+   myload = ColumnUnits( Matrix([21,2]), [sec], [1]);
+   myload = ColumnUnits( myload,          [kN], [2]);
+
+   for(i = 1; i <= 6; i = i + 1) {
+       myload[i][1] = (i-1)*dt;
+       myload[i][2] = (2*i-2)*(1 kN);
+   }
+
+   for(i = 7; i <= 16; i = i + 1) {
+       myload[i][1] = (i-1)*dt;
+       myload[i][2] = (22-2*i)*(1 kN);
+   }
+
+   for(i = 17; i <= 21; i = i + 1) {
+       myload[i][1] = (i-1)*dt;
+       myload[i][2] = (2*i-42)*(1 kN);
+   }
+
+   PrintMatrix(myload);
+
+/* [d] : Initialize working displacement, velocity, and acc'n vectors */
+
+   displ  = ColumnUnits( Matrix([4,1]), [m]    );
+   vel    = ColumnUnits( Matrix([4,1]), [m/sec]);
+   accel  = ColumnUnits( Matrix([4,1]), [m/sec/sec]);
+   eload  = ColumnUnits( Matrix([4,1]), [kN]);
+
+/* 
+ * [e] : Allocate Matrix to store three response parameters -- Col 1 = time (sec);
+ *       Col 2 = roof displacement (m); Col 3 = Total energy (N.m)
+ */ 
+
+   response = ColumnUnits( Matrix([nsteps+1,3]), [sec], [1]);
+   response = ColumnUnits( response,  [cm], [2]);
+   response = ColumnUnits( response, [Jou], [3]);
+
+/* [f] : Compute (and compute LU decomposition) effective mass */
+
+   MASS  = mass + stiff*beta*dt*dt;
+   lu    = Decompose(Copy(MASS));
+
+   for(i = 1; i <= nsteps; i = i + 1) {
+
+    /* [f.1] : Update external load */
+
+       if((i+1) <= 21) then {
+          eload[1][1] = myload[i+1][2];
+       } else {
+          eload[1][1] = 0.0 kN;
+       } 
+
+       R = eload - stiff*(displ + vel*dt + accel*(dt*dt/2.0)*(1-2*beta));
+
+    /* [f.2] : Compute new acceleration, velocity and displacement  */
+
+       accel_new = Substitution(lu,R); 
+       vel_new   = vel   + dt*(accel*(1.0-gamma) + gamma*accel_new);
+       displ_new = displ + dt*vel + ((1 - 2*beta)*accel + 2*beta*accel_new)*dt*dt/2;
+
+    /* [f.3] : Update and print new response */
+
+       accel = accel_new;
+       vel   = vel_new;
+       displ = displ_new;
+
+    /* [f.4] : Compute "kinetic + potential energy" */
+
+       e1 = Trans(vel)*mass*vel;
+       e2 = Trans(displ)*stiff*displ;
+       energy = 0.5*(e1 + e2);
+
+    /* [f.5] : Save components of time-history response */
+
+       response[i+1][1] = i*dt;
+       response[i+1][2] =  displ[1][1];
+       response[i+1][3] = energy[1][1];
+   }
+
+/* [g] : Print response matrix and quit */
+
+   PrintMatrix(response);
+   quit;
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Points to note are:
+
+\vspace{0.10 in}
+\begin{description}
+\item{[1]}
+In Part [a] of the input file, the variables {\tt nstep} and {\tt dt}
+are initialized for 200 timesteps of 0.03 seconds.
+The Newmark parameters $\gamma$
+and $\beta$ (i.e. input file variables {\tt gamma} and {\tt beta}) are
+set to 0.5 and 0.25, respectively.
+
+\item{[2]}
+Details of the external load versus time are generated
+for 0.6 seconds, and stored in an array {\tt "myload"}.
+Column one of {\tt "myload"} contains time (seconds),
+and column two, the externally applied force (kN).
+The contents of {\tt "myload"} are then transfered to the external
+load vector within the main loop of the Newmark Integration.
+
+\item{[3]}
+Rather than print the results of the integration at the end
+of each timestep, we allocate memory for {\tt "response"},
+a $(201 \times 3)$ matrix, and store relevant details of
+the computed response at the end of each iteration of the Newmark method.
+The first, second, and third columns of {\tt "response"}
+contain the time (sec), displacement of the roof (cm),
+and total energy of the system (Joules).
+
+\item{[4]}
+Theoretical considerations indicate -- see note above -- that after the
+external loading has finished, the sum of kinetic energy plus potential
+energy will be constant in the undamped shear structure.
+The total energy (Joules) is
+
+\begin{equation}
+\hbox{Total Energy} ~=~ 
+{1 \over 2}
+\left[
+{\dot X}(t)^T {\bf M} {\dot X}(t) + {X}(t)^T {\bf K} {X}(t)
+\right].
+\label{eq:total-energy}
+\end{equation}
+
+\item{[5]}
+Matrix {\tt "response"} is printed after the completion of the Newmark integration.
+This strategy of implementation has several benefits. First, the response 
+quantities are easier to interpret if they are bundled together in one array.
+The second benefit occurs when program output is redirected to a file.
+Upon completion of the analysis, it is an easy process to edit the output file,
+and feed {\tt "response"} into MATLAB. This is how we created
+Figures \ref{fig: shear-displacement-versus-time} to \ref{fig: modal-results-4}.
+
+\end{description}
+
+\vspace{0.15 in}\noindent
+{\bf Abbreviated Output File :}
+The output file contains summaries of the mass and stiffness matrices for the shear building,
+and abbreviated details of the external loading, {\tt "myload"},
+and the response matrix {\tt "response"}.
+
+\vspace{0.15 truein}
+\begin{footnotesize}
+\noindent
+{\rule{1.7 in}{0.035 in} START OF ABBREVIATED OUTPUT FILE \rule{1.7 in}{0.035 in} }
+\begin{verbatim}
+MATRIX : "mass"
+
+row/col          1            2            3            4          
+      units           kg           kg           kg           kg   
+   1            1.50000e+03  0.00000e+00  0.00000e+00  0.00000e+00
+   2            0.00000e+00  3.00000e+03  0.00000e+00  0.00000e+00
+   3            0.00000e+00  0.00000e+00  3.00000e+03  0.00000e+00
+   4            0.00000e+00  0.00000e+00  0.00000e+00  4.50000e+03
+
+MATRIX : "stiff"
+
+row/col          1            2            3            4          
+      units          N/m          N/m          N/m          N/m   
+   1            8.00000e+05 -8.00000e+05  0.00000e+00  0.00000e+00
+   2           -8.00000e+05  2.40000e+06 -1.60000e+06  0.00000e+00
+   3            0.00000e+00 -1.60000e+06  4.00000e+06 -2.40000e+06
+   4            0.00000e+00  0.00000e+00 -2.40000e+06  5.60000e+06
+
+MATRIX : "myload"
+
+row/col          1            2          
+      units          sec           kN   
+   1            0.00000e+00  0.00000e+00
+   2            3.00000e-02  2.00000e+00
+   3            6.00000e-02  4.00000e+00
+
+   .... details of "myload" matrix deleted ....
+
+  19            5.40000e-01 -4.00000e+00
+  20            5.70000e-01 -2.00000e+00
+  21            6.00000e-01  0.00000e+00
+
+MATRIX : "response"
+
+row/col          1            2            3          
+      units          sec           cm          Jou   
+   1            0.00000e+00  0.00000e+00  0.00000e+00
+   2            3.00000e-02  2.69339e-02  2.69339e-01
+   3            6.00000e-02  1.51106e-01  3.99451e+00
+
+  .... details of "response" matrix deleted ....
+
+ 199            5.94000e+00 -3.04363e+00  6.62976e+02
+ 200            5.97000e+00 -1.71841e+00  6.62976e+02
+ 201            6.00000e+00 -2.08155e-02  6.62976e+02
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Points to note are:
+
+\vspace{0.10 in}
+\begin{description}
+\item{[1]}
+Figures \ref{fig: shear-displacement-versus-time} and \ref{fig: shear-energy-versus-time}
+are time-history plots of the roof level displacement,
+and total system energy versus time.
+Given that the duration of external loading is only 0.6
+seconds (see Figure \ref{fig:applied-force-versus-time}),
+and that we have deliberately ignored structural damping, 
+it is reassuring to see that total energy is conserved exactly
+beyond time = 0.6 seconds. You should also observe that the natural
+period of vibration in Figure \ref{fig: shear-displacement-versus-time}
+closely approximates 0.6 seconds,
+the lowest natural period of vibration in the structure.
+\end{description}
+
+\clearpage
+\begin{figure}[ht]
+\epsfxsize= 4.7truein
+\centerline{\epsfbox{my-chapter4-fig1.ps}}
+\caption{Newmark Integration : Lateral Displacement of Roof (cm) versus Time (sec)}
+\label{fig: shear-displacement-versus-time}
+\end{figure}
+
+\begin{figure}[h]
+\epsfxsize= 4.7truein
+\centerline{\epsfbox{my-chapter4-fig2.ps}}
+\caption{Newmark Integration : Total Energy (Joules) versus Time (sec)}
+\label{fig: shear-energy-versus-time}
+\end{figure}
+
+\clearpage
+\section{Method of Modal Analysis}
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+Let ${\bf \Phi}$ be a $(n \times p)$ nonsingular matrix ($p \le n$),
+and Y(t) be a $(p \times 1)$ matrix of time-varying generalized displacements.
+The objective of the method of modal analysis is to
+find a transformation
+
+\begin{equation}
+X(t) = {\bf \Phi} Y(t)
+\label{eq:modal-1}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+that will simplify the direct integration of equations (\ref{eq: equl}).
+The modal equations are obtained by substituting
+equations (\ref{eq:modal-1}) into (\ref{eq: equl}),
+and then premultiplying (\ref{eq: equl}) by $\Phi^T$.
+The result is:
+
+\begin{equation}
+{\bf \Phi^T} {\bf M} {\bf \Phi} {\ddot Y}(t) +
+{\bf \Phi^T} {\bf C} {\bf \Phi} {\dot Y}(t) +
+{\bf \Phi^T} {\bf K} {\bf \Phi} {Y}(t) = {\bf \Phi^T} {P}(t).
+\label{eq:modal-2}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+The notation in (\ref{eq:modal-2}) may be
+simplified by defining the generalized mass matrix as
+${\bf M^*} = {\bf \Phi^T} {\bf M} {\bf \Phi}$,
+the generalized damping matrix as
+${\bf C^*} = {\bf \Phi^T} {\bf C} {\bf \Phi}$,
+the generalized stiffness matrix as
+${\bf K^*} = {\bf \Phi^T} {\bf K} {\bf \Phi}$,
+and the generalized load matrix as
+${\bf P^*}(t) = {\bf \Phi^T} {\bf P}(t)$.
+Substituting these definitions into equation (\ref{eq:modal-2}) gives
+
+\begin{equation}
+{\bf M^*} {\ddot Y}(t) + {\bf C^*} {\dot Y}(t) +
+{\bf K^*} Y(t) = {\bf P^*}(t).
+\label{eq:modal-3}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+The transformation ${\bf \Phi}$ is deemed to be effective if
+the bandwidth of matrices in (\ref{eq:modal-3}) is
+much smaller than in equations (\ref{eq: equl}). From a
+theoretical viewpoint, there may be many transformation matrices
+${\bf \Phi}$ which will achieve this objective -- a judicious choice of
+transformation matrix will work much better than
+many other transformation matrices, however.
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+To see how the method of modal analysis works in practice,
+consider the free vibration response of an undamped system
+
+\begin{equation}
+{\bf M} {\ddot X}(t) + {\bf K} X(t) = 0,
+\label{eq:modal-4}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+where {\bf M} and {\bf K} are $(n \times n)$ mass and stiffness matrices.
+We postulate that the time-history response of (\ref{eq:modal-4})
+may be approximated by a linear sum of $p$ harmonic solutions
+
+\begin{equation}
+X(t) = \sum_{i = 1}^{p} \phi_i \cdot y_i(t) =
+\sum_{i = 1}^{p} \phi_i \cdot A_i \cdot \hbox{sin} (w_i t + \beta_i) = {\bf \Phi} \cdot Y(t),
+\label{eq:modal-5}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+where $y_i (t)$ is the ith component of $Y(t)$,
+and $\phi_i$ is the ith column of ${\bf \Phi}$.
+The amplitude and phase angle for the ith mode are
+given by $A_i$ and $\beta_i$, respectively --
+both quantities may be determined from
+the initial conditions of the motion.
+We solve the symmetric eigenvalue problem
+
+\begin{equation}
+{\bf K} \Phi = {\bf M} \Phi \Lambda
+\label{eq:modal-6}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+for ${\bf \Phi}$ and
+$\Lambda$ is a $(p \times p)$ diagonal matrix of eigenvalues
+
+\begin{equation}
+\Lambda = diag(\lambda_1, \lambda_2, \cdots, \lambda_p) = diag( w_1^2, w_2^2, \cdots, w_p^2 ).
+\label{eq:modal-7}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+It is well known that the eigenvectors of problem (\ref{eq:modal-5})
+will be orthogonal to both the mass and stiffness matrices.
+This means that the generalized mass and stiffness matrices will
+have zero terms except for diagonal terms.
+The generalized mass matrix takes the form
+
+\begin{equation}
+{\bf M^*} = \left[
+\begin{array}{rrrr}
+{m_1}^* &       0 &   \ldots    &     0   \\
+      0 &  {m_2}^*&   \ldots    &     0   \\
+ \vdots &   \vdots&   \ddots    & \vdots  \\
+      0 &        0&   \ldots    & {m_p}^* \\
+\end{array}
+\right],
+\label{eq:uncoupled-1}
+\end{equation}
+
+\vspace{0.05 in}\noindent
+and the generalized stiffness looks like
+
+\begin{equation}
+{\bf K^*} = \left[
+\begin{array}{rrrr}
+          {w_1}^2 {m_1}^*&0&\ldots&0     \\
+          0& {w_2}^2 {m_2}^*&\ldots&0    \\
+          \vdots&\vdots&\ddots&\vdots    \\
+          0&0&\ldots&{w_n}^2 {m_p}^*     \\
+\end{array}
+\right].
+\label{eq:uncoupled-2}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+If the damping matrix, {\bf C}, is a linear combination of
+the mass and stiffness matrices, then
+the generalized damping matrix ${\bf C^*}$ will also be diagonal.
+A format that is very convenient for computation is
+
+\begin{equation}
+{\bf C^*} = \left[
+\begin{array}{rrrr}
+2 \xi_1 w_1 {m_1}^* &                   0 &   \ldots    &     0      \\
+                  0 &  2 \xi_2 w_2 {m_2}^*&   \ldots    &     0      \\
+             \vdots &               \vdots&   \ddots    & \vdots     \\
+                   0&                    0&   \ldots    &2 \xi_n w_n {m_p}^* \\
+\end{array}
+\right],
+\label{eq:uncoupled-3}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+where $\xi_i$ is the ratio of critical damping for the ith mode of vibration.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+For the undamped vibration of a linear multi-degree of freedom system,
+the eigenvalue/vector transformation is ideal because it
+reduces the bandwidth of ${\bf M^*}$, ${\bf C^*}$, and ${\bf K^*}$ to 1.
+In other words, the eigenvalue/vectors transform
+equation (\ref{eq: equl}) from $n$ coupled equations
+into $p$ ($p \le n$) uncoupled single degree-of-freedom systems.
+The required computation is simplified because the total time-history
+response may now be evaluated in two (relatively simple) steps:
+
+\begin{description}
+\item{[1]}
+Computation of the time-history responses for each
+of the $p$ single degree-of-freedom systems, followed by
+\vspace{0.05 in}
+\item{[2]}
+Combination of the SDOF's responses into
+the time-history response of the complete structure.
+\end{description}
+
+\vspace{0.15 in}\noindent
+A number of computational methods are available to compute
+the time variation of displacements in each
+of the single degree of freedom systems. From a theoretical
+viewpoint, it can be shown that the total
+solution (or general solution) for a damped system is given by
+
+\begin{equation}
+y_i (t) = B_i (t) \sin( w_{id} t) + C_i (t) \cos( w_{id} t) 
+\label{eq:uncoupled-5}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+where $w_{id} = w_i \sqrt{1 - \xi_i^2}$ is the damped circular frequency of
+vibration for the ith mode.
+The time-variation in coefficients $B_i(t)$ and $C_i(t)$ is given by
+
+\begin{eqnarray}
+B_i (t) &= & e^{-\xi w_i t}
+\left[ {{{\dot y}(0) + \xi w_i y(0)}\over w_d} +
+{1 \over m_i^* w_{id}} \int_0^{t} P(\tau)
+e^{\xi_i w_i \tau} \cos(w_{id} \tau) d\tau \right] \\
+\hbox{and}\qquad
+C_i (t) &= & e^{-\xi_i w_i t} \left[ y(0) - {1 \over m_i^* w_{id}}
+\int_0^{t} P(\tau) e^{\xi_i w_i \tau} \sin(w_{id} \tau) d\tau \right].
+\end{eqnarray}
+
+\vspace{0.15 in}\noindent
+where $y_i(0)$ and $\dot{y}_i(0)$ are the
+initial displacement and velocity for the ith mode.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+If the details of $P(\tau)$ are simple enough,
+then analytic solutions to (\ref{eq:uncoupled-5}) may be possible.
+For most practical problems (e.g. earthquake ground motions),
+however, numerical solutions to $B_i(t)$ and $C_i(t)$ must be relied upon.
+A second approach, and the one that will be followed here,
+is to use Newmark Integration to compute the
+displacements for each of the individual modes.
+
+\vspace{0.20 in}\noindent
+{\bf Numerical Problem :}
+We demonstrate the method of modal analysis by repeating the
+time-history computation defined in the previous section.
+Details of the shear building and external loading are shown in
+Figures \ref{fig:solution-shear-building} and \ref{fig:applied-force-versus-time}.
+
+\vspace{0.15 in}\noindent
+{\bf Input File :} The input file for modal analysis is a little
+more involved than the input file needed for Newmark Integration.
+This is due in part, to need to transform the equations of equilibrium to a
+simplier coordinate frame before the main loops of modal analysis begin.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+In the input file that follows, $(2 \times 2)$ generalized mass and
+stiffness matrices are generated by first computing the $(4 \times 2)$
+transformation matrix ${\bf \Phi}$ corresponding to the
+first two eigenvectors in the shear building.
+The elements of the generalized mass and stiffness
+matrices are zero, except for diagonal terms.
+In principle, each of the decoupled equations may be solved
+as single degree-of-freedom systems; in practice, however,
+it is computationally simplier to use the method of Newmark
+integration to solve both sets of decoupled equations together.
+
+\vspace{0.20 in}
+\begin{footnotesize}
+\noindent
+{\rule{2.3 in}{0.035 in} START OF INPUT FILE \rule{2.3 in}{0.035 in} }
+\begin{verbatim}
+/* [a] : Parameters for Modal Analysis and embedded Newmark Integration */
+
+   no_eigen = 2;
+   dt       = 0.03 sec;
+   nsteps   = 200;
+   beta     = 0.25;
+   gamma    = 0.50;
+
+/* [b] : Form Mass and stiffness matrices */
+
+   mass = ColumnUnits( 1500*[ 1, 0, 0, 0;
+                              0, 2, 0, 0;
+                              0, 0, 2, 0;
+                              0, 0, 0, 3], [kg] );
+
+   stiff = ColumnUnits( 800*[ 1, -1,  0,  0;
+                             -1,  3, -2,  0;
+                              0, -2,  5, -3;
+                              0,  0, -3,  7], [kN/m] );
+
+   PrintMatrix(mass, stiff);
+
+/* [c] : First two eigenvalues, periods, and eigenvectors */
+
+   eigen       = Eigen(stiff, mass, [no_eigen]);
+   eigenvalue  = Eigenvalue(eigen);
+   eigenvector = Eigenvector(eigen);
+
+   for(i = 1; i <= no_eigen; i = i + 1) {
+       print "Mode", i ," : w^2 = ", eigenvalue[i][1];
+       print " : T = ", 2*PI/sqrt(eigenvalue[i][1]) ,"\n";
+   }
+
+   PrintMatrix(eigenvector);
+
+/* [d] : Generalized mass and stiffness matrices */
+
+   EigenTrans = Trans(eigenvector);
+   Mstar   = EigenTrans*mass*eigenvector;
+   Kstar   = EigenTrans*stiff*eigenvector;
+
+   PrintMatrix( Mstar );
+   PrintMatrix( Kstar );
+
+/* 
+ * [e] : Generate and print external saw-tooth external loading matrix. First and
+ *       second columns contain time (sec), and external force (kN), respectively.
+ */ 
+
+   myload = ColumnUnits( Matrix([21,2]), [sec], [1]);
+   myload = ColumnUnits( myload,          [kN], [2]);
+
+   for(i = 1; i <= 6; i = i + 1) {
+       myload[i][1] = (i-1)*dt;
+       myload[i][2] = (2*i-2)*(1 kN);
+   }
+
+   for(i = 7; i <= 16; i = i + 1) {
+       myload[i][1] = (i-1)*dt;
+       myload[i][2] = (22-2*i)*(1 kN);
+   }
+
+   for(i = 17; i <= 21; i = i + 1) {
+       myload[i][1] = (i-1)*dt;
+       myload[i][2] = (2*i-42)*(1 kN);
+   }
+
+   PrintMatrix(myload);
+
+/* [f] : Initialize system displacement, velocity, and load vectors */
+
+   displ  = ColumnUnits( Matrix([4,1]), [m]    );
+   vel    = ColumnUnits( Matrix([4,1]), [m/sec]);
+   eload  = ColumnUnits( Matrix([4,1]), [kN]);
+
+/* [g] : Initialize modal displacement, velocity, and acc'n vectors */
+
+   Mdispl  = ColumnUnits( Matrix([ no_eigen,1 ]), [m]    );
+   Mvel    = ColumnUnits( Matrix([ no_eigen,1 ]), [m/sec]);
+   Maccel  = ColumnUnits( Matrix([ no_eigen,1 ]), [m/sec/sec]);
+
+/* 
+ * [g] : Allocate Matrix to store five response parameters --
+ *       Col 1 = time (sec);
+ *       Col 2 = 1st mode displacement (cm);
+ *       Col 3 = 2nd mode displacement (cm);
+ *       Col 4 = 1st + 2nd mode displacement (cm);
+ *       Col 5 = Total energy (Joules)
+ */ 
+
+   response = ColumnUnits( Matrix([nsteps+1,5]), [sec], [1]);
+   response = ColumnUnits( response,  [cm], [2]);
+   response = ColumnUnits( response,  [cm], [3]);
+   response = ColumnUnits( response,  [cm], [4]);
+   response = ColumnUnits( response, [Jou], [5]);
+
+/* [h] : Compute (and compute LU decomposition) effective mass */
+
+   MASS  = Mstar + Kstar*beta*dt*dt;
+   lu    = Decompose(MASS);
+
+/* [i] : Mode-Displacement Solution for Response of Undamped MDOF System  */
+
+   for(i = 1; i <= nsteps; i = i + 1) {
+
+    /* [i.1] : Update external load */
+
+       if((i+1) <= 21) then {
+          eload[1][1] = myload[i+1][2];
+       } else {
+          eload[1][1] = 0.0 kN;
+       } 
+
+       Pstar = EigenTrans*eload;
+       R = Pstar - Kstar*(Mdispl + Mvel*dt + Maccel*(dt*dt/2.0)*(1-2*beta));
+
+    /* [i.2] : Compute new acceleration, velocity and displacement  */
+
+       Maccel_new = Substitution(lu,R); 
+       Mvel_new   = Mvel   + dt*(Maccel*(1.0-gamma) + gamma*Maccel_new);
+       Mdispl_new = Mdispl + dt*Mvel + ((1 - 2*beta)*Maccel + 2*beta*Maccel_new)*dt*dt/2;
+
+    /* [i.3] : Update and print new response */
+
+       Maccel = Maccel_new;
+       Mvel   = Mvel_new;
+       Mdispl = Mdispl_new;
+
+    /* [i.4] : Combine Modes */
+
+       displ = eigenvector*Mdispl;
+       vel   = eigenvector*Mvel;
+
+    /* [i.5] : Compute Total System Energy */
+
+       e1 = Trans(vel)*mass*vel;
+       e2 = Trans(displ)*stiff*displ;
+       energy = 0.5*(e1 + e2);
+
+    /* [i.6] : Save components of time-history response */
+
+       response[i+1][1] = i*dt;                            /* Time                  */
+       response[i+1][2] = eigenvector[1][1]*Mdispl[1][1];  /* 1st mode displacement */
+       response[i+1][3] = eigenvector[1][2]*Mdispl[2][1];  /* 2nd mode displacement */
+       response[i+1][4] = displ[1][1];               /* 1st + 2nd mode displacement */
+       response[i+1][5] = energy[1][1];                    /* System Energy         */
+   }
+
+/* [j] : Print response matrix and quit */
+
+   PrintMatrix(response);
+   quit;
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Points to note are:
+
+\vspace{0.10 in}
+\begin{description}
+\item{[1]}
+In Part [a] of the input file, the variables {\tt nstep} and {\tt dt}
+are initialized for 200 timesteps of 0.03 seconds.
+The Newmark parameters $\gamma$
+and $\beta$ (i.e. input file variables {\tt gamma} and {\tt beta}) are
+set to 0.5 and 0.25, respectively.
+\item{[2]}
+Overall behavior of the system is represented
+by $(4 \times 4)$ global mass and stiffness matrices. 
+A $(4 \times 2)$ transformation matrix, $\Phi$, is computed by
+solving equation (\ref{eq:modal-6}) for the first two eigenvectors.
+As a result, we expect that the generalized mass and
+stiffness will be $(2 \times 2)$ diagonal matrices.
+\item{[3]}
+The main loop of our modal analysis employs Newmark integration to
+compute the time-history response for the two decoupled equations.
+\end{description}
+
+\vspace{0.15 in}\noindent
+{\bf Abbreviated Output File :}
+The abbreviated output file contains only the essential details
+of output generated by the modal analysis.
+These details include the first two mode shapes of the shear building,
+the generalized mass and stiffness matrices,
+and heavily edited versions of matrices {\tt "myload"} and {\tt "response"}.
+
+\vspace{0.20 truein}
+\begin{footnotesize}
+\noindent
+{\rule{1.7 in}{0.035 in} START OF ABBREVIATED OUTPUT FILE \rule{1.7 in}{0.035 in} }
+\begin{verbatim}
+MATRIX : "mass"
+
+   .... see Newmark output for details of "mass" ....
+
+MATRIX : "stiff"
+
+   .... see Newmark output for details of "stiff" ....
+
+*** SUBSPACE ITERATION CONVERGED IN 11 ITERATIONS 
+
+Mode    1.0000e+00  : w^2 =    117.8 rad.sec^-2.0 : T =   0.5789 sec
+Mode    2.0000e+00  : w^2 =    586.5 rad.sec^-2.0 : T =   0.2595 sec
+
+MATRIX : "eigenvector"
+
+row/col          1            2          
+      units                       
+   1            1.00000e+00  1.00000e+00
+   2            7.79103e-01 -1.00304e-01
+   3            4.96553e-01 -5.39405e-01
+   4            2.35062e-01 -4.36791e-01
+
+MATRIX : "Mstar"
+
+row/col          1            2          
+      units           kg           kg   
+   1            4.30934e+03  5.68434e-14
+   2            1.70530e-13  3.26160e+03
+
+MATRIX : "Kstar"
+
+row/col          1            2          
+      units          N/m          N/m   
+   1            5.07691e+05 -1.96451e-10
+   2           -2.91038e-10  1.91282e+06
+
+MATRIX : "myload"
+
+row/col          1            2          
+      units          sec           kN   
+   1            0.00000e+00  0.00000e+00
+   2            3.00000e-02  2.00000e+00
+
+   ...... details of external load removed ....
+
+  20            5.70000e-01 -2.00000e+00
+  21            6.00000e-01  0.00000e+00
+
+MATRIX : "response"
+
+row/col          1            2            3            4            5          
+      units          sec           cm           cm           cm          Jou   
+   1            0.00000e+00  0.00000e+00  0.00000e+00  0.00000e+00  0.00000e+00
+   2            3.00000e-02  1.01728e-02  1.21886e-02  2.23614e-02  2.23614e-01
+
+   ...... details of response matrix removed ....
+
+ 200            5.97000e+00 -1.26509e+00 -3.65074e-01 -1.63016e+00  6.59154e+02
+ 201            6.00000e+00  3.48910e-01 -3.36893e-01  1.20176e-02  6.59154e+02
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Points to note are:
+
+\vspace{0.10 in}
+\begin{description}
+\item{[1]}
+Figures \ref{fig: modal-results-1} and \ref{fig: modal-results-2} 
+show the time-history response for the first and second modes, respectively.
+Notice that the amplitude of vibration for the first mode is an order of
+magnitude larger than for the second mode. You should also observe that
+after the external load finishes at time = 0.6 seconds,
+the amplitude of vibration is constant within each mode,
+with the natural periods of vibration closely matching the eigenvalues/periods
+shown in Figure \ref{fig:solution-eigen-problem}.
+\item{[2]}
+The combined first + second modal response versus
+time is shown in Figure \ref{fig: modal-results-3}.
+It time-displacement curve is virtually identical to
+that computed with the method of Newmark integration.
+\item{[3]}
+The time variation in total energy versus time
+is shown in Figure \ref{fig: modal-results-4}.
+One benefit of embedding Newmark inside the modal equations is that
+energy is conserved for each if the modes. For the integration
+beyond time = 0.6 seconds, the total energy is conserved at 659 Joules.
+This quantity compares to 662 Joules for the complete Newmark computation.
+\end{description}
+
+\clearpage
+\begin{figure}[ht]
+\epsfxsize= 4.7truein
+\centerline{\epsfbox{my-chapter4-fig3.ps}}
+\caption{Modal Analysis : First Mode Displacement of Roof (cm) versus Time (sec)}
+\label{fig: modal-results-1}
+\end{figure}
+
+\begin{figure}[h]
+\epsfxsize= 4.7truein
+\centerline{\epsfbox{my-chapter4-fig4.ps}}
+\caption{Modal Analysis : Second Mode Displacement of Roof (cm) versus Time (sec)}
+\label{fig: modal-results-2}
+\end{figure}
+
+\clearpage
+\begin{figure}[ht]
+\epsfxsize= 4.7truein
+\centerline{\epsfbox{my-chapter4-fig5.ps}}
+\caption{Modal Analysis : First + Second Mode Displacement of Roof (cm) versus Time (sec)}
+\label{fig: modal-results-3}
+\end{figure}
+
+\begin{figure}[h]
+\epsfxsize= 4.7truein
+\centerline{\epsfbox{my-chapter4-fig6.ps}}
+\caption{Modal Analysis : Total Energy (Joules) versus Time (sec)}
+\label{fig: modal-results-4}
+\end{figure}

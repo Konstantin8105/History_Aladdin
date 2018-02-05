@@ -1,0 +1,60 @@
+/*
+ *  ================================================================
+ *  Compute buckling loads and modal shapes for slender elastic rod.
+ *  ================================================================
+ */
+
+/* [a] : Define section/material properties Buckling Problem */
+
+   E = 200   GPa;
+   I = 1000 mm^4;
+   L = 5       m;
+
+/* [b] : Define a (5x5) matrices for finite difference approximation */
+
+   A = [  2, -1,  0,  0,  0;
+         -1,  2, -1,  0,  0;
+          0, -1,  2, -1,  0;
+          0,  0, -1,  2, -1;
+          0,  0,  0, -1,  2 ];
+
+   B = [ 10,  1,  0,  0,  0;
+          1, 10,  1,  0,  0;
+          0,  1, 10,  1,  0;
+          0,  0,  1, 10,  1;
+          0,  0,  0,  1, 10 ];
+
+   PrintMatrix(A,B);
+
+/* [c] : Compute Eigenvalues and Eigenvectors */
+
+   no_eigen    = 2;
+   eigen       = Eigen(A, B, [ no_eigen ]);
+   eigenvalue  = Eigenvalue(eigen);
+   eigenvector = Eigenvector(eigen);
+
+/* [d] : Print Eigenvalues, Eigenvectors, and Buckling Loads */
+
+   size = Dimension(A);
+   for(i = 1; i <= no_eigen; i = i + 1) {
+       print "\n";
+       print "Mode", i ,"\n";
+       print "Eigenvalue      = ", eigenvalue[i][1],                "\n";
+       print "Buckling Load P = ", 12*E*I*eigenvalue[i][1]/(L/6)^2 ,"\n";
+
+       for(j = 1; j <= size[1][1]; j = j + 1) {
+           if(j == 1) then {
+             print "\n";
+             print "Mode Shape :", eigenvector[j][i], "\n";
+           } else {
+             print "            ", eigenvector[j][i], "\n";
+           } 
+       }
+   }
+
+   print "\n";
+   print "===============\n";
+   print "*** End of Test\n";
+   print "===============\n";
+
+   quit;

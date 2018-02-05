@@ -1,0 +1,522 @@
+% \documentstyle{report}
+\documentstyle[11pt]{report}
+\textheight 9.0in
+\textwidth 6.30in
+\voffset -0.85in
+\hoffset -0.60in
+\def\R{{\bf R}}
+\def\j{{\rm j}}
+\def\C{{\bf C}}
+\begin{document}
+\title{On the Computation of the Real Stability Radius\footnote{
+       This research was supported in part by NSF's Engineering
+       Research Center No. NSFD-CDR-88-03012}}
+\author{Andr\'e L. Tits and Yaguang Yang\\
+       Department of Electrical Engineering\\
+       and Institute for Systems Research\\
+       University of Maryland at College Park\\
+       College Park, MD 20742 USA\\
+          \\
+       Li Qiu\\
+       Department of Electrical and Electronic Engineering\\
+       Hong Kong University of Science and Technology\\
+       Clear Water Bay, Kowloon, Hong Kong}
+
+\maketitle
+
+\begin{abstract}
+Recently Qiu et al. obtained a computionally attractive 
+formula for the computation of the real stability radius. This formula 
+involves a global maximization over frequency. Here we show that the frequency 
+range can be limited to a certain finite interval. Numerical experimentation 
+suggests that this interval is often reasonably small.
+\end{abstract}
+
+\tableofcontents
+
+\chapter{ INTRODUCTION}
+\addcontentsline{toc}{chapter}{INTRODUCTION }
+
+
+\section{Introduction and Notation}
+
+\indent
+For $k=1,2,\ldots,$ let $\sigma_k(\cdot)$ denote the $k$th largest singular 
+value of its matrix argument. The real (structured) stability radius of a 
+real matrix triple $(A,B,C) \in \R^{n \times n} \times \R^{n \times m} 
+\times \R^{p \times n}$, with $A$ Hurwitz stable, is defined by 
+~\cite {aho83,ansi89}
+ 
+\[ 
+r_\R(A,B,C):=\min_{\Delta\in\R^{m \times p}} 
+       \{ \sigma_{1}(\Delta): A+B \Delta C \; \mbox{is not Hurwitz stable}\}.  
+\]
+
+\noindent
+Recently Qiu et al. [.qiu bernhardsson.] obtained a formula allowing 
+efficient computation of $r_\R(A,B,C)$. Specifically they showed that
+
+\begin{equation}
+r_\R(A,B,C)^{-1}= \max_{\omega \in \R^+}  \mu_\R\left( C(\j\omega I-A)^{-1}B\right)
+\label{eq:rabc}
+\end{equation}
+
+\noindent
+where $\R^+=\{ \omega \in \R: \omega \geq 0 \}$ and where, for any 
+$M \in {\bf C}^{m \times p}$,
+
+\begin{equation}
+\mu_\R(M):=\inf_{\gamma \in (0,1]} \sigma_2 
+\left( \left[ 
+\begin{array}{cc}
+\Re eM & -\gamma \Im mM\\
+\gamma^{-1}\Im mM & \Re eM
+\end{array}  \right] \right).
+\label{eq:mu}
+\end{equation}
+
+\noindent
+The computation of $\mu_\R(M)$ for given $M$ can be carried out at low 
+computational cost as the univariate function to be minimized is unimodal.
+
+In this note, we obtain an upper bound on the magnitude of the global 
+maximizers in (\ref{eq:rabc}), computable at a cost negligible compared 
+to that of performing the global maximization. Numerical experimentation
+suggests that this bound is often reasonably small, and in many cases
+is significantly smaller than a previously obtained bound. 
+Knowledge of such an 
+upper bound simplifies the task of carrying out the numerical maximization.
+
+Given $M \in {\bf C}^{m \times p}$, we denote its transpose by $M^T$
+and its conjugate transpose by $M^H$. When $M=M^H$, we denote by 
+$\lambda_k(M)$ its $k$th largest eigenvalue. For $r \in \R$, 
+$\lfloor r \rfloor$ is the largest integer which is smaller than
+or equal to $r$.
+
+\bigskip
+\section{A Finite Frequency Range}
+
+\indent
+Let $a_0, \ldots, a_n \in \R$ ($a_n=1$) be the coefficients 
+of the characteristic polynomial of $A$, i.e., 
+\[ \det (sI-A)=a_ns^n+a_{n-1}s^{n-1}+\ldots +a_1s+a_0,   \]
+and let $R_0, \ldots, R_{n-1} \in R^{n \times n}$ ($R_{n-1}=I)$ be the 
+matrix coefficients of $\det (sI-A)(sI-A)^{-1}$, i.e.,
+\begin{equation}
+(sI-A)^{-1}=\frac{R_{n-1}s^{n-1}+R_{n-2}s^{n-2}+\cdots+R_1s+R_0}
+{s^n+a_{n-1}s^{n-1}+\cdots+a_1s+a_0}.
+\label{eq:Fadee}
+\end{equation}
+Also define
+\[ 
+\begin{array}{l}
+p_{n-1}:=-a_{n-1}+\frac{\sqrt{2} \,\,\sigma_1(CR_{n-1}B)}{\sigma_1(CA^{-1}B)},  \\
+  \\
+p_{n-2}:=a_{n-2}+\frac{\sqrt{2}\,\, \sigma_1(CR_{n-2}B)}{\sigma_1(CA^{-1}B)},  \\
+  \\
+p_{n-3}:=a_{n-3}+\frac{\sqrt{2}\,\, \sigma_1(CR_{n-3}B)}{\sigma_1(CA^{-1}B)},  \\
+\vdots  \\
+p_{n-k}:=(-1)^{\lfloor \frac{k+2}{2} \rfloor}a_{n-k}+
+\frac{\sqrt{2}\,\, \sigma_1(CR_{n-k}B)}{\sigma_1(CA^{-1}B)},  \\
+\vdots  \\
+p_0:=
+(-1)^{\lfloor \frac{n+2}{2} \rfloor}a_0+\frac{\sqrt{2}\,\, \sigma_1(CR_0B)}
+{\sigma_1(CA^{-1}B)}.
+\end{array}     \]
+
+\bigskip
+\noindent
+Our first result provides an outer approximation to a certain level set of
+$\sigma_1(C(\j \omega I-A)^{-1}B)$.
+
+\bigskip
+\noindent
+{\bf Proposition 1}: The polynomial 
+\[  P(\omega):=\omega^n-p_{n-1}\omega^{n-1}-\cdots-p_0  \]
+has at least one zero in $\R^+$. Furthermore, any 
+$\hat{\omega} \geq 0$ such that
+\begin{equation}
+\sigma_1 \left( C(\j\hat{\omega} I-A)^{-1}B \right) \geq \sigma_1
+(CA^{-1}B),
+\label{eq:cond}
+\end{equation}
+satisfies
+\[ \hat{\omega} \leq \rho_P:=
+\max \{ \omega \in \R^+: P(\omega)=0 \}.  \]
+\hfill $\Box$
+
+\bigskip
+\noindent
+Thus the level set $\{\omega \geq 0 : \ \sigma_1(C(\j\omega I-A)^{-1}B) 
+\geq \sigma_1(CA^{-1}B) \}$ (which is nonempty since it contains the origin) is 
+contained in the interval $[0, \rho_P]$. An immediate consequence of this is 
+that the complex (structured) stability radius $r_{\bf C}(A,B,C)$ (see [.hinrichsen 
+pritchard algebra.]), whose inverse is given by
+\begin{equation}
+r_{\bf C}(A,B,C)^{-1}=\max_{\omega \in \R^+} \sigma_1(C(\j \omega I-A)^{-1}B),
+\label{eq:comp}
+\end{equation}
+can be obtained based instead on the formula
+\[ r_{\bf C}(A,B,C)^{-1}=\max_{\omega \in [0, \rho_P]} \sigma_1(C(\j \omega I-A)^{-1}B)
+.\]
+This however is of little value as efficient schemes exist for solving 
+(\ref{eq:comp}) [.boyd balakrishnan regularity 1990, bruinsma steinbuch 1990,
+clements teo 1989.]. Of more interest is the following 
+result concerning the computation of $r_\R(A,B,C)$. Here dependence 
+of $\rho_P$ on the triple $(A,B,C)$ is made explicit.
+
+\bigskip\noindent
+{\bf Theorem 1}: 
+\begin{equation}
+r_\R(A,B,C)^{-1}=\max_{\omega \in [0, \rho_P(A,B,C)]}
+\mu_\R(C(\j\omega I-A)^{-1}B).
+\label{eq:main}
+\end{equation}
+Moreover, for fixed $(\hat{A}, \hat{B}, \hat{C})$, with $\hat A$
+Hurwitz stable, the mapping
+\[
+(A,B,C) \mapsto \max_{\omega \in [0,\rho_P(A,B,C)]}
+\mu_\R(\hat{C}(j \omega I-\hat{A})^{-1}\hat{B})
+\]
+is continuous at $(A,B,C)=(\hat{A}, \hat{B}, \hat{C})$.
+\hfill $\Box$
+
+\noindent
+While $\rho_P$ may not be continuous as a function of $(A,B,C)$ (largest 
+real zero of a polynomial), the second statement in Theroem 1 
+validates computation of $r_\R$ by means of (\ref{eq:main}) 
+whenever $r_\R$ is continuous (if $r_\R$ is discontinuous, there 
+is no reliable way to compute it in the presence of numerical errors).
+Also, note that the computational cost of evaluting $\rho_P$ is 
+negligible compared to that of carring out the maximization (\ref{eq:rabc}).
+In particular, the $a_i$'s and $R_i$'s can be computed efficiently using
+the Souriau-Frame-Fadeev Algorithm (see, e.g.,  [.zadeh desoer 
+<, Theorem 5.3.10>.]).
+
+Finally, another upper bound for the frequency range to which the maximization
+in (\ref{eq:rabc}) may be restricted can be obtained from a simple extension
+of a result of J.M. Martin [.martin state-space.]. Specifically (4) also holds 
+whenever
+$\omega \in [0,\rho_M]$, where 
+\[
+\rho_M:=\sigma_1(A)+{\sigma_1(C) \sigma_1(B) \over \sigma_1(CA^{-1}B)},
+\]
+and an argument identical to that used in the proof of the first claim of
+Theorem 1 shows that the maximization in (\ref{eq:rabc}) can be limited to 
+$[0, \rho_M]$ (and $\rho_M$ is continuous in $(A,B,C)$). It follows that
+\[
+r_\R(A,B,C)^{-1}=\max_{\omega \in [0,\rho^*]} \mu_\R(C(j\omega I-A)^{-1}B)
+\]
+where $\rho^*:=\min \{\rho_P, \rho_M\}$.
+
+\bigskip
+\section{Examples}
+
+In the first $3$ examples, borrowed from [.qiu davison mansour.],
+$m=p=n$ and $C=B=I$.
+
+\smallskip
+\noindent
+{\bf Example 1}:
+\[ A=
+\left( \begin{array}{cccccc}
+0 & 0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 0 & 1 \\
+-1 & 0 & 0 & -0.01 & 0 & 0 \\
+0 & -2 & 0 & 0 & -0.01 & 0 \\
+0 & 0 & -10 & 0 & 0 & -0.01
+\end{array}
+\right).   
+\]
+The global maximizer in (\ref{eq:rabc}) is 
+$1.4142$; 
+$\rho_P=6.2301$,
+$\rho_M=10.995$.
+\hfill $\Box$
+
+\smallskip
+\noindent
+{\bf Example 2}:
+\[ A=
+\left( \begin{array}{cccc}
+-1 & 1 & 1 & 0 \\
+-1 & -1 & 0 & 1 \\
+0 & 0 & -1 & 1 \\
+0 & 0 & -1 & -1 
+\end{array}  \right).
+\]
+The global maximizer in (\ref{eq:rabc}) is $1$;
+$\rho_P=3.2075$,
+$\rho_M=3.0000$.
+\hfill $\Box$
+
+\smallskip
+\noindent
+{\bf Example 3}:
+\[ A=
+\left(  \begin{array}{ccc}
+-1 & 1000 & 0.001 \\
+-1 & -1 & 0  \\
+1 & 1 & -100
+\end{array}  \right).
+\]
+The global maximizer in (\ref{eq:rabc}) is $31.391$ 
+(it is erroneously printed in [.qiu davison mansour.] as 3.1624); 
+$\rho_P=49.7810$,
+$\rho_M=1001.0000$.
+\hfill $\Box$
+
+\bigskip
+\noindent
+Our last example is taken from [.qiu bernhardsson.].
+
+\smallskip
+\noindent
+{\bf Example 4}:
+\[ A=
+\left(  \begin{array}{cccc}
+79 & 20 & -30 & -20  \\
+-41 & -12 & 17 & 13  \\
+167 & 40 & -60 & -38 \\
+33.5 & 9 & -14.5 & -11 
+\end{array}  \right),
+\]
+\[ 
+\begin{array}{cc}
+B=\left( \begin{array}{cc}
+0.2190 & 0.9347  \\
+0.047  & 0.3835  \\
+0.6789 & 0.5194  \\
+0.6793 & 0.8310  
+\end{array}   \right),
+&
+C=\left( \begin{array}{cccc}
+0.0346 & 0.5297 & 0.0077 & 0.0668  \\
+0.0533 & 0.6711 & 0.3834 & 0.4175 
+\end{array}  \right).
+\end{array}
+\]
+The global maximizer in (\ref{eq:rabc}) is $1.3$; 
+$\rho_P=13.9073$, 
+$\rho_M=216.8366$.
+\hfill $\Box$
+
+\section{Proofs}
+
+Our proof of Proposition 1 makes use of the following result.
+
+\bigskip
+\noindent
+{\bf Lemma 1}: For any $\omega \in \R$,
+\[
+|\det(\j\omega I -A)|
+ \geq 
+\frac{\sqrt2}{2}\left( \omega^n+a_{n-1}\omega^{n-1}+\cdots+(-1)^
+{\lfloor \frac{k}{2} \rfloor}a_{n-k}\omega^{n-k}+\cdots+
+(-1)^{\lfloor \frac{n}{2} \rfloor}a_0 \right).
+\]
+
+\noindent
+{\it Proof}:
+\[
+\begin{array}{lll}
+ |\det(\j\omega I-A)|^2
+&= \left( \Re e(\det(\j\omega I-A)) \right) ^2
+ + \left( \Im m(\det(\j\omega I-A)) \right) ^2  \\
+& = \left( a_0-a_2\omega^2+\cdots+(-1)^{\lfloor \frac{n}{2} \rfloor}
+         a_{2\lfloor \frac{n}{2} \rfloor} \omega^{2\lfloor \frac{n}{2} 
+         \rfloor} \right) ^2+  \\
+& + \left( a_1 \omega-a_3\omega^3+\cdots+(-1)^{ \lfloor \frac{n-1}{2} \rfloor}
+     a_{2 \lfloor \frac{n-1}{2} \rfloor +1} \omega^{2 \lfloor \frac{n-1}{2}
+    \rfloor +1} \right) ^2.
+\end{array}
+\]
+Since for any two real numbers $a$ and $b$, 
+$a^2+b^2 \geq \frac{1}{2}(|a|+|b|)^2$, it follows that
+\[ 
+\begin{array}{l}
+|\det(\j\omega I-A)|    \\
+ \geq  \frac{\sqrt2}{2} 
+   \left( |a_0+\cdots+(-1)^{\lfloor \frac{n}{2} \rfloor}
+         a_{2\lfloor \frac{n}{2} \rfloor} \omega^{2\lfloor \frac{n}{2} 
+         \rfloor}|+|a_1 \omega+\cdots+(-1)^{ \lfloor \frac{n-1}{2} \rfloor}
+     a_{2 \lfloor \frac{n-1}{2} \rfloor +1} \omega^{2 \lfloor \frac{n-1}{2}
+    \rfloor +1}| \right)  \\
+ = \frac{\sqrt2}{2}
+   \left( |(-1)^{\lfloor \frac{n}{2} \rfloor} ( a_0+
+    \cdots+(-1)^{\lfloor \frac{n}{2} \rfloor}
+         a_{2\lfloor\frac{n}{2}\rfloor}\omega^{2\lfloor \frac{n}{2} 
+         \rfloor})| 
++|(-1)^{\lfloor \frac{n-1}{2} \rfloor} ( a_1 \omega+
+   \cdots+(-1)^{ \lfloor \frac{n-1}{2} \rfloor}
+     a_{2 \lfloor \frac{n-1}{2} \rfloor +1} \omega^{2 \lfloor \frac{n-1}{2}
+    \rfloor +1} ) | \right)
+\end{array}
+\]
+and the claim follows from the triangle inequality in ${\bf C}$.
+  \hfill   $\Box$
+
+\bigskip\noindent
+{\bf Proof of Proposition 1}: Let $\hat{\omega}$ be such that (\ref{eq:cond})
+holds. It follows from (\ref{eq:Fadee}) and the triangle inequality ($\sigma_1
+(\cdot)$ is a norm) that 
+\begin{equation}
+\sigma_1(CA^{-1}B)  \leq 
+\frac{\sigma_1(CR_{n-1}B) \hat{\omega}^{n-1}+
+\cdots+\sigma_1(CR_1B) \hat{\omega}+\sigma_1(CR_0B)}
+{|\det(\j\hat{\omega} I-A)|},
+\label{eq:INV}
+\end{equation}
+or equivalently
+\begin{eqnarray}
+|\det(\j\hat{\omega} I-A)|
+\leq 
+\frac{\sigma_1(CR_{n-1}B) \hat{\omega}^{n-1}+
+\cdots+\sigma_1(CR_1B) \hat{\omega}+\sigma_1(CR_0B)}
+{\sigma_1(CA^{-1}B)}.
+\label{eq:INV2}
+\end{eqnarray}
+
+\noindent
+In view of Lemma 1 and the definition of the  $p_i$'s, this implies that
+\begin{eqnarray}
+P(\hat{\omega})
+% =\hat{\omega}^n-p_{n-1}\hat{\omega}^{n-1}
+% -p_{n-2}\hat{\omega}^{n-2}-
+% \cdots-p_1\hat{\omega}^1-P_0 
+\leq 0.
+\label{eq:final}
+\end{eqnarray}
+Since $P(\omega)$ goes to infinity as 
+$\omega$ tends to infinity, the claims follow.
+\hfill $\Box$
+
+
+\bigskip
+\noindent
+{\bf Proof of the Theorem 1}: First note that, for any 
+$X, Y \in \R^{n \times n}$,
+\begin{equation}
+\sigma_1(X+\j Y)=\sigma_2 \left( \left[
+\begin{array}{cc}
+X & -Y \\
+Y & X
+\end{array} \right] \right).
+\label{eq:equ}
+\end{equation}
+Indeed $X+\j Y$ and $X-\j Y$ have the same singular values, so that
+\[
+\sigma_1 \left( \left[
+\begin{array}{cc}
+X-\j Y & 0 \\
+0 &  X+\j Y
+\end{array} \right] \right)
+=
+\sigma_2 \left( \left[
+\begin{array}{cc}
+X-\j Y & 0 \\
+0 &  X+\j Y
+\end{array} \right] \right)
+=\sigma_1(X+\j Y),
+\]
+and 
+\[
+\left[ \begin{array}{cc}
+X & -Y \\
+Y & X
+\end{array} \right]
+=U \left[ \begin{array}{cc}
+X-\j Y & 0 \\
+0 &  X+\j Y
+\end{array} \right]V^H
+\]
+where $U$ and $V$ are unitary matrices given by
+\[
+U=V=\frac{\sqrt2}{2}
+\left[ \begin{array}{cc}
+I & \j I \\
+\j I & I
+\end{array}
+\right],
+\]
+>From (\ref{eq:equ}) and from the definition (\ref{eq:mu}) of $\mu_\R$ it follows
+that
+\[  \mu_\R(CA^{-1}B)= \sigma_1 (CA^{-1}B) \]
+and, for any $\omega \geq 0$,
+\begin{eqnarray}
+\mu_\R (C(\j\omega I-A)^{-1}B)
+& \leq & \sigma_2 \left( \left[
+   \begin{array}{cc}
+   \Re e(C(\j{\omega} I-A)^{-1}B) & -\Im m(C(\j{\omega} I-A)^{-1}B) \\
+   \Im m(C(\j{\omega} I-A)^{-1}B) & \Re e(C(\j{\omega} I-A)^{-1}B)
+   \end{array} \right] \right) \\
+& = & \sigma_1(C(\j \omega I-A)^{-1}B).
+\end{eqnarray}
+In view of Proposition 1, this implies that any $\hat{\omega} \geq 0$ such that
+\[  \mu_\R (C(\j\hat{\omega} I-A)^{-1}B)
+\geq \mu_\R (CA^{-1}B)
+\]
+must satisfy
+\[ \hat{\omega} \leq \rho_P.  \]
+Thus the level set $\{ \omega \geq 0: \mu_\R (C(\j\omega I-A)^{-1}B)
+\geq \mu_\R (CA^{-1}B) \}$ (which is nonempty since it contains the 
+origin) is contained in the interval $[0, \rho_P]$. The first claim is a direct
+consequence of this fact. Now let $\hat{\rho}:=\rho_P(\hat{A}, \hat{B}, \hat{C})
+$. Uniform continuity of $\sigma_1(C(\j\omega I-A)^{-1}B)$ over compact sets
+preserving Hurwitz stability of $A$ implies that, given any $\epsilon >0$,
+there exists $\delta >0$ such that
+\begin{equation}
+|\sigma_1(C(\j \omega I-A)^{-1}B)-\sigma_1(\hat{C}(\j \omega I-\hat{A})^{-1}
+\hat{B})|< \epsilon/2 \,\,\,\, \forall \omega \in [0, \hat{\rho}]
+\label{eq:cont}
+\end{equation}
+whenever $||(A,B,C)-(\hat{A},\hat{B},\hat{C})||<\delta$, where $|| \cdot ||$
+denotes an arbitrary norm. Now let $(A,B,C)$ be such that
+$||(A,B,C)-(\hat{A},\hat{B},\hat{C})||<\delta$, and let 
+$\rho:=\rho_P(A,B,C)$. We show that
+\begin{equation}
+\max_{\omega \in [0, \rho]} \mu_\R(\hat{C}(\j \omega I-\hat{A})^{-1}
+\hat{B}) \geq r_\R(\hat{A}, \hat{B}, \hat{C})^{-1}-\epsilon
+\label{eq:cont2}
+\end{equation}
+thus proving the second claim. If $\rho \geq \hat{\rho}$, the claim follows 
+trivally. Thus suppose $\rho < \hat{\rho}$. From (\ref{eq:cont}) and
+Proposition 1 (at $(A,B,C)$), it follows that
+\[
+\sigma_1(\hat{C}(\j\omega I-\hat{A})^{-1}\hat{B}) \leq \sigma_1
+(\hat{C} \hat{A}^{-1} \hat{B})+\epsilon \,\,\,\, \forall \omega \in (\rho, 
+\hat{\rho}]
+\]
+which, in view of (12) implies that
+\[
+\mu_\R(\hat{C}(\j \omega I-\hat{A})^{-1} \hat{B}) \leq 
+\sigma_1(\hat{C} \hat{A}^{-1} \hat{B})+\epsilon \,\,\,\, \forall \omega \in 
+(\rho, \hat{\rho}].
+\]
+It follows that
+\[
+r_\R(\hat{A}, \hat{B}, \hat{C})^{-1} \leq
+\max \{ \max_{\omega \in [0,\rho]} \mu_\R
+(\hat{C}(\j\omega I-\hat{A})^{-1}\hat{B}),
+\sigma_1(\hat{C} \hat{A}^{-1} \hat{B})+ \epsilon \}
+.\]
+Since 
+\[
+\max_{\omega \in [0,\rho]} \mu_\R (\hat{C}(\j\omega I-\hat{A})^{-1}\hat{B}
+\geq \mu_\R(\hat{C} \hat{A}^{-1} \hat{B})
+=\sigma_1(\hat{C} \hat{A}^{-1} \hat{B}),
+\]
+(\ref{eq:cont2}) follows.
+\hfill  $\Box$
+
+\bigskip\bigskip 
+\centerline{\bf References}\smallskip %comment out for footnotes
+\baselineskip = 12pt
+\vskip 0.1truein
+\bibliography{/homes/xgchen/SRC/bibliography/references} % specify bibliography in eosdis.bib
+\bibliographystyle{plain}                                % specify plain.sty as style file
+
+.[]
+\end{document}
+

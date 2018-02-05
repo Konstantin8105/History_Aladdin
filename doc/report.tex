@@ -1,0 +1,92 @@
+
+% =============================================================== 
+% Design of programming language for fem stack machine          *
+% ===============================================================
+
+\input epsf
+\input table.sty
+
+\documentstyle[12pt]{report}
+\textheight 9.0in
+\textwidth 6.30in
+\voffset -0.85in
+\hoffset -0.60in
+\def\R{{\bf R}}
+\def\j{{\rm j}}
+\def\C{{\bf C}}
+
+%\renewcommand{\thefigure}{\thechapter.\arabic{figure}}
+
+\begin{document}
+
+\title{\bf ALADDIN : A COMPUTATIONAL TOOLKIT FOR INTERACTIVE ENGINEERING MATRIX AND FINITE ELEMENT ANALYSIS}
+
+\begin{figure}
+\centerline{\epsfbox{umcp.ps}}
+\end{figure}
+
+\author{                                 \\
+                                         \\
+                                         \\
+        \bf Mark Austin, Xiaoguang Chen  \\
+        \bf and Wane-Jang Lin            \\
+                                         \\
+         Institute for Systems Research\\
+         and \\
+         Department of Civil Engineering\\
+         University of Maryland \\
+         College Park, MD 20742}
+
+\maketitle
+
+\begin{abstract}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+This report describes Version 1.0 of ALADDIN,
+an interactive computational toolkit for the matrix
+and finite element analysis of engineering systems.
+The ALADDIN package is designed around a language specification,
+that includes quantities with physical units,
+branching constructs, and looping constructs.
+The basic language functionality is enhanced with 
+external libraries of matrix and finite element functions.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+ALADDIN's problem solving capabilities are demonstrated via the
+solution to a series of matrix and numerical analysis problems.
+ALADDIN is employed in the finite element analysis of two building structures,
+and two highway bridge structures. 
+\end{abstract}
+
+\tableofcontents
+
+\part{\bf INTRODUCTION TO ALADDIN}
+
+\input my-chapter1.tex
+
+\part{\bf MATRIX LIBRARY}
+
+\input my-chapter2.tex
+\input my-chapter3.tex
+\input my-chapter4.tex
+
+\part{\bf FINITE ELEMENT LIBRARY}
+
+\input my-chapter5.tex
+\input my-chapter6.tex
+
+\part{\bf ARCHITECTURE AND DESIGN}
+
+\input my-chapter7.tex
+\input my-chapter8.tex
+
+\part{\bf CONCLUSIONS AND FUTURE WORK}
+
+\input my-chapter9.tex
+
+\bibliography{aladdin} 
+\bibliographystyle{plain}     
+
+\end{document}

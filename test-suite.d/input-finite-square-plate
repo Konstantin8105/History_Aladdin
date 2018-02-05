@@ -1,0 +1,230 @@
+/* -------------------------------------------------------------- */
+/*  S.S. Square plate with concentrated load at the center 2X2    */
+/*                                             May, 26, 1994      */
+/* -------------------------------------------------------------- */
+
+print "*** DEFINE PROBLEM SPECIFIC PARAMETERS \n\n";
+
+NDimension         = 3;
+/*
+NDofPerNode        = 5;  
+*/
+NDofPerNode        = 6; 
+MaxNodesPerElement = 4;
+
+StartMesh();
+
+print "*** GENERATE GRID OF GEOMETRY FOR FE MODEL \n\n";
+
+
+/* TEST EXAMPLE */
+
+print "*** RECTANGULAR PLATE UNDER PRESSURE \n\n";
+
+L    =   5 in;   /* Length     */
+b    =   5 in;   /* width      */
+t    = 0.5 in;   /* thickness */
+
+print "*** GENERATE GRID OF NODES FOR FE MODEL \n\n";
+
+z = 0 in;
+dL = L/2.0;
+nn = 3;
+
+for (j = 1; j <= nn; j = j + 1) {
+    for (i = 1; i <= nn; i=i+1) {
+        nodeno = i +3*(j-1);
+        x = dL*(i-1);
+        y = dL*(j-1);
+        z = 0 in;
+        AddNode(nodeno,[x,y,z]);  
+   }
+}
+
+print "*** ATTACH ELEMENTS TO GRID OF NODES \n\n";
+
+for(i = 1; i < nn; i = i + 1) {
+    for(j = 1; j < nn; j = j +1) {  
+      elmtno = i + 2*(j-1);
+      a = i + 3*(j-1);
+      b = i + 1 + 3*(j-1);
+      c = i + 1 + 3*j;
+      d = i + 3*j;
+      node_connec = [a, b, c, d];
+      AddElmt(elmtno, node_connec, "name_of_elmt_attr");
+    }
+}
+
+print "*** DEFINE ELEMENT, SECTION AND MATERIAL PROPERTIES \n\n";
+
+ElementAttr("name_of_elmt_attr") { type     = "SHELL_4NQ";
+                                   section  = "mysection";
+                                   material = "ELASTIC";
+                                 }
+
+MaterialAttr("ELASTIC") {
+                             density = 2.588E-4 lb/in^3; 
+                             poisson = 0.3;   
+                             yield   = 30000;  
+		             E       = 1E+7 psi;
+                             n       = 5.0;
+                             alpha   = 0.3; 
+                             beta    = 1.0;
+                           }
+
+SectionAttr("mysection") {
+                          thickness =   0.5 in;
+                          }
+
+print "*** SET UP BOUNDARY CONDITIONS \n\n";
+/* ------------------------- */
+/* Setup Boundary Conditions */
+/* ------------------------- */
+
+/* [a] NX1 line X-symmetric */
+
+u_id  = 0; v_id  = 1; w_id  = 0;
+rx_id = 1; ry_id = 0; rz_id = 1;
+
+bc_nx1 = [u_id,v_id,w_id,rx_id,ry_id,rz_id];
+
+/* [b] NY1 line Y-symmetric */
+
+u_id  = 1; v_id  = 0; w_id  = 0;
+rx_id = 0; ry_id = 1; rz_id = 1;
+
+bc_ny1 = [u_id,v_id,w_id,rx_id,ry_id,rz_id];
+
+/* [c] NX2 line simple support: top */
+
+u_id  = 1; v_id  = 1; w_id  = 1;
+rx_id = 0; ry_id = 1; rz_id = 0;
+
+bc_nx2 = [u_id,v_id,w_id,rx_id,ry_id,rz_id];
+
+/* [d] NY2 line simple support: right */
+
+u_id  = 1; v_id  = 1; w_id  = 1;
+rx_id = 1; ry_id = 0; rz_id = 0;
+
+bc_ny2 = [u_id,v_id,w_id,rx_id,ry_id,rz_id];
+
+/* [e] left bottom corner  */
+
+u_id  = 1; v_id  = 1; w_id  = 0;
+rx_id = 1; ry_id = 1; rz_id = 1;
+
+bc_lbc = [u_id,v_id,w_id,rx_id,ry_id,rz_id];
+
+/* [f] right bottom corner */
+
+u_id  = 1; v_id  = 1; w_id  = 1;
+rx_id = 1; ry_id = 0; rz_id = 1;
+
+bc_rbc = [u_id,v_id,w_id,rx_id,ry_id,rz_id];
+
+/* [g] left top corner     */
+
+u_id  = 1; v_id  = 1; w_id  = 1;
+rx_id = 0; ry_id = 1; rz_id = 1;
+
+bc_ltc = [u_id,v_id,w_id,rx_id,ry_id,rz_id];
+
+/* [h] right top corner    */
+
+u_id  = 1; v_id  = 1; w_id  = 1;
+rx_id = 1; ry_id = 1; rz_id = 1;
+
+bc_rtc = [u_id,v_id,w_id,rx_id,ry_id,rz_id];
+
+/* [a] BC for NX1, NX2, NY1 and NY2    */
+
+     FixNode(2, bc_nx1);
+     FixNode(8, bc_nx2);
+     FixNode(4, bc_ny1);
+     FixNode(6, bc_ny2);
+
+/* [c] Corners             */
+
+FixNode(1, bc_lbc);
+FixNode(3, bc_rbc);
+FixNode(7, bc_ltc);
+FixNode(9, bc_rtc);
+
+/* --------------------- */
+/* Add Point Nodal Loads */
+/* --------------------- */
+print "*** SET UP LOADS \n\n";
+
+/* [0] load for inner nodes  */
+
+Fx = 0 lbf;   Fy = 0 lbf; Fz = -(0 psi)*dL*dL;
+Mx = 0 lbf*in; My = 0 lbf*in; Mz = 0 lbf*in;
+
+        NodeLoad(5,[Fx, Fy, Fz, Mx, My, Mz]);
+
+/* [a] load for NX1 & NX2 except for corner nodes */
+
+Fx = 0 lbf;   Fy = 0 lbf;  Fz = -(0 psi)*dL*dL/2.0;
+Mx = 0 lbf*in; My = 0 lbf*in; Mz = 0 lbf*in;
+
+     NodeLoad(4,[Fx, Fy, Fz, Mx, My, Mz]);
+     NodeLoad(6,[Fx, Fy, Fz, Mx, My, Mz]);
+
+/* [b] load for NY1 & NY2 except for corner nodes */
+
+     NodeLoad(2,[Fx, Fy, Fz, Mx, My, Mz]);
+     NodeLoad(8,[Fx, Fy, Fz, Mx, My, Mz]);
+
+/* [c] Corners             */
+
+Fx = 0 lbf;   Fy = 0 lbf;  Fz = -(300 psi)*L*L; 
+Mx = 0 lbf*in; My = 0 lbf*in; Mz = 0 lbf*in;
+NodeLoad(1,[Fx, Fy, Fz, Mx, My, Mz]);
+
+Fx = 0 lbf;   Fy = 0 lbf;  Fz = -(0 psi)*(dL/2.0)*(dL/2.0); 
+Mx = 0 lbf*in; My = 0 lbf*in; Mz = 0 lbf*in;
+NodeLoad(3,[Fx, Fy, Fz, Mx, My, Mz]);
+NodeLoad(7,[Fx, Fy, Fz, Mx, My, Mz]);
+NodeLoad(9,[Fx, Fy, Fz, Mx, My, Mz]);
+
+/* ------------------------------------- */
+/* Compile and Print Finite Element Mesh */
+/* ------------------------------------- */
+
+EndMesh();
+PrintMesh();
+
+/* ----------------------------------- */
+/* Compute Mass and Stiffness Matrices */
+/* ----------------------------------- */
+
+print "\n*** COMPUTE AND PRINT STIFFNESS, MASS, AND EXTERNAL LOAD MATRICES \n\n";
+
+print "\n*** STATIC ANALYSIS PROBLEM \n\n";
+
+/* ------------------------- */
+/* [a] STATIC DISPLCEMENT    */
+/* ------------------------- */
+
+SetUnitsType("US");
+
+stiff = Stiff();
+PrintMatrix(stiff);
+
+eload = ExternalLoad();
+PrintMatrix(eload);
+
+displ  = Solve(stiff, eload);
+PrintMatrix(displ);
+
+/* iload  = InternalLoad(displ); */
+/* PrintMatrix(iload)            */
+
+PrintDispl(displ);
+PrintStress(displ);
+
+print "FINISHED ANALYSIS .......\n";
+
+quit;
+

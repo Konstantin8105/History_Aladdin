@@ -1,0 +1,1400 @@
+%!PS-Adobe-2.0 
+%%Creator: MATLAB, The Mathworks, Inc.
+%%Title: my-chapter6-temp.ps
+%%CreationDate: 05/09/95  16:22:29
+%%DocumentNeededFonts: Helvetica
+%%DocumentProcessColors: Cyan Magenta Yellow Black
+%%Pages: (atend)
+%%BoundingBox:    60   209   565   604
+%%EndComments
+
+%%BeginProlog
+
+% MathWorks dictionary
+/MathWorks 150 dict begin
+
+% definition operators
+/bdef {bind def} bind def
+/ldef {load def} bind def
+/xdef {exch def} bdef
+/xstore {exch store} bdef
+
+% operator abbreviations
+/c  /clip ldef
+/cc /concat ldef
+/cp /closepath ldef
+/gr /grestore ldef
+/gs /gsave ldef
+/mt /moveto ldef
+/np /newpath ldef
+/cm /currentmatrix ldef
+/sm /setmatrix ldef
+/rc {rectclip} bdef
+/rf {rectfill} bdef
+/rm /rmoveto ldef
+/rl /rlineto ldef
+/s /show ldef
+/sc {setcmykcolor} bdef
+/sr /setrgbcolor ldef
+/w /setlinewidth ldef
+/j /setlinejoin ldef
+/cap /setlinecap ldef
+
+% page state control
+/pgsv () def
+/bpage {/pgsv save def} bdef
+/epage {pgsv restore} bdef
+/bplot /gsave ldef
+/eplot {stroke grestore} bdef
+
+% orientation switch
+/portraitMode 	0 def
+/landscapeMode 	1 def
+
+% coordinate system mappings
+/dpi2point 0 def
+
+% font control
+/FontSize 0 def
+/FMS {
+	/FontSize xstore		%save size off stack
+	findfont
+	[FontSize 0 0 FontSize neg 0 0]
+	makefont
+	setfont
+	}bdef
+
+/reencode {
+exch dup where
+{pop load} {pop StandardEncoding} ifelse
+exch
+dup 3 1 roll
+findfont dup length dict begin
+  { 1 index /FID ne {def}{pop pop} ifelse } forall
+  /Encoding exch def
+  currentdict
+end
+definefont pop
+} bdef
+
+/isroman {
+findfont /CharStrings get
+/Agrave known
+} bdef
+
+/FMSR {
+3 1 roll 1 index
+dup isroman
+{reencode} {pop pop} ifelse
+exch FMS
+} bdef
+
+/csm {
+	1 dpi2point div -1 dpi2point div scale
+	neg translate
+	landscapeMode eq {90 rotate} if
+	} bdef
+
+% line types: solid, dotted, dashed, dotdash
+/SO { [] 0 setdash } bdef
+/DO { [.5 dpi2point mul 4 dpi2point mul] 0 setdash } bdef
+/DA { [6 dpi2point mul] 0 setdash } bdef
+/DD { [.5 dpi2point mul 4 dpi2point mul 6 dpi2point mul 4 dpi2point mul] 0 setdash } bdef
+
+% macros for lines and objects
+/L {
+	lineto
+	stroke
+	} bdef
+/MP {
+	3 1 roll moveto
+	1 sub {rlineto} repeat
+	} bdef
+/AP {
+	{rlineto} repeat
+	} bdef
+/PP {
+	closepath fill
+	} bdef
+/DP {
+	closepath stroke
+	} bdef
+/MR {
+	4 -2 roll moveto
+	dup  0 exch rlineto
+	exch 0 rlineto
+	neg  0 exch rlineto
+	closepath
+	} bdef
+/FR {
+	MR stroke
+	} bdef
+/PR {
+	MR fill
+	} bdef
+/L1i {
+	{ currentfile picstr readhexstring pop } image
+	} bdef
+
+/tMatrix matrix def
+/MakeOval {
+	newpath
+	tMatrix currentmatrix pop
+	translate scale
+	0 0 1 0 360 arc
+	tMatrix setmatrix
+	} bdef
+/FO {
+	MakeOval
+	stroke
+	} bdef
+/PO {
+	MakeOval
+	fill
+	} bdef
+
+/PD {
+	2 copy moveto lineto stroke
+	} bdef
+
+
+currentdict end def
+%%EndProlog
+
+%%BeginSetup
+MathWorks begin
+
+0 cap
+
+end
+%%EndSetup
+
+%%Page: 1 1
+%%BeginPageSetup
+%%PageBoundingBox:    60   209   565   604
+MathWorks begin
+bpage
+%%EndPageSetup
+
+%%BeginObject: graph1 1
+bplot
+
+/dpi2point 12 def
+portraitMode 0216 7344 csm
+
+  509    91  6059  4735 MR c np
+76 dict begin %Colortable dictionary
+/c0 { 0 0 0 sr} bdef
+/c1 { 1 1 1 sr} bdef
+/c2 { 1 0 0 sr} bdef
+/c3 { 0 1 0 sr} bdef
+/c4 { 0 0 1 sr} bdef
+/c5 { 1 1 0 sr} bdef
+/c6 { 1 0 1 sr} bdef
+/c7 { 0 1 1 sr} bdef
+%%IncludeResource: font Helvetica
+/Helvetica /ISOLatin1Encoding 144 FMSR
+
+1 j
+c1
+   0    0 6914 5184 PR
+6 w
+DO
+4 w
+SO
+6 w
+c0
+3224 4612 mt 6256 3792 L
+3224 4612 mt  898 3543 L
+ 898 3543 mt  898 1208 L
+3224 4612 mt 3296 4645 L
+3327 4793 mt 
+(0) s
+3831 4448 mt 3902 4481 L
+3933 4629 mt 
+(2) s
+4437 4284 mt 4508 4317 L
+4540 4465 mt 
+(4) s
+5043 4120 mt 5115 4153 L
+5146 4301 mt 
+(6) s
+5650 3956 mt 5721 3988 L
+5752 4137 mt 
+(8) s
+6256 3792 mt 6327 3824 L
+6359 3973 mt 
+(10) s
+3224 4612 mt 3149 4633 L
+3035 4776 mt 
+(0) s
+2759 4398 mt 2683 4419 L
+2570 4562 mt 
+(5) s
+2294 4184 mt 2218 4205 L
+2025 4348 mt 
+(10) s
+1829 3970 mt 1753 3991 L
+1559 4134 mt 
+(15) s
+1363 3757 mt 1287 3777 L
+1094 3920 mt 
+(20) s
+ 898 3543 mt  822 3563 L
+ 629 3706 mt 
+(25) s
+ 898 3543 mt  827 3510 L
+ 511 3549 mt 
+(-1.5) s
+ 898 2959 mt  827 2926 L
+ 631 2965 mt 
+(-1) s
+ 898 2376 mt  827 2343 L
+ 511 2381 mt 
+(-0.5) s
+ 898 1792 mt  827 1759 L
+ 715 1798 mt 
+(0) s
+ 898 1208 mt  827 1176 L
+ 595 1214 mt 
+(0.5) s
+2694  273 mt 
+(Bridge Deck Displacements) s
+gs 898 388 5359 4225 MR c np
+93 175 303 -68 -93 -174 4068 2888 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -7 303 -67 -93 6 4161 2882 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 347 303 -69 -93 -346 3975 2714 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 174 303 -72 -93 -173 3765 2959 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 489 303 -71 -93 -487 3882 2368 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -168 303 -68 -93 166 4254 2716 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -6 303 -71 -93 5 3858 2954 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 346 303 -72 -93 -346 3672 2786 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 173 304 -77 -93 -173 3461 3036 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 487 304 -74 -94 -485 3579 2440 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -5 304 -77 -93 5 3554 3031 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 346 304 -78 -93 -345 3368 2863 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -166 303 -72 -93 165 3951 2789 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 568 303 -72 -93 -567 3789 1881 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -285 303 -70 -93 282 4347 2434 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 173 303 -81 -93 -173 3158 3117 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+94 485 303 -79 -93 -484 3275 2518 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -5 303 -81 -93 5 3251 3112 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 345 303 -81 -93 -345 3065 2944 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -165 304 -77 -94 163 3648 2868 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 567 304 -76 -93 -565 3485 1955 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -282 303 -73 -93 279 4044 2510 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 173 303 -83 -93 -173 2855 3200 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 484 303 -81 -93 -484 2972 2599 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -5 303 -83 -93 4 2948 3196 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 345 303 -83 -93 -345 2762 3027 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+94 -163 303 -81 -93 163 3344 2949 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 565 303 -79 -93 -565 3182 2034 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -332 303 -73 -93 327 4440 2107 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -279 303 -79 -93 279 3741 2589 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 173 303 -87 -93 -173 2552 3287 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -4 303 -87 -93 5 2645 3282 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 484 303 -83 -93 -484 2669 2682 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 345 303 -87 -93 -345 2459 3114 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -163 303 -84 -93 164 3041 3032 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 565 303 -82 -93 -564 2879 2115 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -327 303 -76 -93 324 4137 2186 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 173 303 -93 -93 -173 2249 3380 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -279 304 -81 -93 278 3437 2671 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 92 304 -68 -93 -91 5184 3401 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+94 254 303 -70 -93 -252 5091 3310 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -5 303 -93 -93 6 2342 3374 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 345 303 -91 -93 -347 2156 3207 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 484 303 -86 -93 -485 2366 2769 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -164 303 -86 -93 164 2738 3118 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 371 303 -74 -93 -367 4998 3058 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -89 304 -67 -93 88 5277 3313 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 564 303 -82 -93 -565 2576 2198 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -281 303 -78 -93 276 4533 1831 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -324 303 -79 -93 322 3834 2267 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 173 303 -96 -93 -174 1946 3477 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -278 303 -83 -93 279 3134 2753 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 252 303 -74 -93 -250 4788 3382 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 91 303 -72 -93 -91 4881 3473 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -6 303 -97 -93 7 2039 3470 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 347 304 -95 -94 -348 1853 3303 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 485 303 -90 -93 -486 2063 2860 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -164 303 -92 -93 166 2435 3208 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 417 303 -78 -93 -413 4905 2691 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 367 303 -75 -93 -366 4695 3132 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -88 303 -72 -93 89 4974 3384 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 565 303 -85 -93 -566 2273 2284 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -276 303 -79 -93 273 4230 1913 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -322 304 -82 -93 322 3530 2349 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -279 303 -86 -93 280 2831 2838 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 250 303 -78 -93 -249 4485 3459 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 91 303 -77 -93 -90 4578 3549 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -262 304 -68 -94 261 5371 3052 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -101 303 -83 -93 99 4626 1732 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 486 304 -92 -93 -489 1759 2955 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -166 303 -96 -93 168 2132 3302 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 367 303 -83 -93 -362 4812 2278 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 413 303 -79 -93 -409 4602 2766 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 366 303 -80 -93 -364 4392 3210 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 566 303 -89 -93 -567 1970 2374 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -89 303 -76 -93 87 4671 3462 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 186 303 -85 -93 -184 4719 1916 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -273 303 -81 -93 271 3927 1996 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -322 303 -82 -93 322 3227 2431 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -280 303 -90 -93 282 2528 2926 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 249 303 -81 -93 -249 4182 3540 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 90 303 -81 -93 -90 4275 3630 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+94 -261 303 -71 -93 259 5067 3125 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -99 303 -82 -93 97 4323 1816 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 362 303 -82 -93 -359 4509 2357 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 409 303 -81 -93 -408 4299 2846 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 364 303 -82 -93 -363 4089 3291 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 567 304 -91 -93 -568 1666 2466 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 184 303 -84 -93 -182 4416 1998 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -87 303 -81 -93 88 4368 3542 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -271 304 -82 -94 270 3624 2079 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -322 303 -85 -93 324 2924 2514 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -282 303 -94 -93 285 2225 3017 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 249 303 -83 -93 -249 3879 3623 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 90 303 -83 -93 -91 3972 3714 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -403 303 -69 -93 401 5464 2651 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -259 303 -78 -93 260 4764 3202 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -97 303 -83 -93 96 4020 1900 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 359 303 -84 -93 -356 4206 2438 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 408 303 -83 -93 -407 3996 2928 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 363 303 -82 -93 -364 3786 3374 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 182 303 -84 -93 -182 4113 2082 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -88 303 -84 -93 88 4065 3626 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+94 -270 303 -82 -93 271 3320 2160 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -324 303 -88 -93 327 2621 2599 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 249 304 -86 -93 -250 3575 3710 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 91 304 -87 -94 -91 3669 3801 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -401 304 -73 -93 400 5160 2725 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -260 303 -80 -93 259 4461 3283 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -96 303 -83 -93 95 3717 1984 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 356 303 -82 -93 -357 3903 2521 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 407 303 -81 -93 -408 3693 3010 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 364 304 -85 -93 -365 3482 3460 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 182 303 -84 -93 -180 3810 2164 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -88 303 -87 -93 88 3762 3713 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -271 303 -83 -93 273 3017 2241 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -327 303 -91 -93 331 2318 2686 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 250 303 -90 -93 -252 3272 3802 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+94 91 303 -92 -93 -91 3365 3893 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -259 303 -84 -93 260 4158 3366 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -400 303 -77 -93 398 4857 2804 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -95 304 -81 -93 96 3413 2064 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 357 304 -82 -94 -356 3600 2602 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 408 304 -83 -93 -410 3389 3095 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 365 303 -88 -93 -367 3179 3550 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -483 303 -71 -93 481 5557 2170 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -88 304 -92 -93 88 3458 3805 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 180 304 -80 -93 -182 3506 2246 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -273 303 -85 -93 276 2714 2323 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 91 303 -96 -93 -92 3062 3990 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 252 303 -94 -93 -254 2969 3898 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -260 303 -87 -93 260 3855 3453 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -398 303 -81 -93 398 4554 2885 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -96 303 -81 -93 97 3110 2144 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+94 356 303 -81 -93 -358 3296 2685 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 410 303 -85 -93 -413 3086 3183 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 367 303 -91 -93 -370 2876 3644 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -481 304 -74 -93 480 5253 2245 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -88 303 -97 -93 88 3155 3902 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 182 303 -80 -93 -183 3203 2327 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -276 303 -87 -93 282 2411 2404 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -260 304 -92 -93 261 3551 3544 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -398 303 -83 -93 398 4251 2968 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -97 303 -82 -93 99 2807 2224 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 358 303 -81 -93 -362 2993 2770 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 413 303 -87 -93 -417 2783 3274 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -480 303 -79 -93 479 4950 2325 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 183 303 -80 -93 -184 2900 2408 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -261 303 -97 -93 263 3248 3639 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -398 303 -87 -93 399 3948 3054 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -99 303 -81 -93 101 2504 2303 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 362 303 -81 -93 -368 2690 2857 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -479 303 -81 -93 479 4647 2406 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 184 303 -79 -93 -186 2597 2489 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -399 304 -91 -94 401 3645 3143 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -479 303 -83 -93 479 4344 2489 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+94 -401 303 -95 -93 403 3341 3236 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -479 303 -86 -93 481 4041 2573 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -481 303 -89 -93 481 3738 2662 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+93 -481 304 -93 -93 483 3434 2753 4 MP
+gs
+c1
+PP
+gr
+c0
+DP
+
+gr 
+
+end
+
+eplot
+%%EndObject graph 1
+
+epage
+end
+
+showpage
+
+%%Trailer
+%%BoundingBox:    60   209   565   604
+%%Pages: 001
+%%EOF

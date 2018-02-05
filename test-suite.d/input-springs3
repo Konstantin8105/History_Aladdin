@@ -1,0 +1,458 @@
+/*
+ *  =====================================================================
+ *  Plastic Analysis for a System of Two 1-DOF Spring Elements
+ *
+ *     -- general matrix format for bi-linear material
+ *     -- energy calculation for balance checking
+ *
+ *  Dynamic analysis using average acceleration method.
+ *
+ *  Written By : Wane-Jang Lin                              October, 1997
+ *  =====================================================================
+ */
+
+/* plastic spring material, Bi-linear */
+
+   ks1 = 2.0 N/cm;    ks2 = 1.5 N/cm;
+   kt1 = 0.8 N/cm;    kt2 = 0.5 N/cm;
+   fy1 = 18 N;        fy2 = 15 N;
+
+   m1  = 1 kg;        m2  = 0.5 kg;
+   c1  = 2 N*sec/m;   c2  = 1 N*sec/m;  /* damping coefficient */
+
+   Ks = [ks1; ks2];
+   Kt = [kt1; kt2];
+   Fy = [fy1; fy2];
+   ey = Matrix([2,1]);
+   for( ele=1; ele<=2; ele=ele+1 ) {
+      ey[ele][1] = Fy[ele][1]/Ks[ele][1];
+   }
+
+/* Initial condition, unstressed */
+
+   P   = [0  N;  0 N];  /* structure force           */
+   p   = [0 cm; 0 cm];  /* structure displacement    */
+   PR  = [0  N;  0 N];  /* structure resisting force */
+   PRe = [0  N;  0 N];  /* element resisting force   */
+
+   Q_saved  = [0  N; 0  N];
+   q_saved  = [0 cm; 0 cm];
+
+/* Initial flags and stresses and strains, initialed before any load step */
+
+   index = [0;0];  /* index for loading flag   */
+   flag1 = [0;0];  /* yielding at load step k  */
+   flag2 = [0;0];  /* pre_range at load step k */
+   flag3 = [0;0];  /* pre_load at load step k  */
+
+   yielding  = [0;0];
+   pre_range = [0;0];
+   pre_load  = [0;0];
+   loading   = [0;0];
+   sr = [0  N;  0 N];
+   er = [0 cm; 0 cm];
+   s0 = [0  N;  0 N];
+   e0 = [0 cm; 0 cm];
+
+   sr_saved = [0 N;   0 N];
+   er_saved = [0 cm; 0 cm];
+   s0_saved = [0 N;   0 N];
+   e0_saved = [0 cm; 0 cm];
+   sx_saved = [0 N;   0 N];
+   ex_saved = [0 cm; 0 cm];
+
+/* Transformation matrix Lele, d_q = Lele*d_p[ele] for each element */
+/* transform structural displacements d_p to element deformations d_q  */
+
+   Rigid = [-1,1];
+   Transform = [1,0;0,1];
+   L = Rigid*Transform;
+
+/* Temporary matrix to store element tangent Ks at each step */
+
+   tangent = [ks1 ; ks2];
+
+/* Force interpolation matrices b(x), D(x) = b(x)*Q */
+/* relate section force D(x) with element force Q */
+
+   bx = 1;
+
+/* assemble initial structure tangent stiffness matrix BigK */
+
+   BigK = [ ks1+ks2, -ks2;  -ks2, ks2 ];
+
+/* assemble mass matrix and damping matrix */
+
+   BigM = [    m1, 0 kg;  0 kg, m2 ];
+   BigC = [ c1+c2,  -c2;   -c2, c2 ];
+
+   M_inv = Inverse(BigM);
+
+/* initial time = 0 sec conditions */
+
+   total_step = 400;
+   dt         = 0.01 sec;
+   time       = 0 sec;
+   print "\n\ndt =",dt,"\ttotal time=",total_step*dt,"\n";
+
+/* Setup initial velocity and acceleration */
+
+   vel   = p/(1 sec);
+   accel = vel/(1 sec);
+
+   new_p     = p;
+   new_vel   = vel;
+   new_accel = accel;
+
+/* Setup initial internal force and damping force */
+
+   Fs = P;
+   Fd = P;
+
+   P_old  = P;
+   Fs_old = P;
+   Fd_old = P;
+
+/* Allocate the matrices for storing output history        */
+/* column[1] : external applied load at end node (2)       */
+/* column[2] : total elogation at end node (2) = [3]+[4]   */
+/* column[3] : element elogation 1, node 1                 */
+/* column[4] : element elogation 2, node 2                 */
+/* column[5] : element force 1, node 1                     */
+/* column[6] : element force 2, node 2                     */
+/* column[7] : dynamic natrual period 1 (T1) for each step */
+/* column[8] : dynamic natrual period 2 (T2) for each step */
+
+   result = ColumnUnits( Matrix([total_step+1,8]), [N,cm,cm,cm,N,N,sec,sec] );
+   result[1][1] = P[2][1];
+   result[1][2] = p[2][1];
+   result[1][3] = p[1][1];
+   result[1][4] = p[2][1] - p[1][1];
+   result[1][5] = P[2][1];
+   result[1][6] = P[2][1];
+
+/* Compute eigen problem */
+
+   eigen = Eigen(BigK, BigM, [2]);
+   eigenvalue  = Eigenvalue(eigen);
+
+   result[1][7] = 2*PI/sqrt( eigenvalue[1][1] );
+   result[1][8] = 2*PI/sqrt( eigenvalue[2][1] );
+
+/* column[1] : internal strain energy for element 1 */
+/* column[2] : elastic strain energy for element 1  */
+/* column[3] : internal strain energy for element 2 */
+/* column[4] : elastic strain energy for element 2  */
+
+   element_energy = ColumnUnits( Matrix([total_step+1,4]), [Jou] );
+   element_energy[1][1] = 0 Jou;
+   element_energy[1][2] = 0 Jou;
+   element_energy[1][3] = 0 Jou;
+   element_energy[1][4] = 0 Jou;
+
+/* increase external load, structure determination */
+
+for ( k=1; k<=total_step ; k=k+1 ) {
+
+   print "*** start step no = ", k, "\n";
+
+   time = time + dt;
+
+   if( k<=20 )           { d_P =  [0 N; 1 N]; }
+   if( k>20  && k<=60  ) { d_P = -[0 N; 1 N]; }
+   if( k>60  && k<=105 ) { d_P =  [0 N; 1 N]; }
+   if( k>105 && k<=155 ) { d_P = -[0 N; 1 N]; }
+   if( k>155 && k<=190 ) { d_P =  [0 N; 1 N]; }
+   if( k>190 && k<=200 ) { d_P = -[0 N; 1 N]; }
+   if( k>200 )           { d_P =  [0 N; 0 N]; }
+   P = P + d_P;
+
+   /* Compute effective incremental loading */
+
+   dPeff = d_P + ((4/dt)*BigM + 2*BigC)*vel + 2*BigM*accel;
+
+   element_energy[k+1][1] = element_energy[k][1];
+   element_energy[k+1][3] = element_energy[k][3];
+   index[1][1] = 1;   index[2][1] = 1;
+
+   /* Compute effective stiffness from tangent stiffness */
+
+      Keff = BigK + (2/dt)*BigC + (4/dt/dt)*BigM;
+
+   /* Solve for d_displacement, d_velocity */
+
+      d_p = Solve( Keff, dPeff );
+      d_v = (2/dt)*d_p - 2*vel;
+
+   /* Compute displacement, velocity */
+
+      new_p   = p + d_p;
+      new_vel = vel + d_v;
+
+   /* State determination for each element -- check material yielding */
+   /* and compute new stiffness                                       */
+
+      for( ele = 1; ele <= 2; ele = ele + 1 ) {
+
+         if( ele==1 ) { d_pe = [ 0 m; d_p[1][1] ]; }
+         if( ele==2 ) { d_pe = [ d_p[1][1]; d_p[2][1] ]; }
+         Q  = Q_saved[ele][1];   /* retrieve values from (j-1) */
+         q  = q_saved[ele][1];
+         Dx = bx*Q;
+         dx = bx*q;
+         K  = tangent[ele][1];
+         kx = tangent[ele][1];
+         fx = 1/kx;
+
+         rx  = 0 cm;
+         DUx = 1E+7 N;
+
+         d_q = QuanCast(L*d_pe);  /* element deformation increment */
+         q   = q + d_q;
+
+         /* iterate for convervence of element displacements */
+
+         while( abs(DUx) > 0.00001 N ) {
+            d_Q = K*d_q;     /* element force increment */
+            Q   = Q + d_Q;   /* update element force    */
+
+            /* determine the section force increments */
+            /* repeat for all integration points of the element */
+
+            d_Dx = bx*d_Q;        /* section force increment           */
+            d_dx = rx + fx*d_Dx;  /* section deformation increment     */
+            Dx = Dx + d_Dx;       /* update section force              */
+            dx = dx + d_dx;       /* update section deformation vector */
+
+            /* get new section tangent flexibility f(x) from new d(x)     */
+            /* and section resisting force DR(x) from material properties */
+
+            /* set flags and stresses and strains for each i-th iteration */
+
+            if( index[ele][1] == 1 ) {
+               if( d_dx >  0 cm ) { loading[ele][1] =  1; }
+               if( d_dx <  0 cm ) { loading[ele][1] = -1; }
+               if( d_dx == 0 cm ) { loading[ele][1] = pre_load[ele][1]; }
+               index[ele][1] = index[ele][1] + 1;
+            }
+
+            yielding[ele][1]  = flag1[ele][1];
+            pre_range[ele][1] = flag2[ele][1];
+            pre_load[ele][1]  = flag3[ele][1];
+
+            sr[ele][1] = sr_saved[ele][1];
+            er[ele][1] = er_saved[ele][1];
+            s0[ele][1] = s0_saved[ele][1];
+            e0[ele][1] = e0_saved[ele][1];
+
+            /* material is still in elastic range, does not have any plastic residual */
+
+            if( yielding[ele][1] == 0 ) then {
+            if( abs(dx) <= ey[ele][1] ) then {
+                kx = Ks[ele][1];
+                sx = 0 N;
+                ex = 0 cm;
+                yielding[ele][1] = 0;
+                pre_range[ele][1] = 0;
+            } else {
+                kx = Kt[ele][1];
+                s0[ele][1] = Fy[ele][1]*loading[ele][1];
+                e0[ele][1] = ey[ele][1]*loading[ele][1];
+                sx = s0[ele][1];
+                ex = e0[ele][1];
+                yielding[ele][1] = 1;
+                pre_range[ele][1] = 1;
+            }
+            } else {   /* plastic residual occurs , yielding[ele][1] = 1 */
+
+            if( pre_load[ele][1] != loading[ele][1] ) then {
+            if( pre_range[ele][1] == 1 ) then {
+                sr[ele][1] = sx_saved[ele][1];
+                er[ele][1] = ex_saved[ele][1];
+                kx = Ks[ele][1];
+                sx = sr[ele][1];
+                ex = er[ele][1];
+                pre_range[ele][1] = 0;
+            } else {    /* pre_range[ele][1] = 0 */
+            if( loading[ele][1]*dx <= loading[ele][1]*er[ele][1] ) then {
+                kx = Ks[ele][1];
+                sx = sr[ele][1];
+                ex = er[ele][1];
+                pre_range[ele][1] = 0;
+            } else {
+            if( loading[ele][1]*ex_saved[ele][1] >= loading[ele][1]*er[ele][1] ) then {
+                kx = Ks[ele][1];
+                sx = sr[ele][1];
+                ex = er[ele][1];
+                pre_range[ele][1] = 0;
+            } else {
+                kx = Kt[ele][1];
+                sx = sr[ele][1];
+                ex = er[ele][1];
+                pre_range[ele][1] = 1;
+            }
+            }
+            }
+            } else { /* pre_load[ele][1] == loading[ele][1] */
+            if( pre_range[ele][1] == 1 ) then {
+                kx = Kt[ele][1];
+                sx = s0[ele][1];
+                ex = e0[ele][1];
+                pre_range[ele][1] = 1;
+            } else { /* pre_range[ele][1] = 0 */
+            if( loading[ele][1]*ex_saved[ele][1] <= loading[ele][1]*er[ele][1] ) then {
+                /* line 2 */
+                if( loading[ele][1]*dx <= loading[ele][1]*er[ele][1] ) then {
+                    /* line 2 */
+                    kx = Ks[ele][1];
+                    sx = sr[ele][1];
+                    ex = er[ele][1];
+                    pre_range[ele][1] = 0;
+                } else { /* line 2 -> line 1 */
+                    kx = Kt[ele][1];
+                    sx = sr[ele][1];
+                    ex = er[ele][1];
+                    pre_range[ele][1] = 1;
+                }
+            } else { /* line 4 */
+                if( abs(dx-er[ele][1]) <= 2*ey[ele][1] ) then {
+                    /* line 4 */
+                    kx = Ks[ele][1];
+                    sx = sr[ele][1];
+                    ex = er[ele][1];
+                    pre_range[ele][1] = 0;
+                } else { /* line 4 -> line 1 */
+                    s0[ele][1] = sr[ele][1] + loading[ele][1]*2*Fy[ele][1];
+                    e0[ele][1] = er[ele][1] + loading[ele][1]*2*ey[ele][1];
+                    kx = Kt[ele][1];
+                    sx = s0[ele][1];
+                    ex = e0[ele][1];
+                    pre_range[ele][1] = 1;
+                }
+           } /* end of line 4 */
+           }
+           }
+           }
+
+           /* calculate stress and flexibility */
+
+           fx  = 1/kx;
+           DRx = sx + kx*(dx-ex);
+
+           DUx = Dx - DRx;  /* section unbalanced force */
+           rx  = fx*DUx;    /* section residual deformation */
+
+           /* finish for all integration points of the element      */
+           /* update the element flexibility and stiffness matrices */
+
+           F = bx*fx*bx;
+           K = 1/F;
+
+           /* check for element convergence */
+
+           s   = bx*rx;   /* element residual deformation */
+           d_q = -s;
+
+        }  /* j, while loop to check element convergence */
+
+        /* energy calculations for each element ele */
+
+        element_energy[k+1][2*ele-1] = element_energy[k+1][2*ele-1]
+                        + 0.5*(Q_saved[ele][1]+Q)*(q-q_saved[ele][1]);
+
+        if( abs(Q) > 2*Fy[ele][1] ) then {
+        if( kx == Ks[ele][1] ) then {
+            delta_Q = abs(sr[ele][1]) - 2*Fy[ele][1];
+        } else {
+            delta_Q = abs(Q) - 2*Fy[ele][1];
+        }
+        delta_x = delta_Q*(1/Kt[ele][1]-1/Ks[ele][1]);
+        element_energy[k+1][2*ele] = 0.5*Q*Q/Ks[ele][1] + 0.5*delta_x*delta_Q;
+        } else {
+        if( abs(sr[ele][1]) > 2*Fy[ele][1] ) then {
+        if( kx == Ks[ele][1] ) then {
+            delta_Q = abs(sr[ele][1]) - 2*Fy[ele][1];
+            delta_x = delta_Q*(1/Kt[ele][1]-1/Ks[ele][1]);
+            element_energy[k+1][2*ele] = 0.5*Q*Q/Ks[ele][1] + 0.5*delta_x*delta_Q;
+        } else {
+            if(((Q>0N)&&(sr[ele][1]>0N))||((Q<0N)&&(sr[ele][1]<0N))) then {
+                element_energy[k+1][2*ele] = 0.5*Q*Q/Kt[ele][1];
+            } else {
+                element_energy[k+1][2*ele] = 0.5*Q*Q/Ks[ele][1];
+            }
+        }
+        } else {
+            element_energy[k+1][2*ele] = 0.5*Q*Q/Ks[ele][1];
+        }
+        }
+
+        Q_saved[ele][1] = Q;
+        q_saved[ele][1] = q;
+
+        tangent[ele][1] = K; /* element stiffness Ke=LT*K*L=[K,-K;-K,K] */
+        PRe[ele][1] = Q;     /* element resistant force PRe=LT*Q=[-Q;Q] */
+
+     }  /* ele */
+
+     /* assemble new structure stiffness */
+
+     BigK[1][1] = tangent[1][1] + tangent[2][1];
+     BigK[1][2] = -tangent[2][1];
+     BigK[2][1] = -tangent[2][1];
+     BigK[2][2] = tangent[2][1];
+
+     /* assemble new internal load Fs, damping load Fd, and acceleration */
+
+     Fs[1][1] = PRe[1][1] - PRe[2][1];
+     Fs[2][1] = PRe[2][1];
+
+     Fd = BigC*new_vel;
+     new_accel = M_inv*( P-Fs-Fd );
+
+     /* Store analysis results */
+
+     result[k+1][1] = P[2][1];
+     result[k+1][2] = p[2][1];
+     result[k+1][3] = p[1][1];
+     result[k+1][4] = p[2][1] - p[1][1];
+     result[k+1][5] = Fs[1][1] + Fs[2][1];
+     result[k+1][6] = Fs[2][1];
+
+     /* Compute eigen problem */
+
+     eigen = Eigen(BigK, BigM, [2]);
+     eigenvalue  = Eigenvalue(eigen);
+
+     result[k+1][7] = 2*PI/sqrt( eigenvalue[1][1] );
+     result[k+1][8] = 2*PI/sqrt( eigenvalue[2][1] );
+
+     /* Updating history: save flags and reversal points for each load step k */
+
+     for( ele=1 ; ele<=2 ; ele=ele+1 ) {
+          pre_load[ele][1] = loading[ele][1];
+          flag1[ele][1] = yielding[ele][1];
+          flag2[ele][1] = pre_range[ele][1];
+          flag3[ele][1] = pre_load[ele][1];
+
+          sr_saved[ele][1] = sr[ele][1];
+          er_saved[ele][1] = er[ele][1];
+          s0_saved[ele][1] = s0[ele][1];
+          e0_saved[ele][1] = e0[ele][1];
+          sx_saved[ele][1] = Q_saved[ele][1];
+          ex_saved[ele][1] = q_saved[ele][1];
+     }
+
+     /* Update information for this step */
+
+     P_old  = P;
+     Fs_old = Fs;
+     Fd_old = Fd;
+     p      = new_p;
+     vel    = new_vel;
+     accel  = new_accel;
+}  /* k in for() loop, increase to next time step */
+
+PrintMatrix(result);
+PrintMatrix(element_energy);
+
+quit;

@@ -1,0 +1,96 @@
+/*  ================================================  */
+/*  Arithmetic operations & math functions            */
+/*                                                    */
+/*  This input file tests                             */
+/*                                                    */
+/*    (1) Arithmetic operation of quantities          */
+/*    (2) math functions                              */
+/*  ================================================  */
+
+print  "==============================\n";
+print  "*** Test Arithmetic Operations\n";
+print  "==============================\n\n";
+
+/* [a] Arithmetic operations */
+
+x  = 10 g;
+y  = 1 kg;
+z  = 1  m;
+u  = 30 deg;
+v  =  -PI/2;
+w  =    2;
+
+print  "x     = ", x, "\n";
+print  "y     = ", y, "\n";
+print  "z     = ", z, "\n";
+print  "u     = ", u, "\n";
+print  "v     = ", v, "\n";
+print  "w     = ", w, "\n";
+print "\n ADDITION \n";
+print  "x + y = ", x + y, "\n";
+print  "y + x = ", y + x, "\n";
+print "\n SUBSTRACTION \n";
+print  "x - y = ", x - y, "\n";
+print  "y - x = ", y - x, "\n";
+print "\n MULTIPLY \n";
+print  "x * y = ", x * y, "\n";
+print  "y * x = ", y * x, "\n";
+print  "x * z = ", x * z, "\n";
+print "\n DIVISION \n";
+print  "x / y   = ", x / y, "\n";
+print  "y / x   = ", y / x, "\n";
+print  "x / z   = ", x / z, "\n";
+print  "1 / z   = ", 1 / z, "\n";
+print  "z / 2   = ", z / 2 ,"\n";
+print  "1/(x*y) = ", 1/(x*y),"\n";
+print  "z/(x*y) = ", z/(x*y),"\n";
+print  "(x*y)/z = ", (x*y)/z,"\n";
+
+print "\n MATH CALCULATIONS \n";
+
+print  "sqrt(z)    = ", sqrt(z),    "\n";
+print  "sin(u)     = ", sin(u),     "\n";
+print  "sin(v)     = ", sin(v),     "\n";
+print  "cos(u)     = ", cos(u),     "\n";
+print  "cos(v)     = ", cos(v),     "\n";
+print  "tan(PI/4)  = ", tan(PI/4),  "\n";
+print  "atan(1)    = ", atan(1),    "\n";
+print  "abs(-3 m)  = ", abs(-3 m),  "\n";
+print  "abs(v)     = ", abs(v),     "\n";
+print  "log(1E+5)  = ", log(1E+5),  "\n";
+print  "log10(1E+5)= ", log10(1E+5),"\n";
+print  "exp(w)     = ", exp(w),     "\n";
+
+print "\n POWER OPERATIONS \n";
+
+print "*** 2^2^3      = ", 2^2^3        , "\n";
+print "*** (2 m)^2    = ", (2 m)^2      , "\n";
+print "*** 2^2 m      = ", 2^2 m        , "\n";
+print "*** 2^2^2 m    = ", 2^2^2 m      , "\n";
+print "*** 10^4   N/m = ", 10^4    N/m  , "\n";
+print "*** 10^2^2 N/m = ", 10^2^2  N/m  , "\n";
+
+print "*** 0.25*2^2   m  = ", 0.25*2^2   m, "\n";
+print "*** 1/2*2      m  = ",  1/2*2      m, "\n";
+print "*** (1/2*2     m) = ", (1/2*2     m), "\n";
+print "*** (1/2^2     m) = ", (1/2^2     m), "\n";
+print "*** (1/2^2)*(1 m) = ", (1/2^2)*(1 m), "\n";
+print "***  1/2^2*(1 m)  = ",  1/2^2 *(1 m), "\n";
+
+x = 100 kg; z = 10 m;
+
+print "*** sqrt(100 kg)  = ", sqrt(x) , "\n";
+print "*** z^2           = ", z^2 , "\n";
+print "*** z^-3          = ", z^-3, "\n";
+print "*** (x*z)^1       = ", (x*z)^1, "\n";
+print "*** (x*z)^2       = ", (x*z)^2, "\n";
+
+/* [b] consistency of the units */
+
+print "\n ERROR INDICATION ON UNITS CONSISTENCY \n";
+
+print "W =  1 m + 3 g \n", 1m + 3g;
+
+print  "===============\n";
+print  "*** End of Test\n";
+print  "===============\n\n";

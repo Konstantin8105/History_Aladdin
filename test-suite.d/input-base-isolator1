@@ -1,0 +1,180 @@
+/*
+ *  ==========================================================================
+ *  Force-displacement analysis for one lead-rubber isolator modeled with
+ *  FIBER_2D element having four lead fibers and four rubber fibers.                   
+ * 
+ *  Isolator Geometry and Material Properties
+ *                                                                  
+ *     650mm diameter x 197mm height with 170mm diameter lead plug       
+ *     Axial stiffness for rubber is the same as lead, (E_rubber=E_lead).
+ *     Shear stiffness for lead after yielding is 0, (Gt)lead=0.         
+ *     Shear stiffness for rubber is always elastic.                     
+ *                                                                  
+ *  Written By : Wane-Jang Lin                                       July 1997
+ *  ==========================================================================
+ */
+
+print "*** =================================================================================== \n";
+print "*** One lead-rubber isolator 650mm diameter with 170mm diameter lead plug, 197mm height \n";
+print "*** Modeled as FIBER_2D element                                                         \n";
+print "*** k1 =  10*Kr, k2 = Kr                                                                \n";
+print "*** Fv = 250 kN, Kv = 600 kN/mm, Kr = 1.75 kN/mm                                        \n";
+print "*** =================================================================================== \n";
+
+/* ---------------------------- */
+/* Define environment variables */
+/* ---------------------------- */
+
+NDimension         = 2;
+NDofPerNode        = 3;
+MaxNodesPerElement = 2;
+GaussIntegPts      = 2;
+
+/* ---------- */
+/* Setup Mesh */
+/* ---------- */
+
+StartMesh();
+iso_h = 197 mm;
+x = 0 m; y = 0 m;
+AddNode( 1, [x, y] );
+y = y - iso_h;
+AddNode( 2, [x, y] );
+
+AddElmt( 1, [1, 2], "fiber_attr");
+
+/* ------------------------------- */
+/* Define element attribution      */
+/* ------------------------------- */
+
+r_dia = 650 mm;
+l_dia = 170 mm;
+A = PI/4*r_dia*r_dia;
+Kv = 600 kN/mm;
+Ea = Kv*iso_h/A;
+Kr = 1.75 kN/mm;  Gr  = Kr*iso_h/A;
+Fv = 250 kN;      fvy = Fv/A;
+
+ElementAttr("fiber_attr") { type     = "FIBER_2D";
+                            section  = "iso_sec";
+                            material = "iso_mat1";
+                            fiber    = "iso_fib";
+                          }
+SectionAttr("iso_sec") { area         = A;
+                         J            = PI/32*r_dia^4;
+                         shear_factor = 1.0;
+                       }
+MaterialAttr("iso_mat1") { poisson = 0.25; E = Ea; G = 10*Gr; Gt = Gr; shear_yield = fvy; }
+
+no_fiber   = 4;
+iso_fcoord = Matrix([ 1, no_fiber ]);
+iso_farea  = Matrix([ 1, no_fiber ]);
+iso_fmap   = Matrix([ 1, no_fiber ]);
+
+iso_fcoord[1][1] =  l_dia/4;
+iso_fcoord[1][2] = -l_dia/4;
+iso_fcoord[1][3] =  l_dia/2 + (r_dia-l_dia)/4;
+iso_fcoord[1][4] = -l_dia/2 - (r_dia-l_dia)/4;
+
+iso_farea[1][1]  = PI/8*l_dia*l_dia;
+iso_farea[1][2]  = PI/8*l_dia*l_dia;
+iso_farea[1][3]  = PI/8*(r_dia*r_dia - l_dia*l_dia);
+iso_farea[1][4]  = PI/8*(r_dia*r_dia - l_dia*l_dia);
+
+for( i=1 ; i <= no_fiber ; i=i+1 ) {
+   iso_fmap[1][i]   = 1;
+}
+
+iso_fattr = Matrix([ 3, 1 ]);
+   iso_fattr[1][1] = Ea;
+   iso_fattr[2][1] = Ea;
+   iso_fattr[3][1] = fvy*1e6;
+
+FiberAttr( no_fiber, "iso_fib" ) { FiberMaterialAttr = iso_fattr;
+                                   FiberCoordinate   = iso_fcoord;
+                                   FiberArea         = iso_farea;
+                                   FiberMaterialMap  = iso_fmap;
+                                 }
+
+/* ------------------------- */
+/* Setup Boundary Conditions */
+/* ------------------------- */
+
+FixNode( 2, [1,1,1] );
+
+/* ------------------------------------- */
+/* Compile and Print Finite Element Mesh */
+/* ------------------------------------- */
+
+EndMesh();
+PrintMesh();
+
+stiff = Stiff();
+NodeLoad( 1, [ 0 kN, -3150 kN, 0 kN*m] );
+P_old = ExternalLoad();
+displ = Solve( stiff, P_old );
+ElmtStateDet( displ );
+stiff = Stiff();
+
+/* --------------------- */
+/* Add Point Nodal Loads */
+/* --------------------- */
+
+dof     = GetDof([1]);
+max_dof = dof[1][1];
+
+print "\n*** Force-displacement hysteretic loop analysis\n"; 
+print "Step no\t Shear Force\tDisplacement\n";
+step = 0;
+print step,"\t",P_old[max_dof][1](kN),"\t",displ[max_dof][1](mm),"\n";
+no_step = 180;
+
+for( step=1 ; step <= no_step+1 ; step=step+1 ) {
+
+   /* Define "nodal load" versus "step no" */
+
+   if( step == 1 ) then {
+         NodeLoad( 1, [ 200 kN, 0 kN, 0 kN*m] );
+   } else {
+      if( step <= 21 ) {
+         NodeLoad( 1, [  10 kN, 0 kN, 0 kN*m] );
+      }
+      if( step > 21  && step <= 101 ) {
+         NodeLoad( 1, [ -10 kN, 0 kN, 0 kN*m] );
+      }
+      if( step > 101 ) {
+         NodeLoad( 1, [  10 kN, 0 kN, 0 kN*m] );
+      }
+   }
+
+   P_new = ExternalLoad();
+   dP    = P_new - P_old;
+   P_old = P_new;
+
+   /* Newton-Raphson Iteration */
+
+   while( L2Norm(dP) > 0.001 ) {
+
+      dp    = Solve( stiff, dP );
+      displ = displ + dp;
+
+      ElmtStateDet( dp );
+
+      stiff = Stiff();
+      PR = InternalLoad( displ );
+      dP = P_new - PR;        /* Compute unbalanced force */
+
+   }  /* end of while loop, dP converges */
+
+   UpdateResponse();
+
+   print step,"\t",P_new[max_dof][1](kN),"\t",displ[max_dof][1](mm),"\n";
+
+} /* end of load step */
+
+   print "\n";
+   print "===========================\n";
+   print "Nonlinear Analysis Complete\n";
+   print "===========================\n";
+
+   quit;

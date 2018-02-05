@@ -1,0 +1,406 @@
+
+\chapter{Introduction}
+
+\section{Introduction}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+In the 1970's and early 1980's finite element packages were
+often developed with the goal of optimizing numerical considerations alone.
+As a result, they offer a restricted set of numerical algorithms to compute
+time-history responses, and can be very difficult to maintain and extend.
+Although current softwares -- see for example, .... we need to find a list --
+have increased their capacity in solving engineering problems, some problems still remain.
+For example, units are not part of the program infrastructure.
+Indeed, it is the engineer's responsibility to check that units are consistent.
+In practical engineering analysis, however, units can be as important
+as the numerical quantity itself. Incorporating engineering units into computer programs will
+benefit engineering analysis in many ways. 
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+Readability in input file is another problem for many finite element softwares.
+The format specifications of input files in 
+many engineering packages is so cryptic, that it is often impossible to
+understand the purpose of the engineering problem without first
+carefully reading of the program user manual.
+For example, part of input file from the ABAQUS \cite{abaqus92} finite
+element package to generate nodes is:
+
+\begin{footnotesize} 
+\begin{verbatim}
+    *NODE
+    1
+    7, 10.
+    87,10., 10.
+\end{verbatim}
+\end{footnotesize} 
+
+\noindent\hspace{0.5 in}
+An engineer cannot readily understand what the program is doing, 
+unless he/she is familiar with the ABAQUS user manual. (Actually ABAQUS generates
+finite element nodes 1, 7, and 87 at coordinates (x,y,z) = (0,0,0),
+(10, 0, 0), and (10, 10, 0)). The same input could be made more
+readable if it were rewritten as:
+\begin{footnotesize} 
+\begin{verbatim}
+    node1   =  1;  coord1   = [  0,  0,  0];
+    node7   =  7;  coord7   = [ 10,  0,  0]; 
+    node87  = 87;  coord87  = [ 10, 10,  0];
+
+    AddNode( node1, coord1 );
+    AddNode( node7, coord7 );
+    AddNode(node87, coord87);
+\end{verbatim}
+\end{footnotesize} 
+
+\noindent or simply as  
+\begin{footnotesize} 
+\begin{verbatim}
+    AddNode( 1, [  0,  0,  0]);
+    AddNode( 7, [ 10,  0,  0]);
+    AddNode(87, [ 10, 10,  0]);
+\end{verbatim}
+\end{footnotesize} 
+\noindent
+as in our input file.
+\vspace{0.25 in}
+
+\noindent
+{\bf Matrix Operations :}
+Engineers usually not limit their minds to numbers and simple arithmetics, matrix
+operations are more often used in engineering analysis, especially in finite element analysis.
+Unfortunately, only few finite element softwares, if any, provides the capacity 
+of performing matrix operations. In this study, we provide a 
+input file that allows the analyst to key in the solution layout the same
+way he writes down on his notebook including the matrix operation, such as : $[A] = [B]*[C] $. 
+\vspace{0.15 in}
+
+\noindent
+{\bf Flexibility of Programs : }
+The flexibility of programs is also very important for many advanced users of programs.
+It allows users to solve his problem in a way that the program is not provided. Many softwares
+provides user defined subroutines feature to enhance the flexibility of programs. The much
+preferred way is to layout the solution strategy in the input file. This feature is provided
+in this our program in this study.
+\vspace{0.15 in}
+
+\noindent\hspace{0.5 in}
+We propose to deviate from this model by trying to design finite element
+software within the framework of a well-defined language or grammar ??
+Experience in other domains (i.e. computer science) indicates such
+strategies result in modular software that is extensible. 
+\vspace{0.15 in}
+
+\noindent\hspace{0.5 in}
+The idea is that an engineer would use the language to not only generate/display
+finite element meshes, but also control the numerical strategy.
+Once the problem description is complete, the engineer would write down the discrete
+equations to be solved inside the finite element data file, along with the numerical strategy
+(linearization and convergence criteria) that should be followed to solve
+a particular linear/nonlinear finite element problem.
+Engineers are able to implement these strategies
+without having to learn the internal details of the code, or having to recompile the
+source code. To test out this idea, we built a stack machine using the
+compiler construction tool YACC (Yet Another Compiler Compiler), and designed
+a simple finite element macro language. The stack machine reads instructions
+from a problem description file. These instructions are for generation of the finite 
+element model, and step-by-step solution of finite element problems. 
+The macro language supports definition of engineering variables
+with engineering units, matrices, looping constructs, and conditional branching,
+just like traditional programming languages. The language also supports solid
+modeling and automatic generation of finite element meshes from solid models.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+To illustrate above features, few examples are given to show the format of
+input files. More examples can be found in following chapters and at the
+end of the report.
+\vspace{0.15 in}
+
+\noindent
+{\bf Example [1] :}
+In our first example, we assign the physical
+quantity ``2 in'' to a variable named ``x'',
+and print ``x'' out in terms of different, but compatible,
+units of length. The units are meter, cm, mm, ft.
+The input file is
+
+\begin{footnotesize}
+\begin{verbatim}
+    x = 2 in;
+    print x (m);
+    print x (cm);
+    print x (mm);
+    print x (ft);
+\end{verbatim}
+\end{footnotesize}
+
+\noindent The output is
+\begin{footnotesize}
+\begin{verbatim}
+    0.0508 m    5.08 cm    50.8 mm  0.1667 ft
+\end{verbatim}
+\end{footnotesize}
+\vspace{0.05 in}
+
+\noindent
+Similarly, to print a temperature at 33.8 degree of Fahrenheit
+in terms of Celsius is
+
+\begin{footnotesize}
+\begin{verbatim}
+    print 33.8 deg_F (deg_C);
+\end{verbatim}
+\end{footnotesize}
+
+\noindent
+and the result is {\tt 1 deg\_C}.
+
+\vspace{0.2 in}
+\noindent
+{\bf Example [2]:}
+Now let's see how a for-loop construct and basic matrix
+operations may be combined to setup and iteratively compute the
+solution to family of linear equations [A] \{x \} = \{b\}, namely:
+
+\begin{equation}
+ [A] = \left [
+\begin{array}{rrr}
+ 1 & 15 & 15 \\
+ 15 & 1 & 15 \\
+ 15 & 15 & 1 
+\end{array} 
+\right] \; \; \;
+\{b\} = \left [ 
+\begin{array}{r}
+ 31  \\
+ 31 \\
+ 31 
+\end{array} 
+\right ]
+\label{eq:example2}
+\end{equation}
+
+\vspace{0.15 in}
+\noindent
+Here we adopt the notation [~] for matrices and \{~\} for column vectors,
+and observe -- by inspection -- that the analytic solution 
+to \ref{eq:example2} is $\{x\} = \{1, 1, 1\}^T$.
+Now let vector $\{x\}_k$ be the $k^{th}$ estimate of $\{x\}$.
+Because $\{x\}_k$ will not be equal to $\{x\}$ exactly,
+we define a residual $\{r\}_k$ as
+
+\begin{equation}
+\{r\}_k = \{b\}-[A]\{x\}_k 
+\label{eq: eq-2}
+\end{equation}
+
+\vspace{0.15 in}
+\noindent
+and an update step
+
+\begin{equation}
+\{x\}_{k+1} = \{x\}_k + \{\Delta x\}_k.
+\label{eq: eq-3}
+\end{equation}
+
+\vspace{0.15 in}
+\noindent
+for each iteration.
+During each iteration of our numerical algorithm,
+the objective is to compute the update $\{\Delta x\}_k$ in such
+as way that $\{r\}_{k+1} = \{b\} - [A]\{x\}_{k+1}= 0$.
+Satisfying $\{r\}_{k+1} = 0$ is equivalent to solving
+
+\begin{equation}
+\{r\}_k = [A]\{\Delta x\}_k.
+\label{eq: eq-1}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+at each iterate.
+Details of the numerical algorithm are as follows:
+
+\vspace{0.15 in}
+\begin{description}
+\item{[1]}
+\indent{Initialization: fill $ [A] $ matrix, and set $ \{x\}_1 = (0,0,1)^T $,
+and error = 1.0.}
+\vskip 0.05truein
+\item{[2]}
+\indent{For k = 1, calculate the residual vector $\{r\}_k $ according eq.
+\ref{eq: eq-2},}
+\vskip 0.05truein
+\item{[3]}
+\indent{Solve for $ \{\Delta x\}_k $ according to equation:
+$([L][U]) \{\Delta x\}_k = \{r\}_k $. In solving this problem, matrix $ [A] $ is
+decomposed into $ [L][U] $ by Cholesky decomposition method, where $[L]$ and
+$[U]$ are lower and upper triangle matrices. }
+\vskip 0.05truein
+\item{[4]}
+\indent{Update $\{x\}_{k+1} = \{x\}_k + \{\Delta x\}_k$.}
+
+\vskip 0.05truein
+\item{[5]}
+\indent{Estimate average error by calculating the Euclidean norm of
+$\{\Delta x\}_k $, and also printing the iteration number k and the error.}
+\vskip 0.05truein
+\item{[6]}
+\indent{Compare error with 1E-7.If error $\leq$ 1E-7, k = k + 1,
+go to step [2].
+If error $ \geq $ 1E-7 stop iteration and print out the results.}
+\end{description}
+\vspace{0.2 in}
+
+\noindent
+A built-in linear equation solver is used to perform
+the $[L][U]$ decomposition, and to solve the equations.
+We set the smallest error to be 1E-7, and the iteration will be terminated if the error
+is less than 1E-7. An initial value of error is set to be larger than 1.E-7 to start
+the iteration. Here this value is set to be 1.0.
+Details of the input file are as follows:\\
+\vskip 0.1truein
+\begin{footnotesize}
+\vspace{0.10 in}
+
+\noindent
+{\rule{2.3 in}{0.035 in} START OF INPUT FILE \rule{2.3 in}{0.035 in} }
+\begin{verbatim}
+    print "*** INPUT MATRIX [A], VECTOR {b} and TRIAL VECTOR {x} \n\n";
+
+    A = [1, 15, 15; 15, 1, 15; 15, 15, 1];
+    b = [31; 31; 31];
+    x = [0; 0; 1];
+    norm = 1.0;
+
+    print "*** STARTING TO SOLVE [A]{x} = {b} \n";
+
+    PrintMatrix(A,b,x);
+
+    print "*** START ITERATION  \n\n";
+
+    for( k = 1; norm > 1E-7; k = k + 1) {
+         r       = b - A*x;
+         delta_x = Solve(A, r);   
+         x       = x + delta_x;
+         norm    = L2Norm(delta_x);
+         print " iteration no = ", k, "\n";
+         print " norm         = ", norm, "\n";
+    }
+    print "\n*** OUTPUT SOLUTION  \n";
+    PrintMatrix(x);
+\end{verbatim}
+{\rule{2.3 in}{0.035 in} END OF INPUT FILE \rule{2.3 in}{0.035 in} }
+\end{footnotesize}
+
+\noindent
+where, {\tt Solve()} is a function for solving a system of linear equation,
+and {\tt PrintMatrix()} is the function for print one or more number of matrices.
+The function {\tt L2Norm()} computes the Euclidean norm of a vector.
+{\tt print} is a keyword for printing a quantity or comment enclosed
+within double quotes -- "~" {\tt $ \backslash n $} is the keyword for starting a newline.
+The outputs are :
+\vskip 0.1truein
+\begin{footnotesize}
+\vspace{0.10 in}
+\noindent
+{\rule{2.3 in}{0.035 in} START OF OUTPUT\rule{2.3 in}{0.035 in} }
+\begin{verbatim}
+*** INPUT MATRIX [A], VECTOR {b} and TRIAL VECTOR {x} 
+
+*** STARTING TO SOLVE [A]{x} = {b} 
+
+MATRIX : "A"
+
+row/col          1            2            3          
+      units                                 
+   1            1.00000e+00  1.50000e+01  1.50000e+01
+   2            1.50000e+01  1.00000e+00  1.50000e+01
+   3            1.50000e+01  1.50000e+01  1.00000e+00
+
+MATRIX : "b"
+
+row/col          1          
+      units             
+   1            3.10000e+01
+   2            3.10000e+01
+   3            3.10000e+01
+
+MATRIX : "x"
+
+row/col          1          
+      units             
+   1            0.00000e+00
+   2            0.00000e+00
+   3            1.00000e+00
+
+*** START ITERATION  
+
+ iteration no =     1.0000e+00 
+ norm         =     1.4142e+00 
+ iteration no =     2.0000e+00 
+ norm         =     0.0000e+00 
+
+*** OUTPUT SOLUTION  
+
+MATRIX : "x"
+
+row/col          1          
+      units             
+   1            1.00000e+00
+   2            1.00000e+00
+   3            1.00000e+00
+\end{verbatim}
+{\rule{2.4 in}{0.03 in} END OF OUTPUT \rule{2.4 in}{0.03 in} }
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+The numerical procedure converges to the specified
+order of accuracy in only two iterations.
+Because equations ~\ref{eq:example2} are linear,
+we could compute and print the solution by simply typing
+
+\begin{verbatim}
+    x = Solve( A, b);
+    PrintMatrix(x);
+\end{verbatim}
+
+\vspace{0.15 in}
+\noindent
+{\tt Solve()} is a built-in linear equation solver,
+and {\tt PrintMatrix()} is a function for printing one or more matrices.
+
+\section{Objectives}
+The primary objectives of this research project are (1) to creat a
+computational environment that supports the engineering calculation, finite element analysis,
+and engineering optimizations; (2) to develop a finite element analysis package under such
+computational environment. This report is divided in two parts. The part I
+describes the computational environment, and part II, the finite element package. The user manual and
+example input files are located in Part IV.
+
+\vspace{0.15 in}\noindent
+The objective of part I is to develop a low-level program language
+for engineering analysis. The language should be flexible enough to deal
+with most of engineering problems, including finite element analysis.
+That requires the language to be able to perform the following tasks : 
+
+\begin{description} 
+  \item {(a)}
+   {\bf Control-flow tasks :} The language should have the ability to perform looping
+         constructs and conditional branching.
+  \item {(b)}
+   {\bf Mathematics tasks :} The language should have the ability to perform the basic
+        mathematics operations, numerical algorithm operations, matrix operations,
+        and to solve algebraic equations, eigenvalue equations.
+  \item {(c)}
+   {\bf Engineering tasks :}The language should also have the ability to perform basic
+        engineering analysis, such as dynamic and finite element analysis with engineering
+        units.
+\end{description} 
+
+\noindent
+The basic design principles of this stack machine and its application
+in finite element analysis is given in part I.
+
+

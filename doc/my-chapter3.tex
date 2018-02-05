@@ -1,0 +1,1255 @@
+
+\chapter{Construction of Numerical Algorithms}
+
+\section{Introduction}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+The purpose of this chapter is to test the flexibility of ALADDIN's
+command language by constructing basic numerical algorithms for
+computing the roots of nonlinear equations, and the minima of
+multi-dimensional functions subject to linear and nonlinear constraints.
+We have selected this problem domain because the numerical algorithms
+may be incorporated into finite element analyses of linear and nonlinear structures.
+For details, see Chen and Austin ~\cite{chen95}.
+
+\section{Roots of Nonlinear Equations}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+Let $x = (x_1, x_2, \cdots, x_n)^T$ by a coordinate point in n-dimensional space,
+and $ f = (f_1, f_2, \cdots, f_n)^T$ be a n-dimensional (nonlinear) vector.
+The roots of nonlinear equations $f$ are given by solutions to
+
+\begin{equation}
+f(x) = 0.
+\label{eq: Roots}
+\end{equation}
+
+\subsection{Newton-Raphson and Secant Algorithms}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+The methods of {\tt Newton-Raphson} and {\tt Secant} {\tt Approximation} are among
+the most popular for computing the roots of nonlinear equations.
+Let vector $x_o$ be an initial guess at the solution to equation (\ref{eq: Roots}).
+The method of Newton-Raphson corresponds to a sequence of
+first order Taylor series expansion about $x_{(k)}$, namely
+ 
+\[ f(x_{(k+1)}) = f(x_{(k)}) + \nabla f(x_{(k)}) \cdot (x_{(k+1)} - x_{(k)}) \approx 0 \]
+
+\vspace{0.15 in}\noindent
+where k = 0, 1, 2, $ \cdots $, n,
+and $ (\nabla f(x))_{ij} = (\partial f_i)/(\partial x_j) $.
+In matrix form, the gradient approximation is
+
+\begin{equation}
+\nabla f(x) = \left [  
+\begin{array}{rrrr}
+{\partial f_1(x)} \over {\partial x_1} &  {\partial f_1(x)} \over {\partial x_2} & \cdots &
+{\partial f_1(x)} \over {\partial x_n} \\
+{\partial f_2(x)} \over {\partial x_1} &  {\partial f_2(x)} \over {\partial x_2} & \cdots &
+{\partial f_2(x)} \over {\partial x_n} \\
+\cdots &  \cdots & \cdots & \cdots    \\
+{\partial f_n(x)} \over {\partial x_1} &  {\partial f_n(x)} \over {\partial x_2} & \cdots &
+{\partial f_n(x)} \over {\partial x_n} \\
+\end{array}
+\right ].
+\end{equation}
+
+\vspace{0.15 in}\noindent
+If $ \nabla f(x_{(k)})$ has an inverse,
+then the (full) Newton-Raphson update is:
+
+\begin{equation}
+x_{(k+1)} = x_{(k)} - {\left[ f(x_{(k)}) \right]}^{-1} \cdot {\nabla f(x_{(k)})}.
+\label{eq: Newton}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+The procedure is repeated until convergence criteria are satisfied.
+While the method of full Newton-Raphson can be efficient in
+some specific nonlinear analyses,
+Bathe \cite{bathe76,bathe80} reports that in general,
+full Newton-Raphson is not a competitive computational method
+for computing the roots of a wide-range of nonlinear equations.
+A major limitation of full Newton-Raphson is the need for
+updating and factorizing the coefficient
+matrix -$ \nabla f(x_{(k)}) $ at each iteration.
+One strategy for avoiding these computationally expensive steps is to
+replace -$ \nabla f(x_{(k)}) $ in equation (\ref{eq: Newton})
+with -$\nabla f(x_{(0)})$, thereby eliminating
+the need to recalculate and
+factorize -$\nabla f(x_{(k)})$ at each iteration. From a mathematical
+point of view, this simplification corresponds to a linearization of the gradient $f(x_o)$.
+For problems with significant nonlinearities -- in particular when the system
+stiffens during the response -- this linearization can lead to a
+very slow convergence in the iteration.
+Even worse, the iteration may diverge. 
+
+\begin{figure} [t]
+\epsfxsize=5.5truein
+\centerline{\epsfbox{my-chapter3-fig1.ps}}
+\caption{Secant Approximation of Quasi-Newton Method}
+\label{fig:scant_method}
+\end{figure}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+The class of quasi-Newton methods are a second alternative to full Newton Raphson.
+Quasi-Newton methods update the coefficient matrix, or it's inverse, to provide a
+secant approximation to the matrix from iteration {\tt (k)} to {\tt (k+1)}.
+Figure ~\ref{fig:scant_method} shows, for example,
+a sequence of secant approximations one might apply during the
+computation of roots in a one-dimension nonlinear equation.
+If a displacement increment is defined
+\begin{equation}
+\delta_{(k+1)} = x_{(k+1)} - x_{(k)} 
+\label{eq: delta}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+an increment in the residuals defined as
+
+\begin{equation}
+\gamma_{(k+1)} = f(x_{(k)}) - f(x_{(k+1)}),
+\label{eq: gamma}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+then the updated secant stiffness matrix, $K_{(k+1)}$,
+will satisfy the quasi-Newton equation 
+
+\[ K_{(k+1)} \delta_{(k+1)} = \gamma_{(k+1)} \].
+
+\subsection{Broyden-Fletcher-Goldfarb-Shanno (BFGS) Algorithm}
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+Among Quasi-Newton methods,
+the Broyden-Fletcher-Goldfarb-Shanno (BFGS) method appears to be the most effective.
+Within iteration {\tt (k+1)}, the BFGS method employs
+the following procedure to evaluate $x_{(k+1)}$ and $K_{(k+1)}$ ~\cite{bathe80}:
+
+\vspace{0.15 in}\noindent
+{\bf Step 1 :}
+Initialization. Provide an initial value of vector $x = x_0$,
+and calculate the corresponding $K_o$ matrix at $x = x_o$.
+
+\vspace{0.15 in}\noindent
+{\bf Step 2 :}
+Evaluated the x vector increment 
+\begin{equation}
+\Delta x = - {\left[ f(x_{(k)}) \right]}^{-1} \cdot {\nabla f(x_{(k)})}.
+\label{eq: BFGS-1}
+\end{equation}
+This vector increment defines a {\it direction} for the actual increment.
+ 
+\vspace{0.15 in}\noindent
+{\bf Step 3 :}
+Perform a line-search along direction $\Delta x$ to satisfy ``equilibrium.''
+Details of the line-search are as follows. First,
+set $\beta = 1.0$ and let the x vector 
+
+\begin{equation}
+x_{(k+1)}  = x_{(k)} + \beta \Delta x
+\label{eq: BFGS-2}
+\end{equation}
+
+\noindent
+where $\beta$ is a scalar multipler.
+The product $\beta \mid \Delta x \mid$ represents
+the distance between points $x_{(k)}$ and $x_{(k+1)}$.
+The value of $\beta$ is changed until the component of the
+residual in direction $\Delta x$, as defined by the inner
+product of ${\Delta x}^T f(x_{(k+1)})$, is approximately zero.
+The latter condition is satisfied when
+
+\begin{equation}
+{\Delta x}^T \cdot f(x_{(k+1)}) \leq \; STOL \cdot {\Delta x}^T \cdot f(x_{(k)}).
+\label{eq: LS_crit}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+STOL is a convergence tolerance. 
+The distance of the line search is automatically halved
+after each failure of equation (\ref{eq: LS_crit}) by halving $\beta$;
+$x_{(i)}$ is then recalculated with the new $\beta$.
+If after five or ten line search attempts,
+equation (\ref{eq: LS_crit}) still isn't satisfied,
+then the direction given by the $\Delta x$ is probablely wrong.
+A new direction calculation is needed.
+This procedure is summarized in four-substeps:
+
+\begin{description}
+\item{\bf Step 3.1 :}
+Use equation (\ref{eq: BFGS-1}) to update {\tt x}.
+
+\item{\bf Step 3.2 :}
+{\tt Begin while loop :} While equation (\ref{eq: LS_crit}) is not satisfied,
+work through Substeps 3.3 to 3.5.
+
+\item{\bf Step 3.3 :}
+If the line search number is less than or
+equal to {\tt MaxLineSearchCount}, then set $\beta = \beta/2.0$,
+and use equation (\ref{eq: BFGS-1}) to update {\tt x}.
+
+\item{\bf Step 3.4 :}
+If the line search number is greater than {\tt MaxLineSearchCount},
+then break the while loop. Recalculate matrix {\tt K} at $x =  x_{(k+1)}$.
+Go to Step 2. 
+
+\item{\bf Step 3.5 :}
+{\tt End while loop :} Go to Step 4 for BFGS update.
+\end{description}
+
+\vspace{0.15 in}\noindent
+{\bf Step 4 :}
+Use equations (\ref{eq: delta}) and (\ref{eq: gamma}) to
+calculate $\delta_{(k+1)}$ and $\gamma_{(k+1)}$.
+
+\vspace{0.15 in}\noindent
+{\bf Step 5 :}
+Use the BFGS update ~\cite{bathe80} to revise
+the inverse of coefficient matrix {\tt K}.
+The update of {\tt K} is given by
+
+\begin{equation}
+ {K^{-1}}_{(k+1)} = {A_{(k+1)}}^T{K^{-1}}_{(k)} A_{(k+1)}
+\label{eq: BFGS-3}
+\end{equation}
+
+\noindent
+where the matrix $A_{(k+1)}$ is a $(n \times n)$ matrix 
+
+\begin{equation}
+A_{(k+1)} = I + v^{(k+1)} \cdot {w^{(k+1)}}^T.
+\label{eq: BFGS-4}
+\end{equation}
+
+\noindent
+Vectors $v^{(k+1)}$ and $w^{(k+1)}$ are given by
+
+\begin{equation}
+v^{(k+1)} = - \left [ {{\delta_{(k+1)}}^T \gamma_{(k+1)} } \over { {\delta_{(k+1)}}^T \beta f(x_{(k)})}\right ] 
+        \cdot \beta \cdot f(x_{(k)}) - \gamma_{(k+1)}
+\label{eq: BFGS-5}
+\end{equation}
+
+\noindent
+and
+
+\begin{equation}
+w^{(k+1)} = \left[ {{\delta_{(k+1)}} \over { {\delta_{(k+1)}}^T \gamma_{(k+1)}}} \right].
+\label{eq: BFGS-6}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+{\bf Step 6 :}
+To avoid numerically dangerous updates,
+the conditional number
+
+\begin{equation}
+c_{(k+1)} = \left [ {{\delta_{(k+1)}}^T \gamma_{(k+1)}} \over { {\delta_{(k+1)}}^T \beta f(x_{(k)})} \right ]^{1/2}
+\label{eq: BFGS-7}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+of the updating matrix $A_{(k+1)}$ 
+must be compared to some predetermined tolerance.
+A large condition number implies that the updated inverse matrix
+will be nearly singular.
+Numerical updates are not performed if the
+condition number exceeds this tolerance -- in this project,
+we follow the recommendation of Bathe ~\cite{bathe80},
+and set the tolerance at $10^5$.
+
+\vspace{0.15 in}\noindent
+{\bf Step 7 :}
+Check convergence of {\em force} and {\em energy} equilibriums.
+The force convergence criterion requires that the norm of the
+out-of-balance residual or {\em force} to be within a pre-set tolerance 
+$ \epsilon_F $ of the first residual.
+
+\begin{equation}
+\| f(x_{(k+1)}) \|_2 \leq \epsilon_F \cdot \| f(x_{(o)}) \|
+\label{eq: BFGS-8}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+A force criterion is not sufficient to ensure convergence.
+Consider the case of function f(x) with small or closing to zero gradients,
+the out-of-balance residual or {\em force} may be very small
+while the variable x or displacement may be grossly in error.
+Therefore, the ``energy equilibrium'' condition is necessary to
+provide the indication that both $\delta x^{(k+1)}$, and residual
+are approaching zeros.  It requires computation of the work done
+by the force residual moving through displacement increment $ \Delta x $.  
+
+\begin{equation}
+\Delta x_{(k+1)} \cdot f(x_{(k)}) \leq \epsilon_E \cdot \Delta x_{(o)} \cdot f(x_{(0)})
+\label{eq: BFGS-9}
+\end{equation}
+
+\noindent
+where the $\epsilon_E $ is a preset energy tolerance.
+In the following examples, we will use $ \epsilon_F = 10^{-4} $ and $ \epsilon_E = 10^{-5}$.
+
+\vspace{0.15 in}\noindent
+{\bf Numerical Example :}
+We demonstrate use of the BFGS algorithm by solving a two-variable
+family of nonlinear equations:
+
+\begin{equation}
+\begin{array}{c}
+ 2{x_1}^2 +   x_2    = 4\\
+  {x_1}   + 2{x_2}^2 = 5
+\end{array}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+These equations may also be written $\{F\} - \{R\} = 0$, where
+
+\begin{equation}
+\{F\} = \left \{ \begin{array}{c}
+                  2{x_1}^2 +   x_2  \\
+                   {x_1}   + 2{x_2}^2
+                 \end{array} \right \} \;\; \{R\} = \left \{ \begin{array}{c}
+                                                           4  \\
+                                                           5
+                                                         \end{array} \right \}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+We use the parameter {\tt MaxLineSearchCount} {\tt = 5} for the
+maximum number for line search trials,
+and select an initial trial vector $\{ x\} = (7, 10)^T$.
+
+\vskip 0.1truein
+\begin{footnotesize}
+\vspace{0.10 in}
+\noindent
+{\rule{2.3 in}{0.035 in} START OF INPUT FILE \rule{2.3 in}{0.035 in} }
+\begin{verbatim}
+/* 
+ *  ===================================================== 
+ *  Use BFGS Algorithm to Solve Nonlinear Equations 
+ *
+ *  Function :                                    
+ *              2x[1]^2 + x[2] = 4               
+ *              x[1] + 2x[2]^2 = 5               
+ * 
+ *          R^t     = (4, 5)                    
+ *          F[1]    = 2x[1]^2 + x[2]            
+ *          F[2]    = x[1] + 2x[2]^2            
+ *          K[i][j] = dF[i]/dx[j]         Jacobain matrix
+ * 
+ *  Written By : X.G. Chen                      June 1994
+ *  ===================================================== 
+ */ 
+
+dimen = 2;
+IMAX  = 20;     /* Maximum number of iteration */
+Ef    = 1E-4;
+Ee    = 1.E-5;
+beta  = 1.0;
+STOL  = 0.5;
+EPS   = 1.E-5;
+ii    = 1;
+MaxLineSearchCount = 5;
+
+/*  [a] : Initialize and print problem parameters and initial solution */ 
+
+    x = [7; 10];
+    R = [4; 5];
+
+    print "------initial Guess -----\n";
+    PrintMatrix(x);
+    print "\n------Given R value -----\n";
+    PrintMatrix(R);
+
+    Y       = [2*x[1][1], 1; 1, 2*x[2][1]];
+    K       = [4*x[1][1], 1; 1, 4*x[2][1]];
+    F       = Y*x;
+    Residu0 = R-F;
+    Residu  = R-F;
+    K_inver = Inverse(K);
+
+/*  [b] : Allocate working matrices */
+
+    Residu_old   = Residu;
+    I            = Diag([dimen, 1]);
+    delta_old    = Zero([dimen, 1]);
+
+/*  [c] : Main Loop for Iteration */
+
+    Iter_no = 0;
+    for (ii = 1; ii <= IMAX; ii = ii + 1) {
+    
+        Iter_no = Iter_no + 1;
+        beta    = 1.0;
+        delta   = K_inver*Residu;
+
+     /* [c.1] : Armijo Line Search */
+
+        x_temp  = x + beta*delta; 
+        temp1   = QuanCast(Trans(delta)*Residu); 
+        Y       = [2*x_temp[1][1], 1; 1, 2*x_temp[2][1]];
+        F       = Y*x_temp;
+        Residu  = R- F;
+        temp2   = QuanCast(Trans(delta)*Residu); 
+        counter = 0;
+        while(temp2 > temp1*STOL + EPS) {
+              counter = counter + 1;
+              if(counter > MaxLineSearchCount) then {
+                 print " \n ========== \n Too many iterations for line search \n";
+                 break;
+              } else {
+                 beta = beta/2.0;
+                 x_temp  = x + beta*delta;
+                 Y      = [2*x_temp[1][1], 1; 1, 2*x_temp[2][1]];
+                 F       = Y*x_temp;
+                 Residu  = R-F;
+                 temp2   = QuanCast(Trans(delta)*Residu);
+             }
+        }
+        x = x_temp;
+
+     /* [c.2] : Restart for failed line search */
+
+        if(counter > MaxLineSearchCount) then {
+           ii = 1;
+           print " \n **** Restart at new initial Value \n";
+           Y          = [2*x[1][1], 1; 1, 2*x[2][1]];
+           K          = [4*x[1][1], 1; 1, 4*x[2][1]];
+           F          = Y*x;
+           Residu     = R-F;
+           K_inver    = Inverse(K);
+           Residu_old  = Residu;
+           delta_old   = Zero([dimen, 1]);
+        } else { 
+
+        /* [c.3] : BFGS Update (i.e counter < MaxLineSearchCount) */
+
+           gamma       = Residu_old - Residu;
+           tem1        = QuanCast(Trans(delta)*Residu_old);
+           tem1        = tem1*beta*beta;
+           tem2        = QuanCast(Trans(delta)*gamma);
+           tem2        = tem2*beta;
+           ConditionNo = sqrt(tem2/tem1);
+           V           = -ConditionNo*beta*Residu_old - gamma;
+           W           = beta*delta/tem2;
+           A           = I + V*Trans(W);
+           K_inver     = Trans(A)*K_inver*A;
+
+        /* [c.4] : Check convergence criteria */
+
+           if (ConditionNo > 1E+5) {
+               print"ConditionNo = ", ConditionNo, " \n";
+               print"ERROR -- Condition Number Too Large \n";
+               break;
+           }
+
+        /* [c.5] : Force and energy criteria */
+
+           force_crt1 = L2Norm(Residu);
+           force_crt2 = L2Norm(Residu0)*Ef;
+
+           energy_crt1 = QuanCast(Trans(delta)*Residu_old);
+           energy_crt1 = abs(energy_crt1);
+
+           if (ii == 1) {
+               energy_crt2 = QuanCast(Trans(delta)*Residu0);
+               energy_crt2 = abs(energy_crt2*Ee);
+           }
+
+           if((force_crt1 <= force_crt2) && (energy_crt1 < energy_crt2)) {
+               break;
+           }
+
+           Residu_old  = Residu;
+           delta_old   = delta;
+        }
+    }
+
+ /* [d] : Print results and terminate program execution */
+
+    print" \n RESULTS : \n --------------\n";
+    print" Iteration Number =", Iter_no, "\n";
+    Y          = [2*x[1][1], 1; 1, 2*x[2][1]];
+    F          = Y*x;
+    PrintMatrix(x, F);
+    quit;
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.1 in}\noindent
+The program output is
+
+\begin{footnotesize}
+\begin{verbatim}
+------initial Guess -----
+
+MATRIX : "x"
+
+row/col          1          
+      units             
+   1            7.00000e+00
+   2            1.00000e+01
+
+------Given R value -----
+
+MATRIX : "R"
+
+row/col          1          
+      units             
+   1            4.00000e+00
+   2            5.00000e+00
+ 
+ ========== 
+ Too many iterations for line search 
+ 
+ **** Restart at new initial Value 
+
+ RESULTS :
+ --------------
+ Iteration Number =    1.0000e+01 
+
+MATRIX : "x"
+
+row/col          1          
+      units             
+   1            1.14237e+00
+   2            1.38883e+00
+
+MATRIX : "F"
+
+row/col          1          
+      units             
+   1            3.99883e+00
+   2            5.00004e+00
+\end{verbatim}
+\end{footnotesize}
+
+\clearpage
+\section{Han-Powell Algorithm for Optimization}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+In this section we will demonstrate how ALADDIN can be
+used to solve a series of optimization problems.
+Before we get to the details of the input file,
+we will briefly describe the Han-Powell algorithm
+for optimization.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+Let {\em x} be a n-dimensional vector,
+{\em f(x)} a n-dimensional function,
+and {\em g(x)} a m-dimensional function.
+The purpose of this section is to solve the mathematical problem
+
+\begin{equation}
+\begin{array}{l}
+minimize  \;\; f(x)     \\
+subject\;to\;\; g(x) = 0 
+\end{array}
+\label{eq: min_func}
+\end{equation}
+
+\vspace{0.1 in}\noindent
+by constructing a quadratic programming (QP) method,
+combined with an Armijo line search procedure,
+and Han-Powell's method of modified BFGS
+update (mathematical descriptions of these algorithms can be
+found in Luenberger ~\cite{Luenberger84}).
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+We begin by recalling that the Lagrange first-order necessary conditions
+for this problem amounts to solving the system of equations
+
+\begin{equation}
+\begin{array}{l}
+\nabla f(x) + \lambda^T \nabla g(x) = 0  \\
+g(x)                                = 0
+\end{array}
+\label{eq: min_lagrange}
+\end{equation}
+
+\noindent
+for {\bf x} and {\bf $\lambda$}.
+In terms of Lagrange function, above equation can be written as
+
+\[ \nabla l(x, \lambda) = 0                \]
+\[ g(x)                                = 0 \]
+
+\noindent
+where $ l(x, \lambda) = f(x) + g(x) \lambda$,
+and $\lambda$ is the Lagrange multiplier.
+
+\subsection{Quadratic Programming (QP)}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+The quadratic programming method is based on two mathematical assumptions,
+namely:
+
+\vspace{0.10 in}
+\begin{description}
+\item{[1]}
+Assume that the objective function {\em f(x)} may be
+approximated by a quadratic equation defined by a
+second order Taylor's series expansion about $x_k$.
+\vspace{0.10 in}
+\item{[2]}
+Assume that solutions to the constraint equation {\em g(x) = 0} are
+approximately given by a first order Taylors expansion about $x_k$.
+\end{description}
+
+\vspace{0.10 in}\noindent
+Together, these assumptions imply
+
+\[ f(x_{k+1}) \approx f(x_k) + \nabla f(x_k)^T d + {1 \over 2} d^T B_k d \] 
+\[ g(x_{k+1}) \approx g(x_k) + \nabla g(x_k)^T d \]
+
+\vspace{0.15 in}\noindent
+The optimization problem described by equation (\ref{eq: min_func}) can
+be approximated by the following quadratic program problem
+
+\begin{equation}
+\begin{array}{l}
+minimize \;\;  \nabla f(x_k)^T d + {1 \over 2} d^T B_k d \\
+subject \; to \;\; g(x_k) + \nabla g(x_k)^T d = 0
+\end{array}
+\label{eq: min_QP}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+where d = $x - x_k$, and $B_k$ is the Hessian of function f(x). 
+Langrange's necessary conditions are 
+
+\begin{equation}
+\begin{array}{l}
+B_k d  + \nabla g(x_k) \lambda + \nabla f(x_k) = 0 \\
+g(x_k) + \nabla g(x_k)^T d = 0.
+\end{array}
+\label{eq: min_QPLagrange}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+and in this particular case,
+comprise an (n+m) dimensional linear system of equations.
+If $B_k $ is positive definite, and $\nabla g(x) $ has rank of m,
+then the matrix
+
+\[ \left [
+\begin{array}{rr}
+ B_k          & \nabla g(x_k) \\
+\nabla g(x_k)^T & 0 
+\end{array}
+\right ] \]
+ 
+\vspace{0.15 in}\noindent
+is nonsingular ~\cite{Luenberger84},
+and equations (\ref{eq: min_QPLagrange}) may be solved with unique solutions 
+
+\begin{equation}
+\left [
+\begin{array}{rr}
+B_k           & \nabla g(x_k) \\
+\nabla g(x_k)^T & 0
+\end{array}
+\right ] \left [
+\begin{array}{r}
+d \\
+\lambda
+\end{array}
+\right ] =  \left [
+\begin{array}{r}
+-f(x_k) \\
+-g(x_k)
+\end{array}
+\right ] 
+\label{eq: min_QPLagrange-part2}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+to d and $\lambda $.
+The abovementioned QP solver gives the direction d for the next step.
+We will use the Armijo line search rule to determine
+how far an algorithm should move along this direction.
+
+\subsection{Armijo Line Search Rule}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+The essential idea is that the rule should first guarantee that the selected
+t is not too large. Let us define the function
+
+\[ \phi(t) = f(x_k + t\;d_k) \]
+
+\vspace{0.15 in}\noindent
+for fixed $ \alpha $ and t = ($ 1, \beta, \beta^2, \beta^3, \cdots $ ),
+a value of t is considered to be not too large if the corresponding function
+value lies below the dashed line; that is, if
+
+\begin{equation}
+\phi(t) \le \phi(0) + \alpha \phi'(0)\;t
+\label{eq: Armijo_1}
+\end{equation}
+\noindent In this example, we chose $ \alpha = 0.1, \beta = 0.5 $.
+
+\subsection{The BFGS update and Han-Powell method}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+For the problem with equality constraints described in equation (\ref{eq: min_lagrange}),
+the structured Newton method can be applied.
+We consider the iterative process defined by:
+
+\begin{equation}
+\left [
+\begin{array}{c}
+x_{k+1}      \\
+\lambda_{k+1}
+\end{array}
+\right ] = \left [
+\begin{array}{c}
+x_k \\
+\lambda_k 
+\end{array} \right ]  - \left [
+\begin{array}{cc}
+B_k & \nabla g(x_k)\\
+\nabla g(x_k)^T  & 0 
+\end{array} \right ]^{-1} \left [
+\begin{array}{c}
+\nabla f(x_k, \lambda_k)^T\\
+g(x_k)
+\end{array}
+\right ]
+\label{eq: Struct_Newton}
+\end{equation}
+
+\vspace{0.15 in}\noindent 
+Let
+\[ y_k = \left [ \begin{array}{c}
+                x_k \\
+                \lambda
+               \end{array}
+       \right ]  \;\;\; A_k = \left [
+                                  \begin{array}{cc}
+                                  B & \nabla g(x_k)\\
+                                  \nabla g(x_k)^T  & 0
+                                  \end{array} \right ] \;\;\; C_k = \left [
+                                                   \begin{array}{c}
+                                                   \nabla f(x_k, \lambda)^T\\
+                                                    g(x_k)
+                                                   \end{array}
+                                                   \right ] \]
+
+\vspace{0.15 in}\noindent 
+Notation for equation (\ref{eq: Struct_Newton}) can be simplified as:
+
+\[ y_{k+1} = y_k - A_k^{-1}C_k \]
+
+\vspace{0.15 in}\noindent 
+The top part of system (\ref{eq: min_QPLagrange-part2}) can be rewritten as:
+
+\begin{equation}
+B_k d = - \nabla f(x_k)^T - \nabla g(x_k) \lambda = - \nabla l(x_k, \lambda)
+\label{eq: Quasi_NewtonQP}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+and equation (\ref{eq: Quasi_NewtonQP}) can be implemented as a quasi-Newton
+method, with updates of matrix {\bf B}
+
+\begin{equation}
+ B_{k+1} = B_{k} + {{q_k q_k^T} \over {q_k^Tp_k}} - {{B_kp_kp_k^TB_k} \over {p_k^TB_kp_k}},
+\label{eq: BFGS_OP}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+used to approximate the hessian of the lagrangian.
+In equation (\ref{eq: BFGS_OP}) $p_k = x_{k+1} - x_k$
+and $q_k = \nabla l (x_{k+1},\lambda_{k+1})^T - \nabla l (x_k, \lambda_{k+1})^T$.
+The Lagrange multiplier is calculated from solutions to (\ref{eq: Quasi_NewtonQP}).
+To ensure $B_k$ remains positive definite,
+the standard BFGS update is slightly altered.
+
+\vspace{0.15 in}\noindent
+{\bf The Han-Powell Method:} The method consists of the following steps:
+
+\vspace{0.15 in}\noindent
+{\bf Step 1 :}
+Start with an initial point {\bf $ x_0 $ } and an initial positive 
+definite matrix {bf $ B_0 $ }, set k = 0.
+
+\vspace{0.15 in}\noindent
+{\bf Step 2 :}
+Solve the quadratic program described by system (\ref{eq: min_QP}).
+If {\tt d = 0 } is a solution, then the current point satisfies
+the first order necessary conditions for a
+solution to the original problem (\ref{eq: min_lagrange}).
+
+\vspace{0.15 in}\noindent
+{\bf Step 3 :}
+With {\bf d} found above, perform a line search in the direction {\bf d}. 
+
+\vspace{0.15 in}\noindent
+{\bf Step 4 :}
+Update {\bf $ B_k $}, according to
+
+\begin{eqnarray}
+ B_{k+1} & = & B_{k} - {{B_kp_kp_k^TB_k} \over {p_k^TB_kp_k}} + {{r_kr_k^T} \over {p_k^Tr_k}} \\
+ p_k     & = & x_{k+1} - x_k  \\
+ q_k     & = & \nabla l(x_{k+1},\lambda_{k+1}) - \nabla l(x_k,\lambda_k)  \\
+ r_k     & = & \theta_k q_k + (1-\theta_k) B_kp_k 
+\end{eqnarray}
+
+\vspace{0.15 in}\noindent
+where $\lambda_{k+1} $ is the language
+multiplier vector of (\ref{eq: min_QP}), and where 
+
+\begin{equation}
+\theta_k = \left \{ \begin{array}{ll}
+                   1 &   \mbox{if $ p_k^Tq_k \geq (0.2) p_k^TB_kp_k $ }\\
+                     & \\
+{(0.8) p_k^TB_kp_k} \over {p_k^TB_kp_k-p_k^Tq_k} & \mbox{if $ p_k^Tq_k < (0.2) p_k^TB_kp_k $}.
+                    \end{array}
+           \right.
+\end{equation}
+
+\vspace{0.15 in}\noindent
+Again, detailed discussion on this method
+can be found in ~\cite{Luenberger84}
+
+\vspace{0.15 in}\noindent
+{\bf Numerical Examples :}
+Consider the following three problems:
+
+\vspace{0.10 in}\noindent
+{\tt Example 1 :} Minimize a quadratic function with a set of linear constraints.
+\begin{equation}
+\begin{array}{l}
+\mbox{minimize  : }f(x)   = (x_1-x_2)^2 + (x_2+x_3-2)^2 + (x_4-1)^2 +(x_5-1)^2\\
+\mbox{subject to: }g_1(x) = x_1+3x_2    -4 = 0  \\
+\mbox{~~~~~~~~~~~~~~~}g_2(x) = x_3+x_4-2x_5   = 0  \\             
+\mbox{~~~~~~~~~~~~~~~}g_3(x) = x_2     -x_5   = 0              
+\end{array}
+\end{equation}
+
+\vspace{0.10 in}\noindent
+{\tt Example 2 :} Minimize a nonlinear non-quadratic function with a set of linear constraints.
+\begin{equation}
+\begin{array}{l}
+ \mbox{minimize  : } f(x)   = (x_1-1)^2+(x_1-x_2)^2+(x_2-x_3)^4 \\
+ \mbox{subject to: } g_1(x) = x_1+x_2+2x_3 -4 = 0 \\
+ \mbox{~~~~~~~~~~~~~~~} g_2(x) = x_1+x_3       -2 = 0          
+\end{array}
+\end{equation}
+
+\vspace{0.10 in}\noindent
+{\tt Example 3 :} Minimize a nonlinear non-quadratic function with nonlinear constraint.
+\begin{equation}
+\begin{array}{l}
+ \mbox{minimize  : } f(x) = (x_1-1)^2+(x_1-x_2)^2+(x_2-x_3)^4 \\
+ \mbox{subject to: } g(x) =  x_1(1+x_2^2)+x_3^4-3 = 0
+\end{array}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+It is not difficult to observe that the analytical solution to the 
+above examples are x = (1, 1, 1, 1, 1), x = (1,1,1) and x = (1, 1, 1).
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+Since the input commands for above examples are basically same except for 
+the functions, we only illustrate one command file for example 1. But we give
+all the results for example 1, 2 and 3.
+
+\vskip 0.1truein
+\begin{footnotesize}
+\vspace{0.10 in}
+\noindent
+{\rule{2.3 in}{0.035 in} START OF INPUT FILE \rule{2.3 in}{0.035 in} }
+\begin{verbatim}
+/*  
+ *  ================================================================
+ *  Example Problem 1:                              
+ *  
+ *    minmize f(x) = (x1 -x2)^2 + (x2+x3-2)^2 + (x4-1)^2 + (x5 -1)^2
+ *  
+ *  Subject to constraints:                                   
+ *  
+ *         x1+3*x2            -4 = 0                   
+ *                 x3+x4-2*x5    = 0                   
+ *              x2        -x5    = 0                   
+ *  
+ *  Notation -- f = f(x), G = g(x), Df = grad f(x), Dg = grad g(x).
+ *  
+ *  Written By: X.G. Chen                                  June 1994
+ *  ================================================================
+ */  
+
+SetUnitsOff;
+
+/* [a] : Initialize and print variables and matrices */
+
+   Epsilon = 1E-6;
+   beta    = 0.5;
+   alpha   = 0.1;
+   IMAX    = 20; /* maximum of iterations */
+   n       = 5;  /* number of variables   */
+   M       = 3;  /* number of constraints */
+
+   print "\n ****** Initial Guess Value ******* \n";
+
+   x = [20; 0.1; 10; -1; -10];   /* not feasible */
+   PrintMatrix(x);
+
+   x_old      = x;
+   lambda     = Zero([M, 1]);
+   lambda_old = Zero([M, 1]);
+   temp1 = (x[1][1] -x[2][1])*(x[1][1] -x[2][1]);
+   temp2 = (x[2][1] +x[3][1] -2)*(x[2][1] +x[3][1] - 2);
+   temp3 = (x[4][1] -1)*(x[4][1] -1);
+   temp4 = (x[5][1] -1)*(x[5][1] -1);
+
+   f = temp1 + temp2 + temp3 + temp4;
+   A = Zero([n+M, n+M]);
+   C = Zero([n+M, 1]);
+   B  = Zero([n,n]);
+   Df = Zero([n,1]);
+   DF = Zero([n,1]);
+   b  = Zero([M,1]);
+   d  = Zero([n,1]);
+
+   Df[1][1] =  2*(x[1][1]- x[2][1]);
+   Df[2][1] = -2*(x[1][1]- x[2][1]) + 2*(x[2][1]+ x[3][1] -2);
+   Df[3][1] =  2*(x[2][1]+ x[3][1]-2);
+   Df[4][1] =  2*(x[4][1]- 1);
+   Df[5][1] =  2*(x[5][1]- 1);
+
+   B = Diag([n,1]); /* initialize B as identity matrix */
+
+   b[1][1] = -4;
+   b[2][1] =  0;
+   b[3][1] =  0;
+
+   k = 1;
+   Trans_Dg = [1,3,0,0,0; 0,0,1,1,-2; 0, 1, 0, 0,-1];
+   Dg       = Trans(Trans_Dg);
+   G       = Trans_Dg*x+b;
+
+/* [b] : Initialize matrices A and C */
+
+   for ( i = 1; i <= n+M; i = i + 1) {
+       for(j = 1; j <= n + M; j = j + 1) {
+          if( i <= n) then {
+             C[i][1] = -Df[i][1];
+             if(j <= n) then {
+                A[i][j] = B[i][j];
+             } else {
+                k = j - n;
+                A[i][j] = Dg[i][k];
+             }
+          } else {
+            k = i - n;
+            C[i][1] = -G[k][1];
+            if(j <= n) {
+               A[i][j] = Trans_Dg[k][j];
+            }
+          }
+       }
+   }
+
+   q = Zero([n,1]);
+
+/* [c] : Main Loop */
+
+   for ( ii = 1; ii <= IMAX; ii = ii + 1 ) {
+
+   /* [c.1] : Solve QP for direction d */
+
+      y = Solve(A,C);
+        
+      for ( i = 1; i <= n; i = i + 1) {
+            d[i][1] = y[i][1];
+      }
+
+      for ( i = n+1; i <= n+M; i = i + 1) {
+            j = i-n;
+            lambda[j][1] = y[i][1];
+      }
+
+      if(L2Norm(d) <= Epsilon) {
+         break;
+      }
+
+   /* [c.2] : Line Search with Armijo's Rule */
+
+      t       = 1;
+      x       = x_old + t*d;
+      temp1   = (x[1][1] -x[2][1])*(x[1][1] -x[2][1]);
+      temp2   = (x[2][1] +x[3][1] -2)*(x[2][1] +x[3][1] - 2);
+      temp3   = (x[4][1] -1)*(x[4][1] -1);
+      temp4   = (x[5][1] -1)*(x[5][1] -1);
+      f_new   = temp1 + temp2 + temp3 + temp4;
+
+      temp    = alpha*QuanCast(Trans(Df)*d);
+      counter = 0;
+      while (f_new > f + t*temp) { /* t is too large */
+         counter = counter + 1;
+         t       = t*beta;
+         x       = x_old + t*d;
+         temp1   = (x[1][1] -x[2][1])*(x[1][1] -x[2][1]);
+         temp2   = (x[2][1] +x[3][1] -2)*(x[2][1] +x[3][1] - 2);
+         temp3   = (x[4][1] -1)*(x[4][1] -1);
+         temp4   = (x[5][1] -1)*(x[5][1] -1);
+         f_new   = temp1 + temp2 + temp3 + temp4;
+         if(counter > 5) {
+            print " Too much iterations for line search \n";
+            print " counter =", counter," \n";
+            break;
+         }
+      }
+
+   /* [c.3] : Modified BFGS matrix update */
+
+      DF[1][1] =  2*(x[1][1]- x[2][1]);
+      DF[2][1] = -2*(x[1][1]- x[2][1]) + 2*(x[2][1]+ x[3][1] -2);
+      DF[3][1] =  2*(x[2][1]+ x[3][1]-2);
+      DF[4][1] =  2*(x[4][1]- 1);
+      DF[5][1] =  2*(x[5][1]- 1);
+
+      q     = DF + Dg*lambda - Df - Dg*lambda_old;
+      A1    = QuanCast(Trans(d)*B*d);
+      A2    = QuanCast(Trans(d)*q)*t;
+
+      if(A2 >= (0.2*A1)) then {
+         theta = 1.0;
+      } else {
+         theta = 0.8*A1/(A1-A2);
+      } 
+
+      r          = theta*q + (1-theta)*t*B*d;
+      A3         = QuanCast(Trans(d)*r)*t;
+      B          = B - B*d*Trans(d)*B/A1 + r*Trans(r)/A3;
+      Df         = DF;
+      x_old      = x;
+      lambda_old = lambda;
+      G          = Trans_Dg*x+b;
+
+      for ( i = 1; i <= n; i = i + 1) {
+          C[i][1] = -Df[i][1];
+          for(j = 1; j <= n; j = j + 1) {
+              A[i][j] = B[i][j];
+          }
+      }
+
+      for ( i = 1; i <= M; i = i + 1) {
+            k = i + n;
+            C[k][1] = -G[i][1];
+      }
+   }
+
+/* [d] : Print results and terminate program execution */
+
+   print" Results: \n --------------\n";
+   print" Iteration Number =", ii-1, "\n\n";
+   PrintMatrix(x);
+   quit;
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+If B is initialized with identity matrix, then the results are:
+
+\vspace{0.15 in}\noindent
+{\bf Example 1:}
+
+\vskip 0.1truein
+\begin{footnotesize}
+\begin{verbatim}
+
+ ****** Initial guess value ******* 
+
+MATRIX : "x"
+
+row/col          1          
+   1            2.00000e+01
+   2            1.00000e-01
+   3            1.00000e+01
+   4           -1.00000e+00
+   5           -1.00000e+01
+ Results: 
+ --------------
+ Iteration Number =    8.0000e+00 
+
+MATRIX : "x"
+
+row/col          1          
+   1            1.00000e+00
+   2            1.00000e+00
+   3            1.00000e+00
+   4            1.00000e+00
+   5            1.00000e+00
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.1 in}\noindent
+{\bf Example 2:}
+
+\vskip 0.1truein
+\begin{footnotesize}
+\begin{verbatim}
+ ****** Initial guess value ******* 
+
+MATRIX : "x"
+
+row/col          1          
+      units             
+   1            2.00000e+00
+   2            2.00000e+00
+   3            2.00000e+00
+ Results: 
+ --------------
+ Iteration Number =    5.0000e+00 
+
+MATRIX : "x"
+
+row/col          1          
+      units             
+   1            9.99891e-01
+   2            9.99891e-01
+   3            1.00011e+00
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.1 in}\noindent
+{\bf Example 3:} The process will not converge after maximum number of twenty
+iterations. And increase maximum number can not help the convergence.
+
+\vskip 0.1truein
+\begin{footnotesize}
+\begin{verbatim}
+****** Initial guess value ******* 
+
+MATRIX : "x"
+
+row/col          1          
+   1            2.00000e+00
+   2            1.40000e+00
+   3            1.50000e+00
+ Results: 
+ --------------
+ Iteration Number =    2.0000e+01 
+
+MATRIX : "x"
+
+row/col          1          
+   1            1.00032e+00
+   2            1.01113e+00
+   3            9.94158e-01
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+If B is initialized with $ B(x_0) $, then the results are:
+\vspace{0.05 in}
+
+\noindent
+{\bf Example 1:}
+\begin{footnotesize}
+\begin{verbatim}
+ ****** Initial guess value ******* 
+
+MATRIX : "x"
+
+row/col          1          
+   1            2.00000e+01
+   2            1.00000e-01
+   3            1.00000e+01
+   4           -1.00000e+00
+   5           -1.00000e+01
+ Results: 
+ --------------
+ Iteration Number =    1.0000e+00 
+
+MATRIX : "x"
+
+row/col          1          
+   1            1.00000e+00
+   2            1.00000e+00
+   3            1.00000e+00
+   4            1.00000e+00
+   5            1.00000e+00
+\end{verbatim}
+\end{footnotesize}
+\vspace{0.1 in}
+
+\noindent
+{\bf Example 2:}
+\begin{footnotesize}
+\begin{verbatim}
+ ****** Initial guess value ******* 
+
+MATRIX : "x"
+
+row/col          1          
+      units             
+   1            2.00000e+00
+   2            2.00000e+00
+   3            2.00000e+00
+ Results: 
+ --------------
+ Iteration Number =    1.0000e+00 
+
+MATRIX : "x"
+
+row/col          1          
+      units             
+   1            1.00000e+00
+   2            1.00000e+00
+   3            1.00000e+00
+\end{verbatim}
+\end{footnotesize}
+\vspace{0.1 in}
+
+\noindent
+{\bf Example 3:}
+\begin{footnotesize}
+\begin{verbatim}
+ ****** Initial guess value ******* 
+
+MATRIX : "x"
+
+row/col          1          
+   1            2.00000e+00
+   2            1.40000e+00
+   3            1.50000e+00
+ Results: 
+ --------------
+ Iteration Number =    6.0000e+00 
+
+MATRIX : "x"
+
+row/col          1          
+   1            9.99850e-01
+   2            9.94974e-01
+   3            1.00240e+00
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+In these three examples, the hessian of f(x) is stored in matrix {\tt B}.
+The hessian is constant. Moreover, when the B matrix corresponds
+to the exact value, only one iteration of optimization is required
+to compute an optimal solution.
+The initial guess point for Example 2 is a feasible point.
+While the points for Example 1 and 3 are not feasible points. 
+

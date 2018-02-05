@@ -1,0 +1,60 @@
+\newtable{table-matrix-operations}
+\vskip 0.2truein
+\hrule height1.0pt
+\vskip 0.15truein
+\vbox{\settabs 8 \columns \baselineskip = 14pt
+\+ & Matrix Function &&  Purpose &&&&  \cr
+}
+\vskip 0.10truein
+\hrule height2.5pt
+\vskip 0.10truein
+\vbox{\settabs 8 \columns \baselineskip = 14pt
+\+ & MatrixAlloc()            &&& Allocate memory for matrix                  && \cr
+\+ & MatrixFree()             &&& Free matrix memory                          && \cr
+\+ &                          &&&                                               && \cr
+\+ & MatrixPrint()            &&& Print contents of the matrices              && \cr
+\+ & MatrixCopy()             &&& Make a copy of a matrix                     && \cr
+\+ & MatrixTranspose()        &&& Compute transpose of a matrix               && \cr
+\+ &                          &&&                                               && \cr
+\+ & MatrixAdd()              &&&
+  Sum of two matrices ${\tt C} = {\tt A} + {\tt B}$                          && \cr
+\+ & MatrixAddReplace()       &&&
+  Replacement sum ${\tt A} = {\tt A} + {\tt B}$                              && \cr
+\+ & MatrixSub()              &&&
+  Difference of two matrices ${\tt C} = {\tt A} - {\tt B}$                   && \cr
+\+ & MatrixSubReplace()       &&&
+  Replacement difference ${\tt A} = {\tt A} - {\tt B}$                       && \cr
+\+ &                          &&&                                               && \cr
+\+ & MatrixScale()            &&&
+  Scale Matrix ${\tt C} = {\tt k} \cdot {\tt A}$, ${\tt k} \in \reals$       && \cr
+\+ & MatrixScaleReplace()     &&&
+  Scale Matrix Replace ${\tt A} = {\tt k} \cdot {\tt A}$; ${\tt k} \in \reals$ && \cr
+\+ &                          &&&                                               && \cr
+\+ & MatrixNegate()           &&&   Negate Matrix ${\tt B} = {\tt -A}$          && \cr
+\+ & MatrixNegateReplace()    &&&   Negate Matrix ${\tt A} = {\tt -A}$          && \cr
+\+ &                          &&&                                               && \cr
+\+ & MatrixMult()             &&&   Compute product of two matrices             && \cr
+\+ & MatrixSolve()            &&&
+Solve linear equations $\left[ A \right] \left\{ x \right\} = \left[ b \right]$ && \cr
+\+ & MatrixInverse()          &&&   Compute matrix inverse ${\tt A}^{-1}$       && \cr
+\+ &                          &&&                                                       \cr
+\+ & MatrixInverseIteration() &&&   Use Inverse iteration to solve symmetric eigenvalue \cr
+\+ &                          &&&   problem $A \cdot x = \lambda \cdot B \cdot x$ for lowest eigenvalue  \cr
+\+ &                          &&&   and eigenvector. Here, matrices ${\tt A}$ and {\tt B} are symmetric. \cr
+\+ & MatrixHouseHolder()      &&&   Use Householder transformation and QL Algorithm  && \cr
+\+ &                          &&&   to solve ${\tt A} \cdot {\tt x} = \lambda \cdot {\tt x}$.
+                                    Again, matrix ${\tt A}$ is symmetric.           && \cr
+\+ &                          &&&                                                   && \cr
+\+ & MatrixSubstitute()       &&&   Substitute small matrix into larger matrix      && \cr
+\+ & MatrixExtract()          &&&   Extract small matrix from larger matrix         && \cr
+}
+\vskip 0.15truein
+\hrule height2.5pt
+\vskip 0.15truein
+\line{\bf Table [\tableno{table-matrix-operations}] :
+A Shopping List of Basic Matrix Operations \hfil }
+\vskip 0.15truein
+\hrule height1.0pt
+\vskip 0.15truein
+\vfill\eject
+

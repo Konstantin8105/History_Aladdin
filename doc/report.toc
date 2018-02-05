@@ -1,0 +1,93 @@
+\contentsline {part}{\uppercase {i}\phspace {1em}\pbf INTRODUCTION TO ALADDIN}{4}
+\contentsline {chapter}{\numberline {1}Introduction to ALADDIN}{5}
+\contentsline {section}{\numberline {1.1}Problem Statement}{5}
+\contentsline {section}{\numberline {1.2}ALADDIN Components}{7}
+\contentsline {section}{\numberline {1.3}Scope of this Report}{11}
+\contentsline {part}{\uppercase {ii}\phspace {1em}\pbf MATRIX LIBRARY}{12}
+\contentsline {chapter}{\numberline {2}Command Language for Quantity and Matrix Operations}{13}
+\contentsline {section}{\numberline {2.1}How to Start (and Stop) ALADDIN}{13}
+\contentsline {section}{\numberline {2.2}Format of General Command Language}{14}
+\contentsline {section}{\numberline {2.3}Physical Quantities}{15}
+\contentsline {subsection}{\numberline {2.3.1}Definition and Printing of Quantities}{15}
+\contentsline {subsection}{\numberline {2.3.2}Formatting of Quantity Output}{17}
+\contentsline {subsection}{\numberline {2.3.3}Quantity Arithmetic}{19}
+\contentsline {subsection}{\numberline {2.3.4}Making a Quantity Dimensionless}{20}
+\contentsline {subsection}{\numberline {2.3.5}Switching Units On and Off}{21}
+\contentsline {subsection}{\numberline {2.3.6}Setting Units Type to US or SI}{21}
+\contentsline {section}{\numberline {2.4}Control of Program Flow}{23}
+\contentsline {subsection}{\numberline {2.4.1}Logical Operations}{23}
+\contentsline {subsection}{\numberline {2.4.2}Conditional Branching}{24}
+\contentsline {subsection}{\numberline {2.4.3}Looping and Stopping Commands}{25}
+\contentsline {section}{\numberline {2.5}Definition and Printing of Matrices}{28}
+\contentsline {subsection}{\numberline {2.5.1}Definition of Small Matrices}{28}
+\contentsline {subsection}{\numberline {2.5.2}Built-in Functions for Allocation of Matrices}{29}
+\contentsline {subsection}{\numberline {2.5.3}Definition of Matrices with Units}{31}
+\contentsline {subsection}{\numberline {2.5.4}Printing Matrices with Desired Units}{33}
+\contentsline {section}{\numberline {2.6}Matrix-to-Quantity Conversion}{35}
+\contentsline {section}{\numberline {2.7}Basic Matrix Operations}{35}
+\contentsline {subsection}{\numberline {2.7.1}Retrieving the Dimensions of a Matrix}{35}
+\contentsline {subsection}{\numberline {2.7.2}Matrix Copy and Matrix Transpose}{36}
+\contentsline {subsection}{\numberline {2.7.3}Matrix Addition, Subtraction, and Multiplication}{36}
+\contentsline {subsection}{\numberline {2.7.4}Scaling a Matrix by a Quantity}{38}
+\contentsline {subsection}{\numberline {2.7.5}Euclidean Norm of Row/Column Vectors}{40}
+\contentsline {subsection}{\numberline {2.7.6}Substitution/Extraction of Submatrices}{41}
+\contentsline {section}{\numberline {2.8}Solution of Linear Matrix Equations}{44}
+\contentsline {subsection}{\numberline {2.8.1}Solving $\left [ A \right ] \delimiter "4266308 x \delimiter "5267309 = \delimiter "4266308 b \delimiter "5267309 $}{45}
+\contentsline {subsection}{\numberline {2.8.2}Matrix Inverse}{50}
+\contentsline {section}{\numberline {2.9}Matrix Eigenvalues and Eigenvectors}{54}
+\contentsline {subsection}{\numberline {2.9.1}Solving ${\pbf K} \Phi = {\pbf M} \Phi \Lambda $}{55}
+\contentsline {subsection}{\numberline {}{Numerical Example 1 : Buckling of Rod}}{55}
+\contentsline {subsection}{\numberline {}{Numerical Example 2 : Vibration of Cantilever Beam}}{60}
+\contentsline {chapter}{\numberline {3}Construction of Numerical Algorithms}{67}
+\contentsline {section}{\numberline {3.1}Introduction}{67}
+\contentsline {section}{\numberline {3.2}Roots of Nonlinear Equations}{67}
+\contentsline {subsection}{\numberline {3.2.1}Newton-Raphson and Secant Algorithms}{67}
+\contentsline {subsection}{\numberline {3.2.2}Broyden-Fletcher-Goldfarb-Shanno (BFGS) Algorithm}{69}
+\contentsline {section}{\numberline {3.3}Han-Powell Algorithm for Optimization}{76}
+\contentsline {subsection}{\numberline {3.3.1}Quadratic Programming (QP)}{76}
+\contentsline {subsection}{\numberline {3.3.2}Armijo Line Search Rule}{77}
+\contentsline {subsection}{\numberline {3.3.3}The BFGS update and Han-Powell method}{78}
+\contentsline {chapter}{\numberline {4}Computational Methods for Dynamic Analysis of Structures}{87}
+\contentsline {section}{\numberline {4.1}Introduction}{87}
+\contentsline {section}{\numberline {4.2}Method of Newmark Integration}{87}
+\contentsline {section}{\numberline {4.3}Method of Modal Analysis}{97}
+\contentsline {part}{\uppercase {iii}\phspace {1em}\pbf FINITE ELEMENT LIBRARY}{107}
+\contentsline {chapter}{\numberline {5}Finite Element Analysis Language}{108}
+\contentsline {section}{\numberline {5.1}Introduction}{108}
+\contentsline {section}{\numberline {5.2}Structure of Finite Element Input Files}{108}
+\contentsline {section}{\numberline {5.3}Problem Specification Parameters}{110}
+\contentsline {section}{\numberline {5.4}Adding Nodes and Finite Elements}{110}
+\contentsline {section}{\numberline {5.5}Material and Section Properties}{112}
+\contentsline {section}{\numberline {5.6}Boundary Conditions}{115}
+\contentsline {section}{\numberline {5.7}External Nodal Loads}{116}
+\contentsline {section}{\numberline {5.8}Stiffness, Mass and External Loading Matrices}{116}
+\contentsline {section}{\numberline {5.9}Internal Loads}{117}
+\contentsline {section}{\numberline {5.10}Retrieving Information from ALADDIN}{118}
+\contentsline {section}{\numberline {5.11}Library of Finite Elements}{120}
+\contentsline {chapter}{\numberline {6}Input Files for Finite Element Analysis Problems}{127}
+\contentsline {section}{\numberline {6.1}Linear Static Analyses}{127}
+\contentsline {subsection}{\numberline {6.1.1}Analysis of Five Story Moment Resistant Frame}{127}
+\contentsline {subsection}{\numberline {6.1.2}Working Stress Design (WSD) of Simplified Bridge}{140}
+\contentsline {subsection}{\numberline {6.1.3}Three-Dimensional Analysis of Highway Bridge}{155}
+\contentsline {section}{\numberline {6.2}Time-History Analyses}{171}
+\contentsline {subsection}{\numberline {6.2.1}Modal Analysis of Five Story Steel Frame}{171}
+\contentsline {part}{\uppercase {iv}\phspace {1em}\pbf ARCHITECTURE AND DESIGN}{185}
+\contentsline {chapter}{\numberline {7}Data Types : Physical Quantity and Matrix Data Structures}{186}
+\contentsline {section}{\numberline {7.1}Introduction}{186}
+\contentsline {section}{\numberline {7.2}Physical Quantities}{186}
+\contentsline {subsection}{\numberline {7.2.1}Relationship between Quantity and Units}{187}
+\contentsline {subsection}{\numberline {7.2.2}US and SI Units Conversion}{188}
+\contentsline {section}{\numberline {7.3}Matrices}{190}
+\contentsline {subsection}{\numberline {7.3.1}Skyline Matrix Storage}{192}
+\contentsline {subsection}{\numberline {7.3.2}Units Buffers for Matrix Multiplication}{195}
+\contentsline {subsection}{\numberline {7.3.3}Units Buffers for Inverse Matrix}{195}
+\contentsline {chapter}{\numberline {8}Architecture and Design of ALADDIN}{200}
+\contentsline {section}{\numberline {8.1}Introduction}{200}
+\contentsline {section}{\numberline {8.2}Program Modules and Key Data Structures}{200}
+\contentsline {section}{\numberline {8.3}Design and Implementation of Stack Machine}{207}
+\contentsline {subsection}{\numberline {8.3.1}Example of Machine Stack Execution}{210}
+\contentsline {section}{\numberline {8.4}Language Design and Implementation}{216}
+\contentsline {part}{\uppercase {v}\phspace {1em}\pbf CONCLUSIONS AND FUTURE WORK}{227}
+\contentsline {chapter}{\numberline {9}Conclusions and Future Work}{228}
+\contentsline {section}{\numberline {9.1}Conclusions}{228}
+\contentsline {section}{\numberline {9.2}Future Work}{229}

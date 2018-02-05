@@ -1,0 +1,323 @@
+/*
+ *  ============================================================
+ *  Modal Analysis of Five Story Steel Moment Frame subject to
+ *  El Centro ground motion.
+ *  
+ *  Written By: Mark Austin                           July, 1995  
+ *  ============================================================
+ */
+
+/* [a] : Setup problem specific parameters */
+
+   NDimension         = 2;
+   NDofPerNode        = 3;
+   MaxNodesPerElement = 2;
+
+   StartMesh();
+
+/* [b] : Generate two-dimensional grid of nodes */
+
+   node = 0;
+   for( y = 0 ft; y <= 50 ft; y = y + 10 ft ) {
+      for( x = 0 ft; x <= 55 ft; x = x + 20 ft ) {
+
+        /* [b.1] : adjust column spacing for central bay */
+
+           if(x == 40 ft) {
+              x = x - 5 ft;
+           }
+
+        /* [b.2] : add new node to finite element mesh */
+
+           node = node + 1;
+           AddNode(node, [ x, y ] );
+      }
+   }
+
+/* [c] : Attach column elements to nodes */
+
+   elmtno = 0;
+   for (  colno = 1;   colno <= 4;   colno = colno + 1) {
+   for (floorno = 1; floorno <= 5; floorno = floorno + 1) {
+        elmtno = elmtno + 1;
+
+        end1 = 4*(floorno - 1) + colno;
+        end2 = end1 + 4;
+
+        AddElmt( elmtno, [ end1 , end2 ], "mrf_element");
+   }
+   }
+
+/* [d] : Attach beam elements to nodes */
+
+   for (floorno = 1; floorno <= 5; floorno = floorno + 1) {
+   for (  bayno = 1;   bayno <= 3;     bayno = bayno + 1) {
+
+        end1 = 4*floorno + bayno;
+        end2 = end1 + 1;
+
+        elmtno = elmtno + 1;
+        AddElmt( elmtno, [ end1 , end2 ], "mrf_element");
+   }
+   }
+
+/* [e] : Define section and material properties */
+
+   ElementAttr("mrf_element") { type     = "FRAME_2D";
+                                section  = "mrfsection";
+                                material = "mrfmaterial";
+                              }
+
+   SectionAttr("mrfsection") { Izz       = 1541.9 in^4;
+                               Iyy       =  486.3 in^4;
+                               depth     =   12.0 in;
+                               width     =   12.0 in;
+                               area      =   47.4 in^2;
+                             }
+
+   MaterialAttr("mrfmaterial") { density = 0.1024E-5 lb/in^3;
+                                 poisson = 0.25;
+                                 yield   = 36.0   ksi;
+                                 E       = 29000  ksi;
+                               }
+
+/* [f] : Apply full-fixity to columns at foundation level */
+
+   for(nodeno = 1; nodeno <= 4; nodeno = nodeno + 1) {
+       FixNode( nodeno, [ 1, 1, 1 ]);
+   }
+
+   for(nodeno = 5; nodeno <= 24; nodeno = nodeno + 1) {
+       FixNode( nodeno, [ 0, 1, 1 ]);
+   }
+
+   LinkNode([  5,  6,  7,  8 ], [ 1, 0, 0] );
+   LinkNode([  9, 10, 11, 12 ], [ 1, 0, 0] );
+   LinkNode([ 13, 14, 15, 16 ], [ 1, 0, 0] );
+   LinkNode([ 17, 18, 19, 20 ], [ 1, 0, 0] );
+   LinkNode([ 21, 22, 23, 24 ], [ 1, 0, 0] );
+
+/* [g] : Compile and Print Finite Element Mesh */
+
+   EndMesh();
+   PrintMesh();
+
+/* [h] : Compute "stiffness" and "mass" matrices */
+
+   stiff = Stiff();
+   Lumped = [1];
+   mass  = Mass( Lumped );
+
+   PrintMatrix(mass);
+
+   dead_load = 10000 kg;
+   for(i = 1 ; i <= 5; i = i + 1) {
+       mass [i][i] = mass[i][i] + 4*dead_load;
+   }
+
+   PrintMatrix(stiff);
+   PrintMatrix(mass);
+
+/* [i] : Compute and print eigenvalues and eigenvectors */
+
+   no_eigen = 2;
+   eigen       = Eigen(stiff, mass, [ no_eigen ]);
+   eigenvalue  = Eigenvalue(eigen);
+   eigenvector = Eigenvector(eigen);
+
+   for(i = 1; i <= no_eigen; i = i + 1) {
+       print "Mode", i ," : w^2 = ", eigenvalue[i][1];
+       print " : T = ", 2*PI/sqrt(eigenvalue[i][1]) ,"\n";
+   }
+
+   PrintMatrix(eigenvector);
+
+/* [j] : Generalized mass and stiffness matrices */
+
+   EigenTrans = Trans(eigenvector);
+   Mstar   = EigenTrans*mass*eigenvector;
+   Kstar   = EigenTrans*stiff*eigenvector;
+
+   PrintMatrix( Mstar );
+   PrintMatrix( Kstar );
+
+/* [k] : Setup Rayleigh Damping for Base - Isolated Structure */ 
+
+   rdamping = 0.03;
+   W1 = sqrt ( eigenvalue[1][1]);
+   W2 = sqrt ( eigenvalue[2][1]);
+
+   A0 = 2*rdamping*W1*W2/(W1 + W2);
+   A1 = 2*rdamping/(W1 + W2);
+
+   damp = A0*mass + A1*stiff;
+   PrintMatrix( damp );
+
+/* [k] : Define earthquake loadings... */ 
+
+   Elcentro = ColumnUnits( [
+     14.56;    13.77;     6.13;     3.73;     1.32;    -6.81;   -16.22;   -22.41;
+    -26.67;   -24.10;   -21.86;   -14.02;    -1.62;     1.67;    18.12;    39.26;
+     28.40;    16.72;    16.06;    12.54;     0.15;    -8.60;   -14.00;   -12.01;
+     -3.34;     5.14;    14.04;    16.36;    29.90;    43.09;    32.13;    17.28;
+     18.44;    22.31;    13.24;    -0.91;    -6.81;   -15.20;   -14.88;    -9.54;
+    -13.32;   -10.60;    11.80;    10.20;   -12.90;   -22.88;     1.42;    21.73;
+      7.92;     6.47;    11.39;    -8.29;   -33.44;   -26.25;   -23.99;   -31.05;
+    -25.42;   -26.97;   -38.48;   -35.01;   -27.78;   -33.35;   -29.56;   -13.60;
+    -13.97;   -11.63;    -1.31;    13.86;    35.71;    27.62;    25.33;    46.45;
+     44.12;    28.02;    19.13;    12.57;    11.60;    12.29;     9.73;    10.38;
+     18.93;    29.43;    30.25;    26.23;    23.15;    22.29;    21.11;    14.84;
+     11.02;    14.74;    21.65;    26.66;    28.45;    30.34;    30.21;    28.82;
+     31.31;    26.66;    15.29;     9.10;     3.58;    -6.65;   -15.33;   -18.05;
+    -17.46;   -11.68;    -3.48;    -5.25;   -15.43;   -25.38;   -32.32;   -29.67;
+    -22.01;   -17.97;   -22.34;   -30.51;   -38.89;   -45.29;   -55.26;   -67.84;
+    -76.74;   -84.58;   -86.83;   -86.63;   -80.87;   -69.83;   -59.81;   -54.51;
+    -48.94;   -39.94;   -38.67;   -40.13;   -38.04;   -34.78;   -31.30;   -21.29;
+     -8.85;     3.58;    13.97;    30.88;    35.09;     8.84;   -10.41;   -16.30;
+    -20.10;    -3.69;    33.71;    51.69;    43.52;    27.04;    34.70;    38.30;
+     36.60;    29.85;    -9.22;   -23.98;   -17.28;   -14.20;    11.58;    47.99;
+     64.26;    70.36;    68.93;    62.67;    45.30;    28.43;    23.73;    28.51;
+     34.46;    43.12;    43.39;    26.64;    21.23;    31.23;    40.30;    16.76;
+    -10.80;   -22.88;    -0.51;    12.51;   -10.01;   -12.52;    -6.05;   -24.18;
+    -43.17;     7.01;    50.06;    54.19;    68.83;    69.26;    57.53;     8.73;
+    -38.98;   -43.59;   -51.12;   -41.86;   -19.51;   -15.78;   -11.54;    -2.18;
+     -2.19;    20.84;    23.40;    -0.91;   -11.45;   -22.94;   -40.84;   -53.17;
+    -44.02;   -21.96;    -3.06;    -0.49;    -9.59;   -11.83;    -9.86;    -7.02;
+      0.88;    24.00;    50.57;    56.01;    51.75;    52.30;    47.79;    16.77;
+     -6.09;   -20.13;   -20.42;    -4.35;    -0.33;    -6.33;     1.74;    19.90;
+     37.97;    53.36;    57.68;    53.32;    28.37;     7.54;     6.90;     4.73;
+     -4.97;   -21.97;   -28.16;   -23.25;   -28.43;   -18.57;    -3.93;   -16.60;
+    -31.92;   -35.08;   -34.77;   -30.85;   -30.37;    -6.83;    24.57;    27.39;
+     23.72;    29.30;     5.79;   -35.35;   -54.31;   -57.00;   -59.38;   -19.00;
+     32.14;     7.01;   -21.44;   -21.26;   -26.01;   -35.66;   -33.68;   -24.09;
+    -21.39;   -26.29;   -27.73;   -23.91;   -14.27;    -6.41;    -0.59;     4.21;
+      1.06;    -4.59;   -15.16;   -18.12;    -7.09;     2.41;     6.08;     1.20;
+    -10.53;    -8.69;    -4.70;   -13.05;    -9.51;    -0.67;    -7.10;    -7.19;
+      5.36;     9.80;     7.87;    12.63;    20.28;    22.44;    24.86;    24.31;
+     15.25;     6.54;     6.86;    11.08;    18.12;    23.64;    22.47;    23.76;
+     21.57;    19.80;    25.47;    27.94;    14.81;    -6.94;   -13.57;    -7.80;
+     -2.65;    -3.97;    -1.01;     0.20;     5.14;     2.31;   -16.89;   -18.18;
+    -11.55;   -12.10;    -3.07;     6.16;     8.87;    19.72;    21.31;    16.45;
+     12.70;     4.15;    -1.59;     0.57;    11.04;    21.39;    27.42;    15.82;
+     -9.25;   -23.67;   -17.34;     0.67;     8.69;    11.01;    12.01;    11.12;
+     13.62;    11.31;     9.71;    17.68;    15.83;     5.59;     0.60;    -2.53;
+     -4.46;    -4.09;    -7.81;   -15.06;   -19.43;   -15.49;    -8.93;    -5.44;
+     -1.33;    -1.35;     7.19;    12.52;     0.21;    -4.89;     0.22;    11.51;
+     20.17;    18.62;    16.72;    13.74;    10.62;    11.14;    12.74;    13.34;
+     14.16;    14.59;    13.81;    10.94;     5.91;     5.74;    14.53;    19.56;
+      9.27;    -6.75;   -14.69;   -14.25;   -11.48;    -3.96;     6.54;    10.59;
+      2.26;   -12.97;   -24.01;   -25.73;   -18.75;    -6.99;    -2.22;     0.17;
+      3.63;    -1.70;    -4.73;     6.13;    20.26;    22.36;    19.58;     9.14;
+     -0.09;    -0.23;    -1.00;     4.82;    15.39;    19.75;     7.45;    -0.99;
+      0.77;    -1.64;    -9.34;   -14.34;   -13.86;    -6.61;     5.49;     6.30;
+      2.08;    -2.88;    -2.25;     2.99;     3.30;    -1.57;    -6.86;    -8.44;
+    -11.03;   -16.68;   -17.43;   -12.39;   -12.20;   -15.43;   -16.28;   -17.99;
+    -20.21;   -21.58;   -23.05;   -23.79;   -23.64;   -21.60;   -15.32;    -5.72;
+     11.14;    28.30;    33.22;    30.27;    25.49;    18.45;     7.62;    -1.66;
+     -7.86;   -10.04;    -5.71;    -5.16;   -12.56;   -19.39;   -22.16;   -18.18;
+    -12.00;    -3.60;     3.99;     3.89;     0.85;     4.01;     6.05;     0.68;
+     -0.14;     1.50;     3.17;     4.96;    -0.03;    -7.20;    -4.85;    -0.60;
+     -3.05;    -6.01;    -6.08;    -6.40;    -6.70;    -5.70;    -6.14;    -8.41;
+    -10.05;   -12.35;   -15.72;     0.00  ], [cm/sec/sec] );
+
+   PrintMatrix( Elcentro );
+
+/* [l] : Initialize system displacement, velocity, and load vectors */
+
+   displ  = ColumnUnits( Matrix([5,1]), [m]    );
+   vel    = ColumnUnits( Matrix([5,1]), [m/sec]);
+   eload  = ColumnUnits( Matrix([5,1]), [kN]);
+   r      = One([5,1]);
+
+/* [m] : Initialize modal displacement, velocity, and acc'n vectors */
+
+   Mdispl  = ColumnUnits( Matrix([ no_eigen,1 ]), [m]    );
+   Mvel    = ColumnUnits( Matrix([ no_eigen,1 ]), [m/sec]);
+   Maccel  = ColumnUnits( Matrix([ no_eigen,1 ]), [m/sec/sec]);
+
+/* 
+ * [n] : Allocate Matrix to store five response parameters --
+ *       Col 1 = time (sec);
+ *       Col 2 = 1st mode displacement (cm);
+ *       Col 3 = 2nd mode displacement (cm);
+ *       Col 4 = 1st + 2nd mode displacement (cm);
+ *       Col 5 = Total energy (Joules)
+ */ 
+
+   dt     = 0.02 sec;
+   nsteps = 600;
+   beta   = 0.25;
+   gamma  = 0.5;
+
+   response = ColumnUnits( Matrix([nsteps+1,5]), [sec], [1]);
+   response = ColumnUnits( response,  [cm], [2]);
+   response = ColumnUnits( response,  [cm], [3]);
+   response = ColumnUnits( response,  [cm], [4]);
+   response = ColumnUnits( response, [Jou], [5]);
+
+/* [o] : Compute (and compute LU decomposition) effective mass */
+
+   MASS  = Mstar + Kstar*beta*dt*dt;
+   lu    = Decompose(Copy(MASS));
+
+/* [p] : Mode-Displacement Solution for Response of Undamped MDOF System  */
+
+   MassTemp = -mass*r;
+   for(i = 1; i <= nsteps; i = i + 1) {
+       print "*** Start Step ",i,"\n";
+
+       if(i == 2) {
+          SetUnitsOff;
+       }
+
+    /* [p.1] : Update external load */
+
+       if(i <= 500) then {
+          eload = MassTemp*Elcentro[i][1];
+       } else {
+          eload = MassTemp*(0);
+       }
+
+       Pstar = EigenTrans*eload;
+
+       R = Pstar - Kstar*(Mdispl + Mvel*dt + Maccel*(dt*dt/2.0)*(1-2*beta));
+
+    /* [p.2] : Compute new acceleration, velocity and displacement  */
+
+       Maccel_new = Substitution(lu,R); 
+       Mvel_new   = Mvel   + dt*(Maccel*(1.0-gamma) + gamma*Maccel_new);
+       Mdispl_new = Mdispl + dt*Mvel + ((1 - 2*beta)*Maccel + 2*beta*Maccel_new)*dt*dt/2;
+
+    /* [p.3] : Update and print new response */
+
+       Maccel = Maccel_new;
+       Mvel   = Mvel_new;
+       Mdispl = Mdispl_new;
+
+    /* [p.4] : Combine Modes */
+
+       displ = eigenvector*Mdispl;
+       vel   = eigenvector*Mvel;
+
+    /* [p.5] : Compute Total System Energy */
+
+       a1 = Trans(vel);
+       a2 = Trans(displ);
+       e1 = a1*mass*vel;
+       e2 = a2*stiff*displ;
+       energy = 0.5*(e1 + e2);
+
+    /* [p.6] : Save components of time-history response */
+
+       response[i+1][1] = i*dt;                            /* Time                  */
+       response[i+1][2] = eigenvector[1][1]*Mdispl[1][1];  /* 1st mode displacement */
+       response[i+1][3] = eigenvector[1][2]*Mdispl[2][1];  /* 2nd mode displacement */
+       response[i+1][4] = displ[1][1];               /* 1st + 2nd mode displacement */
+       response[i+1][5] = energy[1][1];                    /* System Energy         */
+   }
+
+/* [q] : Print response matrix and quit */
+
+   SetUnitsOn;
+   PrintMatrix(response);
+   quit;

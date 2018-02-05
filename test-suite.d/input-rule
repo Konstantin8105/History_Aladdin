@@ -1,0 +1,254 @@
+/* 
+ *  ==================================================================
+ *  Test input file for bridge design rule checking wsing 2D-beam
+ *  element and static analysis      
+ * 
+ *  Written by:  Wane-Jang Lin                               June 1995
+ *  ==================================================================
+ */ 
+
+print "*** DEFINE PROBLEM SPECIFIC PARAMETERS \n\n";
+
+NDimension         = 2;
+NDofPerNode        = 3;
+MaxNodesPerElement = 2;
+
+StartMesh();
+div_no = 10;
+
+   print "*** GENERATE GRID OF NODES FOR FE MODEL \n\n";
+      
+   length = 56.70 ft;
+   cov_dis = 10.35 ft;
+
+   dL = length/div_no;
+   x = 0 ft;  y = 0 ft;
+   for( i=1; x<=length ; i=i+1 ) {
+       AddNode(i, [x, y]);
+       x = x+dL;
+   }
+
+   print "*** ATTACH ELEMENTS TO GRID OF NODES \n\n";
+
+   elmt = 1;
+   x = 0 ft;
+   for( i=1; i<=div_no ; i=i+1 ) {
+      if( x<cov_dis || (x+dL)>(length-cov_dis) ) then {
+          AddElmt( elmt, [i, i+1], "girder1");
+      } else {
+          AddElmt( elmt, [i, i+1], "girder2");
+      }
+      elmt = elmt+1;
+      x = x+dL;
+   }
+
+   print "*** DEFINE ELEMENT, SECTION AND MATERIAL PROPERTIES \n\n";
+
+   I1 = 17268.4 in^4;  y1 = 29.40 in;  area1 = 38.3 in^2;
+   I2 = 25700.1 in^4;  y2 = 27.31 in;  area1 = 48.8 in^2;
+
+   ElementAttr("girder1")  { type     = "FRAME_2D";
+                             section  = "no_cover";
+                             material = "STEEL3";
+                           }
+   ElementAttr("girder2")  { type     = "FRAME_2D";
+                             section  = "cover";
+                             material = "STEEL3";
+                           }
+
+   SectionAttr("no_cover") { Izz     =   I1;
+                             area    =   area1;
+                             depth   =   33.09 in;
+                             width   =   11.51 in;
+                           }
+   SectionAttr("cover")    { Izz     =   I2;
+                             area    =   area2;
+                             depth   =   33.09 in;
+                             width   =   11.51 in;
+                           }
+
+/* 
+ *  ======================================
+ *  Setup Boundary Conditions [dx, dy, rz]
+ *  ======================================
+ */ 
+
+   FixNode(1, [1, 1, 0]);
+   FixNode(div_no+1, [0, 1, 0]);
+
+/* 
+ *  =====================================
+ *  Compile and Print Finite Element Mesh 
+ *  =====================================
+ */ 
+
+   EndMesh();
+   PrintMesh();
+   SetUnitsType("US");
+   stiff = Stiff();
+   lu = Decompose(stiff);
+
+/* 
+ *  =====================================
+ *  Add Dead Nodal Loads [Fx, Fy, Mz]
+ *  =====================================
+ */ 
+
+   weight = 0.199 kips/ft + 0.868 kips/ft;
+   load = weight*dL;
+      
+   for( i=2; i<=div_no; i=i+1 ) {
+        NodeLoad( i, [0 kips, -load, 0 kips*ft]);
+   }
+   NodeLoad(        1, [0 kips, -load/2, 0 kips*ft]);
+   NodeLoad( div_no+1, [0 kips, -load/2, 0 kips*ft]);
+
+   eload  = ExternalLoad();
+   displ  = Substitution(lu, eload);
+   max_displ_dead = GetDispl([div_no/2+1],displ);
+   max_mom_dead   = GetStress([div_no/2],displ);
+   max_sh_dead    = GetStress([1],displ);
+   cover_mom_dead = GetStress([2],displ);
+   PrintMatrix(max_displ_dead,max_mom_dead,max_sh_dead,cover_mom_dead);
+
+/* Get Moment Diagram */
+
+   moment_dead = Zero([ div_no+1 , 1 ]);
+   for( i=1 ; i<=div_no ; i=i+1 ) {
+        temp = GetStress([i],displ);
+        if( i == 1 ) {  moment_dead[1][1] = temp[1][3];  }
+        moment_dead[i+1][1] = temp[2][3];
+   }
+   PrintMatrix(moment_dead);
+
+/* Zero-out dead loadings */
+
+   for( i=2; i<=div_no; i=i+1 ) {
+        NodeLoad( i, [0 kips, load, 0 kips*ft]);
+   }
+   NodeLoad(        1, [0 kips, load/2, 0 kips*ft]);
+   NodeLoad( div_no+1, [0 kips, load/2, 0 kips*ft]);
+
+/* 
+ *  =====================================
+ *  Add Live Truck Load [Fx, Fy, Mz] 
+ *  =====================================
+ */ 
+
+   step   = div_no+1;
+   influ_mid_mom = Zero([ step , 1 ]);
+   influ_end_sh  = Zero([ step , 1 ]);
+   envelop_mom_live  = Zero([ step , 1 ]);
+   HS20   = 72 kips;
+   mom_elmt = div_no/2;
+   sh_elmt  = 1;
+
+   for( i=1 ; i<=step ; i=i+1 ) {
+       NodeLoad( i, [0 kips, -HS20, 0 kips*ft] );
+       eload = ExternalLoad();
+       displ  = Substitution( lu, eload );
+       mid_mom = GetStress( [mom_elmt], displ );
+       end_sh  = GetStress( [sh_elmt], displ );
+       if( i == 1 ) then {
+           mom_rang  = GetStress( [i], displ );
+       } else {
+           mom_rang  = GetStress( [i-1], displ );
+       }
+
+       /* Get moment influence line at the middle of span */
+
+       influ_mid_mom[i][1] = mid_mom[2][3];
+
+       /* Get Shear Influence line at the end support */
+
+       influ_end_sh[i][1]  = end_sh[1][2];
+
+       /* Create envelope of moment influence line at the middle of span */
+
+       if( i == 1 ) then { 
+           envelop_mom_live[1][1]  = mom_rang[1][3];
+       } else {
+          envelop_mom_live[i][1]  = mom_rang[2][3];
+       }
+
+       if( i == mom_elmt+1 ) {
+           max_displ_live = GetDispl([mom_elmt+1],displ);
+           max_mom_live = GetStress([mom_elmt],displ);
+       }
+       if( i == sh_elmt ) {
+           max_sh_live = GetStress([sh_elmt],displ);
+           max_sh_live[1][2]  = max_sh_live[1][2] + HS20;
+           influ_end_sh[1][1] = HS20;
+       }
+       if( i == 3 ) {
+           cover_mom_live = GetStress([2],displ);
+       }
+
+       NodeLoad( i, [0 kips, HS20, 0 kips*ft] );
+   }
+
+   PrintMatrix(max_displ_live,max_mom_live,max_sh_live,cover_mom_live);
+   PrintMatrix(influ_mid_mom, influ_end_sh, envelop_mom_live);
+
+/* 
+ *  ============================
+ *  Results for DL + (LL+Impact)
+ *  ============================
+ */ 
+
+   impact = 1 + 50/(56.7+125);
+   print "\nimpact factor = ",impact,"\n";
+   max_displ  = max_displ_dead + impact*max_displ_live;
+   max_mom    = max_mom_dead + impact*max_mom_live;
+   max_sh     = max_sh_dead + impact*max_sh_live;
+   cover_mom  = cover_mom_dead + impact*cover_mom_live;
+
+   PrintMatrix(max_displ,max_mom,max_sh,cover_mom);
+
+/* 
+ *  =========================================================
+ *  WSD Code Checking for Deflections and Stress Requirements  
+ *  =========================================================
+ */ 
+
+   print "\n\nSTART ASD CODE CHECKING::\n";
+
+/* Deflection Checking */
+
+   if( -impact*max_displ_live[1][2] > (1/800)*length ) then {
+       print "\n\tWarning: (LL+I) deflection exceeds 1/800 span\n";
+   } else {
+       print "\n\tOK : (LL+I) deflection less than 1/800 span\n";
+   }
+
+/* Moment Stress Checking */
+
+   my_material = GetMaterial([1]);
+   my_section  = GetSection([1]);
+
+   /* max stress without cover plate */
+   stress1 = cover_mom[2][3]*y1/I1;
+
+   /* max stress with cover plate (in the middle of span) */
+   stress2 = max_mom[2][3]*y2/I2;
+
+   if( stress1 > 0.55*my_material[3][1] ) then{
+       print "\n\tWarning : moment stress without cover plate larger than 0.55*Fy\n";
+   } else {
+       if( stress2 > 0.55*my_material[3][1] ) then{
+           print "\n\tWarning : moment stress with cover plate larger than 0.55*Fy\n";
+       } else {
+           print "\n\tOK : moment stress less than 0.55*Fy\n";
+       }
+   }
+
+/* Shear Stress Checking */
+
+   shear = max_sh[1][2]/my_section[11][1];
+   if( shear > 0.33*my_material[3][1] ) then{
+       print "\n\tWarning : shear stress larger than 0.33*Fy\n";
+   } else {
+       print "\n\tOK : shear stress less than 0.33*Fy\n";
+   }
+
+   quit;

@@ -1,0 +1,194 @@
+/*
+ *  =================================================================
+ *  Finite element model of I-beam using 4 node shell finite element.
+ *                                                      
+ *  Written By : Lanheng Jin                            May, 27, 1994  
+ *  =================================================================
+ */
+
+print "*** DEFINE PROBLEM SPECIFIC PARAMETERS \n\n";
+
+NDimension         = 3;
+NDofPerNode        = 6;
+MaxNodesPerElement = 4;
+
+/* 
+ *  ===============
+ *  Define the Mesh 
+ *  ===============
+ */ 
+
+StartMesh();
+
+print "*** GENERATE GRID OF GEOMETRY FOR FE MODEL \n\n";
+
+L   =   40 in;   /*  Length    */
+bb  =   10 in;   /*  Width     */
+h   =    5 in;   /*  Height    */
+t   = 0.25 in;   /*  Thickness */
+
+print "*** GENERATE GRID OF NODES FOR FE MODEL \n\n";
+
+dL = L/4.0;
+nn = 5;
+
+for(j=1; j<=nn; j=j+1) {
+
+     for(i=1; i<=3; i=i+1) {
+          nodeno = i + 6*(j-1);
+          x = dL*(j-1);
+          y = (i-2)*bb*0.5;
+          z = 0.5*h;
+          AddNode(nodeno,[x,y,z]);  
+      }
+
+     for(i=4; i<=6; i=i+1) {
+          nodeno = i + 6*(j-1);
+          x = dL*(j-1);
+          y = (i-5)*bb*0.5;
+          z = -0.5*h;
+          AddNode(nodeno,[x,y,z]);  
+      }
+
+}
+
+print "*** ATTACH ELEMENTS TO GRID OF NODES \n\n";
+
+for(i=1; i<nn; i=i+1) {
+
+     for(j=1; j<=2; j=j+1) {
+          elmtno = j + 5*(i-1);
+          a = j + 6*(i-1);
+          b = j + 6*i;
+          c = b + 1;
+          d = a + 1;
+          node_connec = [a, b, c, d];
+          AddElmt(elmtno, node_connec, "name_of_elmt_attr");
+      }
+
+     elmtno = 3 + 5*(i-1);
+     a = 5 + 6*(i-1);
+     b = 5 + 6*i;
+     c = 2 + 6*i;
+     d = 2 + 6*(i-1);
+     node_connec = [a, b, c, d];
+     AddElmt(elmtno, node_connec, "name_of_elmt_attr");
+
+     for(j=4; j<=5; j=j+1) {
+          elmtno = j + 5*(i-1);
+          a = j + 6*(i-1);
+          b = j + 6*i;
+          c = b + 1;
+          d = a + 1;
+          node_connec = [a, b, c, d];
+          AddElmt(elmtno, node_connec, "name_of_elmt_attr");
+      }
+
+}
+
+/*  
+ *  ===============================================
+ *  Define Element, Section and Material Properties
+ *  ===============================================
+ */  
+
+print "*** DEFINE ELEMENT, SECTION AND MATERIAL PROPERTIES \n\n";
+
+ElementAttr("name_of_elmt_attr") { type     = "SHELL_4NQ";
+                                   section  = "mysection";
+                                   material = "ELASTIC";
+                                 }
+
+MaterialAttr("ELASTIC") { poisson = 0.3;   
+		          E       = 1E+7 psi;
+                        }
+
+SectionAttr("mysection") { thickness =   0.25 in; }
+
+/*  
+ *  =========================
+ *  Setup Boundary Conditions 
+ *  =========================
+ */  
+
+print "*** SET UP BOUNDARY CONDITIONS \n\n";
+
+/* [a] free point */
+
+u_id  = 0; v_id  = 0; w_id  = 0;
+rx_id = 0; ry_id = 0; rz_id = 0;
+bc_fp = [u_id,v_id,w_id,rx_id,ry_id,rz_id];
+
+/* [b] : apply full fixity to corner nodes */
+
+u_id  = 1; v_id  = 1; w_id  = 1;
+rx_id = 1; ry_id = 1; rz_id = 1;
+bc_fc = [u_id,v_id,w_id,rx_id,ry_id,rz_id];
+
+/* [a] BC for free point  */
+
+ii = 6*nn;
+for (i=7; i<=ii; i=i+1) {
+     FixNode(i, bc_fp);
+}
+
+/* [b] BC for fixed corner  */
+
+for (i=1; i<=6; i=i+1) {
+     FixNode(i, bc_fc);
+}
+
+/*  
+ *  ==================
+ *  Add external loads
+ *  ==================
+ */  
+
+print "*** APPLY EXTERNAL LOADS \n\n";
+
+/* [0] load for end nodes  */
+
+Fx = 0 lbf;    Fy = (-1.0 psi)*L*L;    Fz = 0 lbf;
+Mx = 0 lbf*in; My = 0 lbf*in; Mz = 0 lbf*in;
+i1 = 6*nn-3;
+NodeLoad(i1,[Fx, Fy, Fz, Mx, My, Mz]);
+
+Fx = 0 lbf;    Fy = (1.0 psi)*L*L;    Fz = 0 lbf;
+Mx = 0 lbf*in; My = 0 lbf*in; Mz = 0 lbf*in;
+i1 = 6*nn-2;
+NodeLoad(i1,[Fx, Fy, Fz, Mx, My, Mz]);
+
+/*  
+ *  =====================================
+ *  Compile and Print Finite Element Mesh
+ *  =====================================
+ */  
+
+EndMesh();
+PrintMesh();
+
+/*  
+ *  ==========================
+ *  Compute Stiffness Matrices
+ *  ==========================
+ */  
+
+print "\n*** COMPUTE STIFFNESS MATRICES \n\n";
+
+/* SetUnitsType("US"); */
+stiff = Stiff();
+eload = ExternalLoad();
+lu    = Decompose(Copy(stiff));
+displ = Substitution(lu, eload);
+
+/*  
+ *  ================================
+ *  Print displacements and stresses
+ *  ================================
+ */  
+
+PrintDispl(displ);
+PrintStress(displ);
+
+quit;
+

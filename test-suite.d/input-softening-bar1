@@ -1,0 +1,230 @@
+/* 
+ *  =======================================================================
+ *  Compute force-displacement relationship for a material softening bar.
+ *
+ *    -- One element remains elastic.
+ *    -- A second element has material softening behavior with Et = -0.1*E.
+ *
+ *  We use the matrix language to implement the algorithm, and then later
+ *  on, compare to the 2D fiber finite element implementation.
+ *
+ *  Written By : Wane-Jang Lin                                    July 1997
+ *  =======================================================================
+ */ 
+
+/* Plastic spring material, Bi-linear */
+
+   L1  = 2 m;
+   h1  = 30 cm;         b1 = 10 cm;     A1 = b1*h1;
+   E1  = 30000 N/m^2;  Et1 = -0.1*E1;  fy1 = 1000 N/m^2;
+
+   Ks1 = E1*A1/L1;
+   Kt1 = Et1*A1/L1;
+   Fy1 = fy1*A1;
+   es1 = Fy1/Ks1;
+
+/* Elastic spring material */
+
+   L2  = 1.5 m;
+   h2  = 20 cm;         b2 = 10 cm;  A2 = h2*b2;
+   E2  = 20000 N/m^2;  Et2 = E2;    fy2 = 2500 N/m^2;
+   Ks2 = E2*b2*h2/L2;
+
+/* Temporary matrix to store element tangent Ks at each step */
+
+   tangent = [Ks1 ; Ks2];
+
+/* Initial condition, unstressed , matrix(2x1)=[element1, element2] */
+
+   p   = [0 cm; 0 cm];   /* structure displacement    */
+   PRe = [0 N; 0 N];     /* element resisting force   */
+   PR  = [0 N; 0 N];     /* structure resisting force */
+
+   Q_saved  = [0  N;  0 N];
+   q_saved  = [0 cm; 0 cm];
+
+/* Transformation matrix Lele, d_q = Lele*d_p[ele] for each element    */
+/* Transform structural displacements d_p to element deformations d_q  */
+
+   L = [-1 , 1];
+
+/* Force interpolation matrices b(x), D(x) = b(x)*Q */
+/* relate section force D(x) with element force Q   */
+
+   bx = 1;
+
+/* Assemble initial structure tangent stiffness matrix BigK */
+
+   BigK = [ Ks1+Ks2, -Ks2;  -Ks2, Ks2 ];
+   PrintMatrix ( BigK );
+
+/* Initial displacement increment */
+
+   d_P = [ 0 N ; 1 N];
+   d_p = Solve( BigK, d_P );
+   PrintMatrix ( d_p );
+
+/* Allocate response matrix[total_step+1][4] */
+
+   print "\n";
+   print "* response [][1] = resistant force            *\n";
+   print "* response [][2] = total elongation           *\n";
+   print "* response [][3] = element elongation 1       *\n";
+   print "* response [][4] = element elongation 2       *\n";
+
+   total_step = 45;
+   response = ColumnUnits(Zero([total_step+1,4]),[N,cm,cm,cm]);
+   response[1][1] = 0 N;
+   response[1][2] = 0 cm;
+   response[1][3] = 0 cm;
+   response[1][4] = 0 cm;
+
+/* Increase displacement, structure determination */
+
+   index = 0;
+   for ( k = 1; k <= total_step ; k = k+1 ) {
+
+      p = p + d_p;
+
+      /* State determination for each element */ 
+
+      for( ele = 1 ; ele <= 2; ele = ele+1 ) {
+
+         /* extract element displacements from global displacements */
+
+         if( ele==1 ) {
+             d_pe = [ 0 m; d_p[1][1] ];
+         }
+         if( ele==2 ) {
+             d_pe = [ d_p[1][1]; d_p[2][1] ];
+         }
+
+         Q  = Q_saved[ele][1];   /* retrieve values from (j-1) */
+         q  = q_saved[ele][1];
+         Dx = bx*Q;
+         dx = bx*q;
+         K  = tangent[ele][1];
+         kx = tangent[ele][1];
+         fx = 1/kx;
+
+         rx  = 0 cm;
+         DUx = 1E+7 N;
+
+         d_q = QuanCast(L*d_pe);  /* element deformation increment */
+         q = q + d_q;
+
+         /* convergence of forces for element "ele" */
+
+         while( abs(DUx) > 0.00001 N )  {
+
+            d_Q = K*d_q;     /* element force increment */
+            Q   = Q + d_Q;   /* update element force    */
+
+            /* determine the section force increments           */
+            /* repeat for all integration points of the element */
+
+            d_Dx = bx*d_Q;        /* section force increment           */
+            d_dx = rx + fx*d_Dx;  /* section deformation increment     */
+            Dx = Dx + d_Dx;       /* update section force              */
+            dx = dx + d_dx;       /* update section deformation vector */
+
+            /* get new section tangent flexibility f(x) from new d(x)     */
+            /* and section resisting force DR(x) from material properties */
+
+            if( ele == 1 ) {
+               if( abs(dx) <= es1 ) {
+                  kx  = Ks1;
+                  fx  = 1/kx;
+                  DRx = kx*dx;
+               }
+               if( dx > es1 ) {
+                  kx  = Kt1;
+                  fx  = 1/kx;
+                  DRx = Fy1 + kx*(dx-es1);
+               }
+               if( dx < -es1 ) {
+                  kx  = Kt1;
+                  fx  = 1/kx;
+                  DRx = -Fy - kx*(dx+es1);
+               }
+	    }
+
+            if( ele == 2 ) {
+               kx  = Ks2;
+               DRx = kx*dx;
+            }
+
+            DUx = Dx - DRx;  /* section unbalanced force     */
+            rx  = fx*DUx;    /* section residual deformation */
+
+            /* finish for all integration points of the element */
+
+            /* update the element flexibility and stiffness matrices */
+
+            F = bx*fx*bx;
+            K = 1/F;
+
+            /* check for element convergence */
+
+            s   = bx*rx;   /* element residual deformation */
+            d_q = -s;
+
+         }  /* j */
+
+         Q_saved[ele][1] = Q;
+         q_saved[ele][1] = q;
+
+         tangent[ele][1] = K;
+         PRe[ele][1] = Q;    /* element resisting force */
+      }  
+
+      /* Assemble structure resistant force */
+
+      PR[1][1] = PRe[1][1] - PRe[2][1];
+      PR[2][1] = PRe[2][1];
+
+      /* Store output in response matrix */
+
+      response[k+1][1] = PR[2][1];
+      response[k+1][2] = p[2][1];
+      response[k+1][3] = p[1][1];
+      response[k+1][4] = p[2][1] - p[1][1];
+
+      /* Calculate new delta displacement after yielding */
+
+      if( index==1 ) { 
+         d_P[1][1] =  0 N;
+         d_P[2][1] = -1 N;
+         d_p = Solve( BigK, d_P );
+         index = 0;
+      }
+
+      /* Adjust delta displacement at yielding step */
+
+      if( abs(PR[1][1]) > 0.01 N ) {
+
+         /* assemble new structure stiffness */
+         BigK[1][1] = tangent[1][1] + tangent[2][1];
+         BigK[1][2] = -tangent[2][1];
+         BigK[2][1] = -tangent[2][1];
+         BigK[2][2] = tangent[2][1];
+
+         PrintMatrix ( BigK );
+
+         index = 1;
+         k = k-1;
+         d_p[1][1] = 0 cm;
+         d_p[2][1] = PR[1][1]/tangent[2][1];
+      }
+   } 
+
+   PrintMatrix(response);
+
+/* End of Input */
+
+   print "\n";
+   print "===========================\n";
+   print "Nonlinear Analysis Complete\n";
+   print "===========================\n";
+
+   quit;

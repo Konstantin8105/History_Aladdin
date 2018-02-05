@@ -1,0 +1,86 @@
+/* 
+ *  =====================================================================
+ *  Analysis of Simple Cantilever and Point End Load
+ * 
+ *  Written By: Mark Austin                                 October, 1994
+ *  =====================================================================
+ */ 
+
+/* [a] : Setup problem specific parameters */
+
+   NDimension         = 2;
+   NDofPerNode        = 3;
+   MaxNodesPerElement = 2;
+
+   StartMesh();
+
+/* [b] : Generate line of nodes */
+
+   node = 0;
+   y = 0 ft;
+   for( x = 0 ft; x <= 10 ft; x = x + 5 ft ) {
+        node = node + 1;
+        AddNode(node, [ x, y ] );
+   }
+
+/* [c] : Attach beam elements to nodes */
+
+   elmtno = 1;
+   AddElmt( elmtno, [ 1, 2 ], "mycolumn");
+   elmtno = 2;
+   AddElmt( elmtno, [ 2, 3 ], "mycolumn");
+
+/* [d] : Define section and material properties */
+
+   ElementAttr("mycolumn") { type     = "FRAME_2D";
+                             section  = "mysection1";
+                             material = "mymaterial";
+                           }
+
+   SectionAttr("mysection1") { Izz       = 0.4 m^4;
+                               Iyy       = 0.4 m^4;
+                               depth     = 1.0 m;
+                               width     = 0.3 m;
+                               area      = 0.3 m^2;
+                             }
+
+   MaterialAttr("mymaterial") { density = 0.1024E-5 lb/in^3;
+                                poisson = 0.25;
+                                yield   = 275 MPa;
+                                E       = 200 MPa;
+                              }
+
+/* [e] : Apply full-fixity to columns at foundation level */
+
+   nodeno = 1;
+   FixNode( nodeno, [ 1, 1, 1 ]);
+
+/* [f] : Apply external forces */
+
+   Fx = 0.0 N; Fy = 0.0 N; Mz = -100.0 N*m;
+
+   nodeno = 3;
+   NodeLoad( nodeno, [ Fx, Fy, Mz ]); 
+
+/* [g] : Compile and Print Finite Element Mesh */
+
+   EndMesh();
+   PrintMesh();
+
+/* [h] : Compute "stiffness" and "external load" matrices */
+
+   eload = ExternalLoad();
+   stiff = Stiff();
+   PrintMatrix(stiff);
+
+   displ = Solve(stiff, eload);
+   PrintMatrix(displ);
+   PrintMatrixCast(displ, [cm; rad] );
+   PrintMatrixCast(displ, [cm; deg] );
+
+   quit;
+
+   SetUnitsType("US");
+   PrintDispl(displ);
+   PrintStress(displ); 
+   quit;

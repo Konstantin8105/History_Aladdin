@@ -1,0 +1,87 @@
+
+% =============================================================== 
+% Design of programming language for fem stack machine          *
+% ===============================================================
+
+\input epsf
+
+% \documentstyle[singlespace,11pt]{report}
+\documentstyle[11pt]{report}
+\renewcommand{\baselinestretch}{1.5}
+\textheight 9.0in
+\textwidth 6.40in
+\voffset -0.85in
+\hoffset -0.60in
+\def\R{{\bf R}}
+\def\j{{\rm j}}
+\def\C{{\bf C}}
+%\renewcommand{\thefigure}{\thechapter.\arabic{figure}}
+\begin{document}
+
+\title{\bf A LANGUAGE FOR INTERACTIVE ENGINEERING MATRIX AND FINITE ELEMENT ANALYSIS}
+
+\author{                               \\
+                                       \\
+                                       \\
+        \bf Mark Austin, Xiaoguang Chen \\
+        \bf Wane-Jang Lin and Lanheng Jin\\
+                                         \\
+            Institute for Systems Research\\
+            and \\
+            Department of Civil Engineering\\
+            University of Maryland \\
+            College Park, MD 20742}
+
+
+\maketitle
+
+\begin{abstract}
+
+This report describes the design, architecture, implementation
+and prototype testing of a computational toolkit for engineering matrix and finite element analysis.
+The computational toolkit design deviates from the traditional design of finite
+element analysis packages; indeed, the command language
+in this package may be viewed as an combination of C language, matrix operation language,
+and languages specially for engineering analysis such as structural dynamics and 
+finite element analysis.
+\vspace{0.15in}
+
+The software consists several major parts:
+(1) a language, designed with YACC grammar, for control flow, conditional
+branching, matrix and engineering calculations;
+(2) a matrix operation package, including linear algebraic equation solver,
+eigen value problem solver and sub-space iterations;
+(3) a finite element analysis package, with two- and three-dimensional
+truss/beam, shell, plate, plane stress \& plane strain elements;
+(4) a units package, including both SI and 
+US units and their conversions for numbers, variables, and matrices.
+The finite element package is capable of analyzing
+linear/nonlinear, static/dynamic structural problems. 
+\vspace{0.15 in}
+
+The combination of above mentioned four parts makes this took kit is quite
+powerful as demonstrated in this report. A engineer can write down his
+numerical algorithm in the sheet and type the same algorithm as the inputfile.
+There is no need for compile process even if the algorithm is changed.
+A variety of problems has been solved by using this package including:
+nonlinear optimization problem with QP method, root of nonlinear equations
+with BFGS algorithm, linear dynamic problems with Newmark method, modal
+analysis, finite element analysis of structures, made of linear and nonlinear
+materials.
+\end{abstract}
+
+\tableofcontents
+
+\part{\bf A LANGUAGE FOR ENGINEERING ANALYSIS}
+
+\input chapter_shell.tex
+
+\bigskip\bigskip 
+
+\bibliography{/homes/xgchen/SRC/bibliography/references}   % specify bibliography in eosdis.bib
+\bibliographystyle{unsrt}                      % specify plain.sty as style file
+
+\addcontentsline{toc}{chapter}{\protect\numberline{}{\bf REFERENCE}}
+
+\end{document}
+

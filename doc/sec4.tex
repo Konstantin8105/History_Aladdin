@@ -1,0 +1,332 @@
+\thesischapter{4}{Numerical Examples}
+
+Performance of the flat shell finite elements is evaluated by working
+through three numerical examples. They are:
+
+(a) square plate simply supported on four edges,
+
+(b) cantilever I-shape cross section beam, and
+
+(c) folded plate simply supported on two opposite sides.
+
+\section{Square Plate Simply Supported on Four Edges}
+
+Consider the square plate simply supported on four edges, as shown in Fig
+4.1. Two load cases are considered; (a) a uniform loading over the
+entire plate, and (b) a concentrated point load at the center of the
+plate. For each load case, computed displacements are compared to
+analytical displacements.
+
+\subsection{Uniform Loading over the Entire Plate}
+
+Consider a square plate simply supported on all four edges subjected to a
+uniforming loading, shown in Fig. 4.1. 
+\begin{figure}[htb]
+\vspace{3.7in}
+\special{psfile="figs.d/fig401.ps" hscale=80 vscale=80 hoffset=-10 voffset=-320}
+\label {fig401}
+\caption{{\em Meshes of square plate simply supported on 4 edges.}}
+\vskip 0.2truein
+\end{figure}
+The exact transverse displacement 
+at the center, $w_{c}^{*}$, from the plate theory ~\cite{peter,
+timoshenko} can be expressed as
+\bea
+w_{c}^{*} = 0.00406 \frac{q_{0}a^{4}}{D}          \label {eq401}
+\eea
+where $q_{0}$ is the uniforming loading, $a$ is the length of edge of the
+square plate and
+\bea
+D = \frac{Eh^{3}}{12(1-\mu^{2})}               \label {eq402}
+\eea
+Substituting the values of $E$, $\mu$, $h$, $q_{0}$ and $a$  of this
+example into equations (\ref{eq401}) and (\ref{eq402}) gives \  
+\[D = 1.1446886 \times 10^{5}\]
+and 
+\[w_{c}^{*} = 1.064045 \times 10^{-1} (in).\]
+
+Because the plate geometry is symmetric about $x$-axis and $y$-axis, only
+one quarter of the plate is taken for numerical computation.
+Regular meshes on the plate quarter with $N=2$ and $4$ (See Fig. 4.1)
+are considered. Numerical results are evaluated by comparing the 
+transverse displacements of the plate center, $w_{c}$, to the exact
+theoretical solution. A summary of results is provided in Table \ref{tab1}. 
+
+\begin{table}[htb]
+\vskip 0.4truein
+\begintable
+\multispan{3}\cr
+                  Meshes N               |    $2$    |     $4$       \cr
+Displacements $w_{c}$ ($\times 10^{-1}$) | $1.06027$ |  $1.06405$    \cr
+                   Errors                | $0.355\%$ | $0.000489\%$ 
+\endtable
+\vskip 0.1truein
+\caption{{\em The transverse displacements at the center of the
+square plate simply supported on 4 edges under uniform load over the
+entire plate with different meshes and the comparations with the exact
+theoretical solution.}}
+\label{tab1}
+\vskip 0.1truein
+\end{table}
+
+\subsection{Concentrated Loading at the Center}
+
+Similarly, consider the square plate subjected to a concentrated 
+loading, $P=30000 bl$ at the center. The theoretical exact transverse 
+displacement at the center, $w_{c}^{*}$, from the plate theory 
+~\cite{peter, timoshenko}, can be expressed as
+\bea
+w_{c}^{*} = 0.0115999 \frac{Pa^{2}}{D}          \label {eq404}
+\eea
+where $P$ is the concentrated loading at the center, $a$ is the length 
+of edge of the square plate, and $D$ is as described in equation 
+(\ref{eq402}). Substituting the values of $D$, $P$, and $a$ into equation
+(\ref{eq404}) gives
+\bea
+w_{c}^{*} = 3.0401019 \times 10^{-1} (in)
+\eea
+Once again, numerical displacements are computed for only a quarter of
+the plate. With regular meshes $N=2$, $4$ and $8$ (See Fig. 4.1), the 
+transverse displacements at the center $w_{c}$ computed by the elements 
+described in this thesis are compared with the exact theoretical solution 
+in Table \ref{tab2}.
+
+\begin{table}[htb]
+\vskip 0.4truein
+\begintable
+\multispan{4}\cr
+               Meshes N                 |   $2$   |   $4$   |   $8$    \cr
+Displacements $w_{c}$ ($\times 10^{-1}$)|$3.32666$|$3.12850$|$3.06664$ \cr
+                Errors                  |$9.426\%$|$2.908\%$|$0.873\%$
+\endtable
+\vskip 0.1truein
+\caption{\em {The transverse displacements at the center of the
+square plate simply supported on 4 edges under concentrated point load
+at the center with different meshes and the comparations with the exact
+theoretical solution.}}
+\label{tab2}
+\vskip 0.1truein
+\end{table}
+
+\section{Cantilever I-shape Cross Section Beam}
+
+In the second example, displacements are computed for a cantilever beam
+having an I-shape cross section. Three load cases are considered. The 
+first is displacements due to a concentrated load at the center of the 
+free end, as shown in Fig. 4.2. Second, displacements are computed for a
+uniform load on the center line of the top face, as shown in Fig. 4.3.
+The third is under two level concentrated loads at the flanges of the
+free end in opposite directions along y, as shown in Fig. 4.4.
+
+\subsection{Concentrated Load at the Center of the Free End}
+
+Displacements are computed for a cantilever beam with I-shape cross 
+section loaded with point load $P$ at the center of the free end shown 
+in Fig. 4.2. 
+\begin{figure}[htb]
+\vspace{3.5in}
+\special{psfile="figs.d/fig403.ps" hscale=85 vscale=85 hoffset=-10
+voffset=-320}
+\label {fig403}
+\caption{{\em Cantilever I-beam under a concentrated load at the end}}
+\vskip 0.2truein
+\end{figure}
+The solution of the transverse displacement at the free end, 
+$w^{*}$, from the beam bending theory with shear effect is expressed as 
+\bea
+w^{*}=\frac{PL^{3}}{3EI}+\frac{PL}{A_{w}G}           \label{eq450}
+\eea
+where the second term represents shear effect. $P$ is the load, and $L$ 
+is the length of the beam. $I=33.8802$ is modulus of the area and 
+$A_{w}=1.1875$ is area of the web. Suppose that the shear modulus is as 
+$E/G=2.5$. Substitute values of $I$, $A_{w}$, $E$, $G$, $P$ and $L$ 
+into equation (\ref{eq450}), so that
+\[ w^{*}=2.85552 \times 10^{-2} (in)\]
+The transverse displacements $w$ at point 1 (see Fig. 4.2) are computed 
+by using the elements described in this thesis. Results are tabulated 
+in Table \ref{tab3}. Speed of convergence for numerical results is define. The 
+convergent rate $\lambda$ 
+\[
+\lambda_{N_{i}} = \frac{w_{N_{i}}-w_{N_{i-1}}}{w_{N_{i}}},
+\]
+with $N_{1}=1$, $N_{2}=2$, $N_{3}=4$, $N_{4}=8$ and $N_{5}=16$ describes
+the rate of convergence for numerical results. These results are tabulated 
+in the same table. We can observe that the displacement computed with $N=8$ 
+is already very closed to the result from the beam bending theory.
+
+\begin{table}[htb]
+\vskip 0.4truein
+\begintable
+\multispan{5}\cr
+               Meshes N            |    $2$   |    $4$   |    $8$   |   $16$    \cr
+Displacement $w$ ($\times 10^{-2}$)|$-2.65646$|$-2.80859$|$-2.85107$|$-2.85482$ \cr
+    Convergent rates $\lambda$     |$        $| $5.417\%$| $1.490\%$|$0.1314\%$ 
+\endtable
+\vskip 0.1truein
+\caption{\em {The transverse displacements at the free end of the
+I-shape section cantilever beam under concentrated point load at the 
+center of the free end with different meshes and their convergent rates.}}
+\label{tab3}
+\vskip 0.1truein
+\end{table}
+
+\subsection{Uniform Load along Center Line of Top Face}
+
+Also, I look at a cantilever beam with I-shape cross section under a 
+uniformly distributed line load $q_{0}$ along the center line of the 
+top face, as shown in Fig. 4.3. 
+\begin{figure}[htb]
+\vspace{3.5in}
+\special{psfile="figs.d/fig404.ps" hscale=85 vscale=85 hoffset=-10
+voffset=-320}
+\label {fig404}
+\caption{{\em Cantilever I-beam under a uniformly distributed line load 
+along the center line of the top face}}
+\vskip 0.2truein
+\end{figure}
+The solution of the transverse displacement at the free end, $w^{*}$, 
+from the beam bending theory with shear effect is expressed as 
+\bea
+w^{*}=\frac{q_{0}L^{4}}{8EI}+\frac{q_{0}L^{2}}{2A_{w}G}      \label{eq460}
+\eea
+where similarly the second term represents shear effect. $q_{0}$ is 
+the unique load, and $L$ is the length of the beam. Substituting 
+$q_{0}=20 bl/in$, $L=40"$, $I=33.8802$, $A_{w}=1.1875$ and $E/G=2.5$ into 
+equation (\ref{eq460}) produces
+\[ w^{*}=2.22585 \times 10^{-2}\]
+
+The transverse displacements $w$ at point 1 (see Fig. 4.3) computed 
+by using the elements described in this thesis; convergent rates are 
+tabulated in Table \ref{tab4}. 
+
+\begin{table}[htb]
+\vskip 0.4truein
+\begintable
+\multispan{5}\cr
+              Meshes  N            |   $2$    |    $4$   |    $8$   |   $16$    \cr
+Displacement $w$ ($\times 10^{-2}$)|$-2.19184$|$-2.22248$|$-2.23926$|$-2.24607$ \cr
+     Convergent rates $\lambda$    |$        $| $1.379\%$|$0.7494\%$|$0.3032\%$
+\endtable
+\vskip 0.1truein
+\caption{\em {The transverse displacements at the free end of the
+I-shape section cantilever beam under uniform load along center line of
+the top face with different meshes and their convergent rates.}}
+\label{tab4}
+\vskip 0.1truein
+\end{table}
+
+From the two cases of the I-beam above, we can see that the
+displacements from beam bending theory and computed by elements in this
+thesis are in very close agreement.
+
+\subsection{Two Level Concentrated Loads at the Flanges of the
+Free End in Opposite Directions Along y}
+
+Displacements are computed for a cantilever beam having I-shape cross 
+section, subject to two concentrated load $P$ at the flanges of the 
+free end in opposite directions along y, as shown in Fig. 4.4. 
+\begin{figure}[htb]
+\vspace{3.5in}
+\special{psfile="figs.d/fig405.ps" hscale=85 vscale=85 hoffset=-10
+voffset=-320}
+\label {fig405}
+\caption{{\em Cantilever I-beam under two level concentrated loads at
+the flanges of the free end in opposite directions along y}}
+\vskip 0.2truein
+\end{figure}
+The transverse displacements $w$ at point 1 (see Fig. 4.4) are 
+computed by using the elements described in this thesis and their 
+convergent rates are tabulated in Table \ref{tab5}.
+
+\begin{table}[htb]
+\vskip 0.4truein
+\begintable
+\multispan{5}\cr
+              Meshes N             |   $2$   |   $4$   |   $8$   |   $16$   \cr
+Displacement $w$ ($\times 10^{-1}$)|$2.45142$|$2.50528$|$2.51482$|$2.52135$ \cr
+     Convergent rates $\lambda$    |$       $|$2.150\%$|$0.379\%$|$0.2590\%$
+\endtable
+\vskip 0.1truein
+\caption{\em {The transverse displacements at point 1 of the
+I-shape section cantilever beam under two lever concentrated loads at
+the flanges of the free end in opposite directions along y with
+different meshes and their convergent rates.}}
+\label{tab5}
+\vskip 0.1truein
+\end{table}
+
+The horizontal displacements along $y$, $v$, at point 1 (see Fig. 4.4)
+computed by using the elements described in this thesis and their
+convergent rates are tabulated in Table \ref{tab6}.
+
+\begin{table}[htb]
+\vskip 0.4truein
+\begintable
+\multispan{5}\cr
+              Meshes N             |    $2$   |    $4$   |    $8$   |   $16$    \cr
+Displacement $w$ ($\times 10^{-1}$)|$-1.38753$|$-1.46572$|$-1.48824$|$-1.49583$ \cr
+     Convergent rates $\lambda$    |$        $|$5.335\%$ |$1.513\%$ |$0.5074\%$ 
+\endtable
+\vskip 0.1truein
+\caption{\em {The horizontal displacements at point 1 of the
+I-shape section cantilever beam under two lever concentrated loads at
+the flanges of the free end in opposite directions along y with
+different meshes and their convergent rates.}}
+\label{tab6}
+\vskip 0.1truein
+\end{table}
+
+\section{Folded Plate Simply supported on two opposite sides}
+
+As the third example, I consider a folded plate, as shown in Fig. 4.5.
+\begin{figure}[htb]
+\vspace{3.5in}
+\special{psfile="figs.d/fig402.ps" hscale=85 vscale=85 hoffset=-10 voffset=-220}
+\label {fig402}
+\caption{{\em A folded plate simply supported on two opposite sides.}}
+\vskip 0.2truein
+\end{figure}
+The meshes with $N=1$, $2$ and $4$ are used and the results, the
+transverse displacements $w$ at points $1$ and $2$, and their convergent 
+rates $\lambda$ are tabulated in Table \ref{tab7} and Table \ref{tab8}, 
+respectively.
+
+\begin{table}[htb]
+\vskip 0.4truein
+\begintable
+\multispan{4}\cr
+             Meshes N              |    $1$   |    $2$   |    $4$    \cr
+Displacement $w$ ($\times 10^{-1}$)|$-1.38009$|$-1.41003$|$-1.42237$ \cr
+     Convergent rate $\lambda$     |          | $2.144\%$|$0.8465\%$
+\endtable
+\vskip 0.1truein
+\caption{\em {The transverse displacements at point 1 of the
+folded plate simply supported on two opposite sides under uniform
+load along the center line with different meshes and their convergent
+rates.}}
+\label{tab7}
+\vskip 0.1truein
+\end{table}
+
+\begin{table}[htb]
+\vskip 0.4truein
+\begintable
+\multispan{4}\cr
+              Meshes N             |
+ $\ \ \ \ \ 1\ \ \ \ \ $|   $2$    |    $4$    \cr
+Displacement $w$ ($\times 10^{-1}$)|
+                        |$-1.35207$|$-1.36062$ \cr
+     Convergent rate $\lambda$     |
+                        |          |$0.6284\%$
+\endtable
+\vskip 0.1truein
+\caption{\em {The transverse displacements at point 2 of the
+folded plate simply supported on two opposite sides under uniform
+load along the center line with different meshes and their convergent
+rates.}}
+\label{tab8}
+\vskip 0.1truein
+\end{table}
+
+From the examples of the I-beam and the folded plate, it can be
+observed that the solutions rapidly converge, and are stable.

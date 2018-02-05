@@ -1,0 +1,188 @@
+
+\chapter{Conclusions and Future Work}
+
+\section{Conclusions}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+In the general area of computing and engineering computations,
+the 1990's are shaping up to be the decade of global
+networking, multimedia, and hand-held computers.
+There is now a general trend towards to development of
+problem-solving environments that will
+provide all of the computational needs for a target class of problems,
+including discrete-event and continuous modeling,
+possibly at multiple levels of abstraction.
+These environments will be flexible enough so that
+engineers can incorporate new solution methods in their computations,
+and bring computational procedures from once
+disparate disciplines together in a natural way.
+While the merging of optimization with finite elements,
+finite element analysis with graphics,
+and computers with communications are unions that are already evident,
+many other possibilities exist.
+For instance, now that many companies are engaging in 
+business practices that span the global marketplace,
+it seems only a matter of time before finite element computations will be combined
+with design rule checking (or requirements driven development) over the Internet.
+These environments will employ modern computer technologies
+such as computer graphics, distributed and parallel processors,
+and provide support for rapid prototyping ~\cite{gallopoulos94,tesler91}.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+With this vision in mind, our long-term goal for ALADDIN is to provide engineers with
+a computational problem-solving environment that is
+significantly better than is currently available.
+Version 1.0 of ALADDIN is simply a first step in this direction.
+The emphasis in development has so far been on the basic system specification,
+and its application to matrix and finite element problems.
+We have tried to determine what data types, control structures,
+and functions will allow engineers to solve a wide variety of problems, 
+without the language becoming too large and complicated,
+and without extensibility of the system being compromised.
+Our strategy for achieving the latter objective is described in Chapter 1.
+The test applications have been taken from traditional Civil Engineering,
+and have focussed on the design and analysis of
+highway bridges and earthquake-resistant buildings.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+ALADDIN (Version 1.0) is approximately 36,000 lines of C,
+and getting the program to this point has taken
+approximately three years of part-time work.
+We have written nearly all of the source code from scratch -- along the way,
+a new data structure for the matrices with units was designed and software implemented.
+Many of the matrix algorithms that ALADDIN uses are documented
+in the forthcoming text of Austin and Mazzoni ~\cite{austin95}.
+The language design must be followed by entensive testing of the software
+with matrix and finite element test problems that are complicated
+enough to push the limits of the software (Note : In our experience,
+many coding errors will not show up in trivial engineering applications).
+As the work progressed, we occasionally identified small extensions to
+the language that would allow ALADDIN to attack a new problem area.
+When the language for ALADDIN was first designed
+we did not have design rule checking in mind, for example.
+Yet once the basic matrix and function language specification was in place, 
+and the finite element analyses worked, only a couple of extra functions
+were needed for the implementation of basic design rule checking.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+Together these observations lead us to believe that
+our goal of keeping the ALADDIN language small and extensible has been achieved.
+This work lays the foundation for many avenues of future work.
+
+\section{Future Work}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+Figure \ref{fig: aladdin-future-development} is a schematic
+of the current components of work, plus modules of work
+that are needed for the next extension of ALADDIN.
+The future work should focus on:
+
+\begin{figure}[ht]
+\epsfxsize=6.0truein
+\centerline{\epsfbox{my-chapter9-fig1.ps}}
+\caption{Future Development for ALADDIN}
+\label{fig: aladdin-future-development}
+\end{figure}
+
+\begin{description}
+\item{[1]}
+{\tt Nonlinear Algorithms :}
+The scope of applications in this report has been restricted 
+to time-dependent analysis of linear structural systems.
+Future work should extend this work to the time-history analysis of systems
+having material and geometric nonlinearities.
+A first step in this direction is reported in Chen and Austin ~\cite{chen95}.
+
+\item{[2]}
+{\tt User-defined Functions :}
+Version 1.0 of ALADDIN does not permit the use of
+user-defined functions and procedures in the input file.
+When we first began working on ALADDIN,
+our feeling was that the input file language should be
+relatively simple -- otherwise, why not simply code the whole problem in C ?
+An easy way of controling language complexity
+is to disallow user-defined functions in the input file,
+and this is what we have done for ALADDIN Version 1.0.
+Now that the matrix and finite element libraries are working,
+this early decision needs to be revised.
+We would like to combine the finite element
+analysis with discrete simulated annealing optimization algorithms,
+along the lines proposed by Kirkpatrick ~\cite{kirkpatrick83}.
+The latter could be succinctly implemented if user-defined functions were available. 
+The current version of ALADDIN assumes that all user-defined
+variables are global.  When user-defined functions are added to ALADDIN,
+notions of scope should also be added to variables (this
+could be implemented via an array of Symbol Tables).
+
+\item{[3]}
+{\tt Graphical Library :}
+An obvious limitation of ALADDIN (Version 1.0) is that it
+lacks a graphical user interface. Providing a suitable interface
+is easier said than done. If ALADDIN simply preported to conduct
+finite element analysis, then it would be a relatively easy
+process to code-up an interactive pre- and post-finite
+element processor in X windows (or a suitable PC graphics package).
+
+The problem with this approach is that it only serves one
+half of ALADDIN's capabilities -- in addition to
+graphically describing the finite element mesh and modeling
+assumptions, a graphical interface should also provide a graphical
+counterpart to the solution algorithm specifications (e.g. Newmark Integration).
+We will explore the use of visual programming languages
+to see if they are suitable for this purpose.
+
+\item{[4]}
+{\tt Optimization Library :}
+We would like to extend the language specification so that engineers
+can describe design objectives, design constraints, and design parameters,
+for general engineering optimization problems in a compact manner.
+The issue of ``compactness'' is particularly relevant for optimization
+problems that involve finite element analysis because they often
+contain hundreds, and sometimes thousands, of constraints.
+
+Further work is needed to determine how groups of similar constraints
+can be bundled into groups, and how ALADDIN's control structures
+can be exploited to write down these constraints in a compact manner.
+Once the issue of constraints is sorted out, the pathway for
+describing the design parameters and objectives should (hopefully) become clearer.
+
+\item{[5]}
+{\tt Test Problem Suite :} New suites of test problem files will be
+needed as the details of items [2] and [4] are filled in (please
+let us know if you find an error in one of the test files!).
+
+\item{[6]}
+{\tt WWW Home Page :} We are currently developing a
+World Wide Web (WWW) Home Page for ALADDIN. The ALADDIN home page
+will provide basic information on ALADDIN,
+sample matrix and finite element test problems,
+ALADDIN source code, and copies of this report.
+Our near-term plans are to experiment with the dynamic documents
+capabilities of WWW, and create home pages where WWW visitors
+can interact with an ALADDIN script running at the University of Maryland.
+
+\end{description}
+
+\vspace{0.15 in}\noindent
+Work items [1] to [5] are tightly coupled.
+Understanding their interaction is an active area of research.
+
+\vspace{0.25 in}\noindent
+{\bf Acknowledgements}
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+This work has been supported in part by NSF Grant ECD-8803012,
+by NSF grants to the Institute for Systems Research at the University of Maryland,
+and by a series of fellowship grants to Wane-Jang Lin from the Federal Highway Administration.
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+The early stages of this project would not have been possible without
+valuable discussions with Dr. Bunu Alibe and Bert Davy,
+faculty members in the Department of Civil Engineering at Morgan State University. 

@@ -1,0 +1,1103 @@
+\chapter {Finite Element Analysis Language}
+
+\section{Introduction}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+In this chapter we describe ALADDIN's built-in functions for
+the solution of finite element problems.
+Built-in function are provided for:
+(a) the generation of finite element meshes,
+(b) the definition of external loads,
+(c) the specification of boundary conditions,
+(d) the specification of section and material properties,
+and (e) linking finite element degrees of freedom.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+With the finite element mesh in place, we can then compute
+solutions to a particular linear/nonlinear finite elment problem
+using the algorithms described in the previous chapters.
+To assist the engineer with basic finite element computations,
+built-in functions are also provided for the assembly of
+global stiffness matrices, global mass matrices, and external load vectors.
+An engineer may query the finite element database
+for information on the finite element mesh,
+section and material properties,
+and on the computed displacements and stresses.
+Together, these facilities provide an engineer with the means to
+write ALADDIN input files that will compare the performance
+of a structure against families of design rules.
+
+\section{Structure of Finite Element Input Files}
+\label{section-structure-of-input-files}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+The following diagram is a schematic of the main
+components in an ALADDIN input file suitable
+for the specification and solution of a finite element problem.
+
+\vspace{0.25 in}
+\begin{footnotesize}
+\noindent
+{\rule{2.3 in}{0.035 in} START OF INPUT FILE \rule{2.3 in}{0.035 in} }
+\begin{verbatim}
+/*
+ *  ========================================================
+ *  A description of the finite element problem goes here...
+ *  ========================================================
+ */
+
+  ... Part [1] : Problem specification parameters.
+
+StartMesh();
+
+  ... Part [2] : Generate finite element mesh. Specify section and material
+                 properties, external loads, and boundary conditions.
+
+EndMesh();
+
+  ... Part [3] : Describe solution procedure for finite element problem.
+
+  ... Part [4] : If applicable, check performance of structure against
+                 design rules.
+
+  ... Part [5] : If applicable, generate arrays of output that are suitable
+                 for plotting with MATLAB.
+
+quit;
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.25 in}\noindent
+Every ALADDIN input file should begin with a
+description of the file's purpose, and who wrote it.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+The problem specification parameters allow an
+engineer to state whether a finite element
+problem will be two- or three- dimensional,
+the maximum number of degree of freedom per node,
+and the maximum number of nodes per element.
+With this information in place,
+{\tt StartMesh()} allocates the working memory for the
+finite element data structures.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+ALADDIN statements are written for the finite element mesh generation,
+for the section and material properties, the specification of
+external loads, and for the boundary conditions in Part [2] of the input file.
+Often the overall size of a finite element model can be
+reduced by linking degrees of freedom -- functions
+to link nodal degrees of freedom are also specified in Part [2].
+{\tt Endmesh()} loads the information provided in Part [2]
+into the finite element database. 
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+Part [3] usually begins with the assembly of the
+global stiffness matrix, an external vectors,
+and if applicable, assembly of a global mass matrix.
+The algorithms presented in the previous chapters (e.g.
+newmark integration; modal analysis; optimization procedures)
+can be inserted here to solve a specific linear/nonlinear
+static/dynamic finite element problem.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+In Parts [4] and [5] ALADDIN statements
+are written for design rule checking,
+and for the output of arrays that are suitable for plotting with MATLAB.
+ALADDIN input file should be
+terminated with the command {\tt quit}.
+
+\clearpage
+\section{Problem Specification Parameters}
+
+\vspace{0.15 in}\noindent
+ALADDIN's specification parameters are:
+
+\begin{itemize}
+\item{}
+{\tt NDimension} is short for ``number of dimensions.''
+For two- and three-dimensional finite element analyses,
+{\tt NDimension} equals 2 and 3, respectively.
+\item{}
+{\tt NDofPerNode} is short for Maximum number of degrees of
+freedom per nodal coordinate.
+When {\tt NDimension} equals 2, {\tt NDofPerNode} will take the value 3.
+And when {\tt NDimension} equals 3, {\tt NDofPerNode} will equal 6.
+\item{}
+{\tt MaxNodesPerElement} corresponds to the
+maximum number of nodes per finite element.
+\item{}
+{\tt InPlaneIntegPts} corresponds to the number of
+in-plane integration points for shell finite elements.
+\item{}
+{\tt ThicknessIntegPts} number of layers of integration
+points through thickness direction of shell finite elements.
+\end{itemize}
+
+\vspace{0.10 in}\noindent
+These parameter settings are used in the allocation of
+memory for the finite element mesh.
+
+\vspace{0.15 in}\noindent
+{\bf Short Example :} In this short example, we initialize
+the problem specification parameters for a three-dimensional
+analysis of a structure with an eight-node shell finite element.
+
+\vspace{0.15 in}
+\begin{footnotesize}
+\noindent
+{\rule{2.1 in}{0.035 in} ABBREVIATED INPUT FILE \rule{2.1 in}{0.035 in} }
+\begin{verbatim}
+
+/* [a] : Define Problem Specific Parameters
+
+   NDimension         = 3;
+   NDofPerNode        = 5;
+   MaxNodesPerElement = 8;   /* .... etc ..... */
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\section{Adding Nodes and Finite Elements}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+Two functions, {\tt AddNode()} and {\tt AddElement()}, are employed
+for the generation of finite element nodal coordinates,
+and the attachment of finite elements to the nodes.
+
+\begin{itemize}
+\item{}
+{\tt AddNode( nodeno} {\tt , coord\_vector);} :
+Here {\tt nodeno} is the node number in the finite element mesh.
+For two-dimensional finite element problems,
+{\tt coord\_vector} is a $(1 \times 2)$ matrix
+containing the [x, y] nodal coordinates.
+When the finite element problem is three-dimensional,
+{\tt coord\_vector} is a $(1 \times 3)$ matrix
+containing the [x, y, z] nodal coordinates.
+
+\item{}
+{\tt AddElmt( elmtno} {\tt , connect\_vector, "name\_of\_elmt\_attr");} :
+Here {\tt elmtno} is the element number in the finite element mesh.
+{\tt connect\_vector} is a $(1 \times n)$ matrix
+containing a list of $n$ nodes to which the finite element will be attached.
+{\tt "name\_of\_elmt\_attr"} is the attribute name representing the
+finite element's material and section properties --
+for details, see Section \ref{ref:material-and-section}.
+\end{itemize}
+
+\vspace{0.15 in}\noindent
+{\bf Short Example :} Figure \ref{fig:fe-cantilever-mesh} shows
+a two-dimensional coordinate system, and a line of six finite element
+nodes connected by 2-node beam finite elements.
+The nodes are located at y-coordinate = 1 $m$,
+and are spaced along the x-axis at 1 $m$ centers,
+beginning at x = 1 $m$ and finishing at x = 6 $m$.
+
+\begin{figure} [ht]
+\vspace{0.10 in}
+\epsfxsize=5.5truein
+\centerline{\epsfbox{my-chapter5-fig6.ps}}
+\caption{Line of Nodal Coordinates and Beam Finite Elements}
+\label{fig:fe-cantilever-mesh}
+\end{figure}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+ALADDIN's looping constructs are ideally suited for 
+specification of the finite element nodes in a compact manner,
+and for the attachment of the two-node finite elements.
+
+\vspace{0.15 in}
+\begin{footnotesize}
+\noindent
+{\rule{2.1 in}{0.035 in} ABBREVIATED INPUT FILE \rule{2.1 in}{0.035 in} }
+\begin{verbatim}
+   print "*** Generate grid of nodes for finite element model \n\n";
+
+   nodeno = 0;
+   x = 1 m; y = 1 m;
+   while(x <= 6 m) {
+       nodeno = nodeno + 1;
+       AddNode(nodeno, [x, y]);
+       x = x + 1 m;
+   }
+
+   print "*** Attach finite elements to nodes \n\n";
+
+   elmtno = 0; nodeno = 0;
+   while(elmtno < 5) {
+       elmtno = elmtno + 1; nodeno = nodeno + 1;
+       AddElmt( elmtno, [nodeno, nodeno + 1], "name_of_elmt_attr");
+   }
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+In the first half of the script, 6 nodal coordinates are added to ALADDIN's database.
+Notice how, in the second block of code,
+we have used the notation {\tt [nodeno, nodeno + 1]} to
+generate $(1 \times 2)$ matrices containing the
+node numbers that {\tt elmtno} will be attached to.
+
+\section{Material and Section Properties}
+\label{ref:material-and-section}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+The attributes of element, section, and material types are
+specified with three functions,
+{\tt ElementAttr()}, {\tt SectionAttr()} and {\tt MaterialAttr()},
+followed by parameters inserted between braces ${\lbrace \cdots \rbrace}$.
+The details of each function are:
+
+\begin{itemize}
+\item{}
+{\tt ElementAttr("name\_of\_element\_attr")} ${\lbrace \cdots \rbrace};$.
+Here {\tt "name\_of\_elmt\_attr"} is a character string for the
+name of the element attribute used in function calls to {\tt AddElmt($\cdots$)}.
+Three character string arguments should be specified between the braces.
+
+\vspace{0.10 in}
+{\tt type} is a name for the finite element type (e.g. FRAME\_2D for
+two dimensional frame elements). A list of finite element types
+may be found in Section ~\ref{section-finite-element-library}.
+
+\vspace{0.10 in}
+Character strings for the {\tt section} and {\tt material} attributes
+may taken from the section file {\tt section.h}
+and the material file {\tt material.h}, or may be user-defined
+with {\tt SectionAttr("...")} and {\tt MaterialAttr("...")}.
+
+\item{}
+{\tt SectionAttr("name\_of\_section\_attr")} ${\lbrace \cdots \rbrace};$.
+Here {\tt "name\_of\_section\_attr"} is a character
+string for the name of the section attribute.
+Table ~\ref{tab: my-section-properties} contains a list of
+section property names, their meaning, and the units associated with each property.
+
+\item{}
+{\tt MaterialAttr("name\_of\_material\_attr")} ${\lbrace \cdots \rbrace};$.
+Here {\tt "name\_of\_material\_attr"} is a character
+string for the name of the material attribute.
+Table ~\ref{tab: my-material-properties} contains a list of
+material property names, their meaning,
+and the units associated with each property.
+\end{itemize}
+
+\vspace{0.15 in}\noindent
+When the number of (local) degrees of freedom in a finite element node is fewer
+than the number of (global) degrees of freedom at the node to which it is attached,
+a mapping must be provided from the local to global d.o.f.
+The syntax for such a mapping is
+
+\begin{footnotesize}
+\begin{verbatim}
+       map ldof [A] to gdof [B].
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+where {\tt [A]} and {\tt [B]} are {\tt $(1 \times n)$} matrices.
+We will see, for example, that when plate finite
+elements ({\tt type} {\tt =} {\tt PLATE}) are employed in a three-dimensional mesh,
+a suitable mapping is {\tt map} {\tt ldof} {\tt [1,2,3]} {\tt to} {\tt gdof} {\tt [2,4,6]}.
+This specification is provided as a fourth entry to {\tt ElementAttr()}.
+
+\vspace{0.15 in}\noindent
+{\bf Short Example :} The following script loads a finite element attribute
+called ``floorelmts'' into ALADDIN's database. The ``floorelmts'' attribute
+has three components -- the finite element type is set to {\tt FRAME\_2D},
+for two-dimensional beam column finite elements. The element's section
+and material properties are defined via links to the section
+attribute ``floorsection,'' and the material attribute ``floormaterial.''
+
+\vspace{0.15 in}
+\begin{footnotesize}
+\noindent
+{\rule{2.1 in}{0.035 in} ABBREVIATED INPUT FILE \rule{2.1 in}{0.035 in} }
+\begin{verbatim}
+print "*** Define element, section, and material properties \n\n";
+
+ElementAttr("floorelmts") { type     = "FRAME_2D";
+                            section  = "mysection";
+                            material = "ELASTIC";
+                          }
+
+SectionAttr("floorsection") { Ixy     = 1 m^4;
+                              Iyy     = 2 m^4;
+                              Ixx     = 3 m^4;
+                              Izz     = 0.66666667 m^4;
+                              depth   =   2 m;
+                              width   =   1.5 m;
+                            }
+
+MaterialAttr("floormaterial") {  E    = 1E+7 kN/m^2;
+                                 density = 0.1024E-5 kg/m^3;
+                                 poisson = 1.0/3.0;
+                                 yield   = 36000 psi;
+                              }
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+You should notice that the section and material properties
+components are supplied, as required by the {\tt FRAME\_2D}
+element specifications described in Section \ref{section-finite-element-library}.
+
+\begin{table}[t]
+\tablewidth = 6.25truein
+\begintable
+Name          | \para{Description}                         | Units ($M^{\alpha}.L^{\beta}.T^{\gamma}$) \crthick
+area          | \para{ Area of cross section.}             | $L^2$         \cr
+depth         | \para{ Depth of section.}                  | $L$           \cr
+thickness     | \para{ Thickness of section.}              | $L$           \cr
+Ixx           | \para{ Moment of inertia about x-x axis.}  | $L^4$         \cr
+Iyy           | \para{ Moment of inertia about y-y axis.}  | $L^4$         \cr
+Izz           | \para{ Moment of inertia about z-z axis.}  | $L^4$         \cr
+Ixy and Iyx   | \para{ Moment of inertia about x-y axes.}  | $L^4$         \cr
+Ixz and Izx   | \para{ Moment of inertia about x-z axes.}  | $L^4$         \cr
+Iyz and Izy   | \para{ Moment of inertia about y-z axes.}  | $L^4$         \cr
+rT            | \para{ Radius of Gyration.}                | $L$           \cr
+tw            | \para{ Width of web.}                      | $L$           \cr
+tf            | \para{ Width of flange.}                   | $L$           \cr
+J             | \para{ Torsional Constant.}                | $L^4$         \cr
+width         | \para{ Width of section.}                  | $L$    
+\endtable
+\vspace{0.01 in}
+\caption{\bf Section Properties}
+\label{tab: my-section-properties}
+\end{table}
+
+\begin{table}[ht]
+\tablewidth = 6.25truein
+\begintable
+Name          | \para{Description}                         | Units ($M^{\alpha}.L^{\beta}.T^{\gamma}$) \crthick
+E                 | \para{Young's modulus of elasticity}  | $M^1 \cdot L^{-1} \cdot T^{-2}$ \cr
+Et                | \para{Tangent modulus of elasticity}  | $M^1 \cdot L^{-1} \cdot T^{-2}$ \cr
+poisson           | \para{Poisson's ratio.}               | $M^0 \cdot L^{0} \cdot T^{0}$ \cr
+density           | \para{Material density.}              | $M^0 \cdot L^{0} \cdot T^{0}$ \cr
+yield             | \para{Yield Stress $F_y$.}            | $M^0 \cdot L^{0} \cdot T^{0}$ \cr
+ultimate          | \para{Ultimate Stress $F_u$.}         | $M^0 \cdot L^{0} \cdot T^{0}$ \cr
+n                 | \para{Strain Hardening Exponent}      | $M^0 \cdot L^{0} \cdot T^{0}$ \cr
+alpha             | \para{Parameter for Ramberg-Osgood relationship}    | $M^0 \cdot L^{0} \cdot T^{0}$ \cr
+beta              | \para{Parameter for strain hardening -- beta = 0 for kinematic hardening.
+                          beta = 1 for isotropic hardening.}            | $M^0 \cdot L^{0} \cdot T^{0}$ \cr
+ialph             | \para{Rotation constant -- ialph = 0 implies none.
+                          ialph = 1 implies Hughes rotation constant.}  | $M^0 \cdot L^{0} \cdot T^{0}$ \cr
+pen               | \para{Penalty constant.}                            | $M^0 \cdot L^{0} \cdot T^{0}$
+\endtable
+\vspace{0.01 in}
+\caption{\bf Material Properties}
+\label{tab: my-material-properties}
+\end{table}
+
+\vspace{0.15 in}\noindent
+Two functions, {\tt GetSection()} and {\tt GetMaterial()},
+are provided for the retrieval of section and material properties.
+{\tt GetSection([elmtno])} takes as its argument, a $(1 \times 1)$
+matrix containing the element no. It returns a
+{\tt $16 \times 1$} matrix of section properties:
+
+\begin{footnotesize}
+\begin{verbatim}
+====================================================================
+Matrix Element      Quantity     Description 
+====================================================================
+        [1][1]           Ixx     Moment of inertia about x-x axis.
+        [2][1]           Iyy     Moment of inertia about y-y axis.
+        [3][1]           Izz     Moment of inertia about z-z axis.
+        [4][1]           Ixz     Product of inertia x-z.
+        [5][1]           Ixy     Product of inertia x-y.
+        [6][1]           Iyz     Product of inertia y-z.
+        [7][1]        weight     Section weight
+        [8][1]            bf     Width of flange
+        [9][1]            tf     Thickness of flange
+       [10][1]         depth     Section depth
+       [11][1]          area     Section area
+       [12][1]     thickness     Thickness of plate
+       [13][1]     tor_const     Torsional Constant J
+       [14][1]            rT     Section radius of gyration
+       [15][1]         width     Section width
+       [16][1]            tw     Thickness of web
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Similarly, {\tt GetMaterial([elmtno])} takes as its argument, a $(1 \times 1)$
+matrix containing the element no. It returns a
+{\tt $10 \times 1$} matrix of material properties:
+
+\begin{footnotesize}
+\begin{verbatim}
+========================================================================
+Matrix Element      Quantity     Description 
+========================================================================
+        [1][1]             E     Young's modulus
+        [2][1]             G     Shear modulus
+        [3][1]            Fy     Yield stress
+        [4][1]            ET     Tangent Young's Modulus
+        [5][1]            nu     Poission's ratio
+        [6][1]       density     Material density
+        [7][1]            Fu     Ultimate stress
+        [8][1]    thermal[0]     x-direction coeff. of thermal expansion
+        [9][1]    thermal[1]     y-direction coeff. of thermal expansion
+       [10][1]    thermal[2]     z-direction coeff. of thermal expansion
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+{\bf Note :} An engineer should be careful to make sure that a particular
+material or section property is used in a way that is consistent
+with the actual material/section type. For example,
+{\tt GetSection()} will return a {\it thickness} component
+for all element types, even though the concept does not apply to
+two- and three-dimensional beam finite elements.
+
+\section{Boundary Conditions}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+The boundary condition is controled through {\em FixNode()} function.
+For each degree of freedom (DOF), an index (1 or 0) is used to
+indicate the fixed DOF or free DOF. The syntax for {\em FixNode()} is:
+
+\begin{itemize}
+\item{}
+{\tt FixNode(nodeno}{\tt , bc\_vector);}
+Here {\tt nodeno} is the node number to which the
+boundary condition will be applied,
+{\tt bc\_vector} = [$bc_1, bc_2, bc_3,\cdots$] is either a $(1 \times 3)$ matrix
+or a $( 1 \times 6)$ matrix.
+$bc_i$ = 1 or 0, i is the ith degree of freedom (dof).
+$bc_i$ = 1, stands for constraint for that dof,
+while  $bc_i$ = 0 for no constraint for that dof.
+\end{itemize}
+
+\vspace{0.15 in}\noindent
+{\bf Short Example :} This script fixes the boundary conditions of a finite
+element mesh at nodes 1 through 5.
+
+\vspace{0.15 in}
+\begin{footnotesize}
+\noindent
+{\rule{2.1 in}{0.035 in} ABBREVIATED INPUT FILE \rule{2.1 in}{0.035 in} }
+\begin{verbatim}
+
+/* [a] : Apply boundary conditions */
+
+   dx = 1; dy = 1 ; dz = 1;
+   rx = 0; ry = 0 ; dz = 0;
+
+   bcond = [ dx, dy, dz, rx, ry, rz ];
+
+   for( iNode = 1; iNode <= 5; iNode = iNode + 1 ) {
+        FixNode ( iNode , bcond );
+   }
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+We have used the variables
+{\tt dx}, {\tt dy}, and {\tt dz} to represent translational displacements
+in the x, y, and z directions, respectively, and the variables
+{\tt rx}, {\tt ry}, and {\tt rz} for rotational displacement about
+the x, y, and z axes. A zero value of the matrix element means that the
+degree of freedom remain unrestrained. A non-zero value means that full-fixity
+applies to the degree of freedom. Hence, nodes 1 through 5 are fixed in
+their translational degrees of freedom, and pinned in the three
+rotational degrees of freedom.
+
+\section{External Nodal Loads}
+
+\vspace{0.15 in}\noindent
+External nodal loads are specified with the function {\tt NodeLoad(nodeno,} {\tt load\_vector);}.
+
+\begin{itemize}
+\item{}
+The function {\tt NodeLoad(nodeno,} {\tt load\_vector);} may be used
+to apply external loads to node number {\tt nodeno}.
+Here {\tt load\_vector} = $ [F_x, F_y, M_{xy}]$ for two-dimensional problems,
+and {\tt load\_vector} = $ [F_x, F_y, F_z, M_{xy}, M_{yz}, M_{zx} ]$
+for three-dimensional problems.
+\end{itemize}
+
+\vspace{0.15 in}\noindent
+{\bf Short Example :} The following script adds two translational forces,
+and one moment to nodes 1 through 5 in a two-dimensional finite element mesh.
+
+\vspace{0.15 in}
+\begin{footnotesize}
+\noindent
+{\rule{2.1 in}{0.035 in} ABBREVIATED INPUT FILE \rule{2.1 in}{0.035 in} }
+\begin{verbatim}
+       FxMax = 1000.0 lbf; Fy = -1000.0 lbf; Mz = 0.0 lb*in;
+
+       for( iNode = 1; iNode <= 5; iNode = iNode + 1 ) {
+            Fx = (iNode/5)*FxMax;
+            NodeLoad( iNode , [ Fx, Fy, Mz ]); 
+       }
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+External nodal loads are applied in the x-direction,
+beginning at {\tt 200 lbf} at node 1, and increasing
+linearly to {\tt 1000 lbf} at node 5. A gravity load,
+{\tt Fy = -1000.0 lbf} is applied to each of the nodes 1 through 5.
+
+\section{Stiffness, Mass and External Loading Matrices}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+The next step, after the details of the finite element mesh have been fully specified,
+is to calculate the finite element properties, and to assemble them into an equilibrium system.
+For structural finite element analyses, this step involves calculation of
+the stiffness and mass matrices, and an external load vector.
+Three finite element library functions, {\tt Stiff()}, {\tt Mass()}, 
+and {\tt ExternalLoad()} for these purposes:
+
+\begin{itemize}
+\item{\tt Mass([massflag]);}
+where massflag is either {\tt [1]} or {\tt [-1]}. Therefore the Mass() command can be 
+used as mass = Mass([1]); mass = Mass([-1]); or more explicitly, as, Lumped = [1]; mass = Mass(Lumped);
+Consist = [-1]; mass = Mass(Consist);
+
+\item{\tt Stiff()}
+Stiff(); calculate the linear elastic stiffness matrix.
+
+\item{\tt ExternalLoad()}
+ExternalLoad(); calculate the external nodal loads.
+\end{itemize}
+
+\vspace{0.15 in}\noindent
+{\bf Short Example :} In the following script of code, 
+{\tt mass} is the global mass matrix,
+{\tt stiff} is the global stiffness matrix,
+and {\tt eload} is a vector of external nodal loads applied to
+the finite element global degrees of freedom.
+
+\vspace{0.15 in}
+\begin{footnotesize}
+\noindent
+{\rule{2.1 in}{0.035 in} ABBREVIATED INPUT FILE \rule{2.1 in}{0.035 in} }
+\begin{verbatim}
+
+/* [a] : Form Mass matrix, stiffness matrix, and external load vector */
+
+   mass  = Mass();
+   stiff = Stiff();
+   eload = ExternalLoad();
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+{\bf Note :} The three functions {\tt Mass()}, {\tt Stiff()}, and {\tt ExternalLoad()}
+should be called only after the function call to {\tt EndMesh()} -- for details
+on the expected input-file layout, see Section \ref{section-structure-of-input-files}.
+
+\section{Internal Loads}
+
+\vspace{0.15 in}\noindent
+In the development of many numerical/finite element algorithms, we need
+to know the distribution of externally applied nodal forces that will
+produce a given displacement pattern. 
+
+\begin{itemize}
+\item{\tt InternalLoad(displacement) :}
+Calculate the internal nodal loads for given displacement. Where
+displacement is a matrix vector contains nodal displacement.
+
+\item{\tt InternalLoad(displacement, IncrementalDisplacement)}
+The two argument version of {\tt InternalLoad()} computes the
+internal nodal load increments for a given displacement and displacement increment.
+Here {\tt displacement} and {\tt IncrementalDisplacement} are the matrix vectors
+for the nodal displacement and incremental displacement.
+This is function is designed for nonlinear analysis.
+\end{itemize}
+
+\vspace{0.15 in}\noindent
+{\bf Short Example :} In Part {\tt [a]} of the following script we:
+(a) call {\tt Copy()} to make a copy of the global stiffness matrix;
+(b) decompose the stiffness matrix into a product of upper and lower triangular matrices;
+(c) compute the external load vector;
+(d) solve the system of equations via forward and backward substitution, and finally,
+(e) setup a delta displacement vector with the first entry equal to 0.0001,
+and all other entries equal to zero.
+
+\vspace{0.15 in}
+\begin{footnotesize}
+\noindent
+{\rule{2.1 in}{0.035 in} ABBREVIATED INPUT FILE \rule{2.1 in}{0.035 in} }
+\begin{verbatim}
+
+/* [a] : Compute initial displacement and displacement increment */
+
+   lu    = Decompose(Copy(stiff));
+   eload = ExternalLoad();
+   displ = Substitution(lu, eload0);
+
+   delta_displ = Zero([size, 1]);
+   delta_displ [1][1] = 0.0001;
+
+/* [b] : Internal load for initial displacement plus displacement increment */
+
+   iload = InternalLoad(displ, delta_displ); 
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+In the second half of this script, {\tt InternalLoad()} computes
+the internal nodal loads for the displacement
+vector {\tt displ} plus {\tt delta\_displ}. 
+
+\section{Retrieving Information from ALADDIN}
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+We have written two families of functions that query ALADDIN's
+database for information on the finite element mesh,
+and behavior of a particular finite element model.
+Together, these functions may be used for design rule checking,
+and for the preparation of matrix output that is compatible
+with input to MATLAB graphics. The latter could be a plot
+of the finite element mesh, contours of displacements, stresses, and so forth.
+
+\vspace{0.15 in}\noindent
+The functions that will retrieve information on the finite element mesh are:
+
+\begin{itemize}
+\item{}
+{\tt GetCoord([nodeno])} takes as its input a $(1\times1)$ matrix
+containing the node number.
+For two-dimensional finite element problems, {\tt GetCoord()} 
+returns a $(1x2)$ matrix ( m[1][1], m[1][2]) = (x,y).
+A $(1\times3)$ matrix is returned for three-dimensional
+elements (m[1][1], m[1][2], m[1][3]) = (x,y,z).
+
+\item{}
+{\tt GetDof([nodeno])} is short for ``get degree of freedom.''
+Get the matching global degrees of freedom number for a node.
+It returns a (1xn) matrix, n equals to the number of degrees of freedom in the node.
+For two-dimensional beam-column elements, n = 3,
+and (m[1][1], m[1][2], m[1][3]) = ( dof\_dx, dof\_dy, dof\_rz);
+FOr the three-dimensional frame element,
+n = 6,  and (m[1][1],m[1][2],m[1][3],m[1][4],m[1][5],m[1][6]) =
+(dof\_dx,dof\_dy,dof\_dz,dof\_rx,dof\_ry,dof\_rz).
+A negative number in the output matrix indicates the associated degree of freedom is fixed.
+
+\item{}
+{\tt GetNode([elmtno])} retrieves a matrix $(1 \times n)$ of node numbers connected to 
+finite element {\tt elmtno}. {\tt n} equals to the number of nodes in the element.
+For example, n = 2 for 2D and 3D beam element,
+and n = 4 for the 4-node shell element.
+The matrix will be in the same order as you input the nodes connection in AddElmt()
+\end{itemize}
+
+\vspace{0.15 in}\noindent
+Similarly, the functions for retrieving information on the
+behavior of a finite element model are:
+
+\begin{itemize}
+\item{}
+{\tt GetDispl([nodeno, displ\_m])} is short for ``get displacement,''
+and takes as input, a node number and the calculated displacement matrix.
+Get the structural nodal displacements.
+It returns a (1xn) matrix, nequals to the number of degrees of freedom in the node.
+For two-dimensional beam elements, n = 3, and
+(m[1][1], m[1][2], m[1][3]) = (displ\_x,displ\_y,rot\_z).
+Similarly, for three-dimensional frame elements, n = 6,
+and ( m[1][1], m[1][2], m[1][3], m[1][4], m[1][5], m[1][6]) =
+(displ\_x, displ\_y, displ\_z, rot\_x, rot\_y, rot\_z).
+
+\item{}
+{\tt GetStress([elmtno],displacement\_matrix)} accepts as its input, ana element number
+and the calculated displacement matrix.
+This function gets the nodal forces for the element.
+
+\vspace{0.15 in}
+In ALADDIN Version 1.0, this function only works for 2D and 3D beam elements.
+It returns a (mxn) matrix, m equals to the number of nodes in the element,
+n equals to the number of degrees of freedom in a node.
+For example, (mxn)=(2x3) for 2D beam element,
+
+\begin{footnotesize}
+\begin{verbatim}
+                   1       2       3
+       node 1    Fx1     Fy1     Mz1
+       node 2    Fx2     Fy2     Mz2
+
+      (mxn)=(2x6) for 2D beam element,
+
+                   1       2       3       4       5       6
+       node 1    Fx1     Fy1     Fz1     Mx1     My1     Mz1
+       node 2    Fx2     Fy2     Fz2     Mx2     My2     Mz2
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}
+The order of the nodes 1,2... is defined in the nodes connection matrix in AddElmt().
+\end{itemize}
+
+\vspace{0.15 in}\noindent
+These functions will be demonstrated in Chapter 6.
+
+\clearpage
+\section{Library of Finite Elements}
+\label{section-finite-element-library}
+
+\vspace{0.15 in}\noindent
+Currently, the following finite elements are available:
+
+\vspace{0.15 in}\noindent
+{\bf PLANE\_STRESS/PLANE\_STRESS :} Two dimensional 4-node
+plane stress/plane strain element.
+
+\begin{figure} [ht]
+\epsfxsize=2.9truein
+\centerline{\epsfbox{my-chapter5-fig1.ps}}
+\caption{Schematic of Plane Stress - Plane Strain Finite Element}
+\label{fig:fe-plane-stress-plane-strain}
+\end{figure}
+
+\vspace{0.15 in}\noindent
+May be used to model linear elastic materials.  
+
+\vspace{0.15 in}\noindent
+{\bf Section Properties and Material Properties :} 
+Young's modulus {\tt E}; Poisson's ratio $\nu$;
+Density $\rho$ for dynamic analyses;
+Element type = {\tt PLANE\_STRESS} (or {\tt PLANE\_STRAIN}).
+No section properties are needed.
+
+\vspace{0.15 in}\noindent
+{\bf Example :} 
+
+\vspace{0.10 in}
+\begin{footnotesize}
+\noindent
+{\rule{2.1 in}{0.035 in} ABBREVIATED INPUT FILE \rule{2.1 in}{0.035 in} }
+\begin{verbatim}
+    beam_length  = 8 m;
+    beam_width   = 1 m;
+    beam_height  = 2 m;
+
+    nodeno = 1; elmtno = 0;
+
+    while(elmtno <= 3) {
+       elmtno = elmtno + 1;
+       AddElmt( elmtno, [nodeno+3, nodeno+1, nodeno+2, nodeno+4], "name_of_elmt_attr");
+       nodeno = i + 2;
+    }
+
+    ....... input statements removed .... 
+
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\clearpage
+\vspace{0.15 in}\noindent
+{\bf 2D\_FRAME}: Two dimensional 2-node frame (or beam/column) element.
+
+\begin{figure} [ht]
+\epsfxsize=3.2truein
+\centerline{\epsfbox{my-chapter5-fig2.ps}}
+\caption{Schematic of Two Dimensional Frame Element}
+\label{fig:fe-2d-frame}
+\end{figure}
+
+\vspace{0.15 in}\noindent
+Each node has two translational, and one rotational, degree of freedom.
+May be used for modeling of linear elastic materials.  
+
+\vspace{0.15 in}\noindent
+{\bf Section Properties and Material Properties :} 
+The section properties are; Moment of inertia {\tt Izz}
+and cross-section {\tt area} -- alternatively,
+the cross section are is computed from the
+section {\tt width} (or {\tt bf}) times the {\tt depth}.
+The material properties are Young's modulus {\tt E},
+Poisson's ratio $\nu$, and density $\rho$.
+Note -- the density may be omitted when a default I-beam section
+is referenced from the AISC sections header file {\tt section.h}.
+Element type = {\tt 2D\_FRAME}.
+
+\vspace{0.15 in}\noindent
+{\bf Example :} 
+
+\vspace{0.10 in}
+\begin{footnotesize}
+\noindent
+{\rule{2.1 in}{0.035 in} ABBREVIATED INPUT FILE \rule{2.1 in}{0.035 in} }
+\begin{verbatim}
+   end1 = 4*floorno + bayno;
+   end2 = end1 + 1;
+
+   AddElmt( elmtno, [ end1 , end2 ], "mybeam");
+
+   ....... input code removed ........
+
+   ElementAttr("floorbeam") { type     = "FRAME_2D";
+                              section  = "mysection2";
+                              material = "mymaterial";
+                            }
+
+   SectionAttr("floorsection2") { Izz      = 1600.3 in^4;
+                                  Iyy      = 66.2   in^4;
+                                  depth    = 21.0     in;
+                                  width    = 8.25     in;
+                                  area     = 21.46  in^2;
+                                }
+
+   MaterialAttr("floormaterial") { density = 0.1024E-5 lb/in^3;
+                                   poisson = 0.25;
+                                   yield   = 36.0   ksi;
+                                   E       = 29000  ksi;
+                                 }
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\clearpage
+\vspace{0.15 in}\noindent
+{\bf 3D\_FRAME}: Three dimensional 2-node frame (or beam/column) element.
+
+\begin{figure} [ht]
+\epsfxsize=5.5truein
+\centerline{\epsfbox{my-chapter5-fig3.ps}}
+\caption{Schematic of Two Dimensional Frame Element}
+\label{fig:fe-3d-frame}
+\end{figure}
+
+\vspace{0.15 in}\noindent
+Each node has three translational, and three rotational, degrees of freedom.
+May be used for modeling of linear elastic materials.  
+
+\vspace{0.10 in}\noindent
+{\bf Section Properties and Material Properties :} 
+The section properties include moments of inertia {\tt Izz} and {\tt Iyy},
+and the cross-section {\tt area}. The cross-section area may also be
+computed from the section {\tt depth} times its {\tt width} (or {\tt bf}).
+The torsional constant and radius of gyration are defined
+by parameters {\tt J} and {\tt rT}, respectively.
+The material properites are Young's modulus {\tt E},
+Poisson's ratio $\nu$, and the density $\rho$.
+Note -- the density may be omitted when a default I-beam section
+is referenced from the AISC sections header file {\tt section.h}.
+The element type is {\tt 3D\_FRAME}.
+
+\vspace{0.10 in}\noindent
+{\bf Example :} 
+
+\vspace{0.10 in}
+\begin{footnotesize}
+\noindent
+{\rule{2.1 in}{0.035 in} ABBREVIATED INPUT FILE \rule{2.1 in}{0.035 in} }
+\begin{verbatim}
+   elmtno = 0;
+   while(elmtno < 4) {
+         elmtno = elmtno + 1;
+         AddElmt( elmtno, [elmtno, elmtno + 1], "floorelmt");
+   }
+
+   ....... code deleted .... 
+
+   ElementAttr("floorelmt") { type     = "FRAME_3D";
+                              section  = "mysection";
+                              material = "mymaterial";
+                            }
+
+   SectionAttr("floorsection") { Izz     = 13824 in^4;
+                                 Iyy     =  3456 in^4;
+                                 area    =   288 in^2;
+                                 depth   =    24 in;
+                                 width   =    12 in;
+                               }
+
+   MaterialAttr("floormaterial") { .... same as for FRAME_2D example .... }
+
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\clearpage
+\vspace{0.15 in}\noindent
+{\bf GENERAL SHELL}: Three dimensional 4 and 8-node five degree of
+freedom general shell elements, linear/nonlinear elastic-plastic materials.  
+
+\begin{figure} [ht]
+\epsfxsize=4.5truein
+\centerline{\epsfbox{my-chapter5-fig7.ps}}
+\caption{Schematic of General Shell Element}
+\label{fig:fe-general-shell}
+\end{figure}
+
+\vspace{0.15 in}\noindent
+The element formulation is described in Chen and Austin ~\cite{chen95}.
+
+\vspace{0.15 in}\noindent
+{\bf Section Properties and Material Properties :} 
+The section attribute is {\tt thickness} alone.
+The material properties are Young's modulus {\tt E},
+Poisson's ratio $\nu$ and density $\rho$ (for dynamic analysis).
+The following parameters apply for nonlinear analysis --
+Yield stress {\tt yield}, stress-strain parameters {\tt n},
+{\tt alpha} and {\tt beta}, and
+{\tt type} (Ramberg-Osgood or Bi-Linear or ELASTIC\_PLASTIC material).
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+The material types are {\tt ELASTIC},
+{\tt ELASTIC\_PLASTIC} and {\tt ELASTIC\_PERFECTLY\_PLASTIC}.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+The element types for the four node and eight node
+shell elements are {\tt SHELL\_4N} and {\tt SHELL\_8N}.
+
+\vspace{0.15 in}\noindent
+{\bf Example :} 
+
+\vspace{0.10 in}
+\begin{footnotesize}
+\noindent
+{\rule{2.1 in}{0.035 in} ABBREVIATED INPUT FILE \rule{2.1 in}{0.035 in} }
+\begin{verbatim}
+   elmtno = 1;
+   node_connec = [ 1, 2, 3, 4, 12, 13, 14, 15];
+   AddElmt(elmtno, node_connec, "name_of_elmt_attr");
+
+   ..... input code removed .....
+
+   ElementAttr("name_of_elmt_attr") { type     = "SHELL_8N";
+                                      section  = "mysection";
+                                      material = "ELASTIC";
+                                    }
+   MaterialAttr("ELASTIC") { density = 1.0 lb/in^3; 
+                             poisson = 0.25;   
+                             yield   = 36000;  
+                             E       = 3E+7 psi;
+                           }
+
+   SectionAttr("mysection") { thickness =   1 in; }
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.35 in}\noindent
+{\bf SHELL WITH DRILLING DEGREE OF FREEDOM : }
+A four node flat shell element with six degrees of freedom per node.
+It may be used for modeling of linear elastic materials.  
+
+\begin{figure} [ht]
+\epsfxsize=4.5truein
+\centerline{\epsfbox{my-chapter5-fig4.ps}}
+\caption{Schematic of Flat Shell Finite Element}
+\label{fig:fe-flat-shell}
+\end{figure}
+
+\vspace{0.15 in}\noindent
+The theoretical formulation of this shell finite element,
+and numerical examples of its performance
+may be found in the masters thesis of Lanheng Jin ~\cite{jin94}.
+
+\vspace{0.15 in}\noindent
+{\bf Section Properties and Material Properties :} 
+The section attribute is {\tt thickness} alone.
+The material properties are Young's modulus {\tt E},
+Poisson's ratio $\nu$, and Density $\rho$ (for dynamic analyses).
+The element has two modeling parameters {\tt ialpha} and {\tt pen}.
+The element type is {\tt SHELL\_4NQ}.
+
+\vspace{0.15 in}\noindent
+{\bf Example :} 
+
+\vspace{0.10 in}
+\begin{footnotesize}
+\noindent
+{\rule{2.1 in}{0.035 in} ABBREVIATED INPUT FILE \rule{2.1 in}{0.035 in} }
+\begin{verbatim}
+   AddElmt( elmtno+1, [ a+1, b+1, b+2, a+2 ], "bridgegirder" );
+
+   ..... input code removed .....
+
+   ElementAttr("bridgegirder") { type     = "SHELL_4NQ";
+                                 section  = "girder_flange";
+                                 material = "STEEL3";
+                               }
+
+   SectionAttr( "girder_flange" ) { thickness = 1.100 in; }
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.10 in}\noindent
+{\tt STEEL3} is a material property predefined in {\tt material.h},
+and loaded into the ALADDIN database during the program's startup procedure.
+
+\vspace{0.35 in}\noindent
+{\bf PLATE}: Four node discrete kirchoff quadrilateral (DKQ) plate element.
+Each node has three degrees of freedom -- two rotations, and a lateral displacement,
+as shown in Figure ~\ref{fig:fe-plate}.
+
+\begin{figure} [ht]
+\epsfxsize=3.5truein
+\centerline{\epsfbox{my-chapter5-fig5.ps}}
+\caption{Schematic of Plate Finite Element}
+\label{fig:fe-plate}
+\end{figure}
+
+\vspace{0.15 in}\noindent
+{\bf Section Properties and Material Properties :} 
+The section property is plate {\tt thickness}.
+The material properties include Young's modulus {\tt E},
+and Poisson's ratio $\nu$.
+The element type is {\tt DKT\_PLATE}.
+
+\vspace{0.15 in}\noindent
+{\bf Example :} 
+
+\vspace{0.10 in}
+\begin{footnotesize}
+\noindent
+{\rule{2.1 in}{0.035 in} ABBREVIATED INPUT FILE \rule{2.1 in}{0.035 in} }
+\begin{verbatim}
+   connect = [ 1, 2, 3, 4];
+   AddElmt( elmtno, connect, "name_of_elmt_attr");
+
+   ...... input statements removed .....
+
+   ElementAttr("name_of_elmt_attr") { type     = "DKT_PLATE";
+                                      section  = "mysection";
+                                      material = "ELASTIC";
+                                      map ldof [1,2,3] to gdof [2, 4, 6];
+                                    }
+
+   SectionAttr("mysection") { thickness = 2.0 in; }
+
+   MaterialAttr("ELASTIC")  { density = 150 lb/ft^3;
+                              poisson = 0.3;
+                              yield   = 36000;
+                              E       = 29000 psi;
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Currently, this element does not have a mass matrix.

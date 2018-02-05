@@ -1,0 +1,3374 @@
+\chapter{Command Language for Quantity and Matrix Operations}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+The purposes of this chapter are to
+explain execution of the ALADDIN environment,
+and details of the matrix command language within ALADDIN.
+For ease of reading, and when space permits,
+output from ALADDIN is juxtaposed with the input command(s).
+
+\section{How to Start (and Stop) ALADDIN}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+ALADDIN's command line arguments are setup in a very flexible way.
+The first argument is simply {\tt ALADDIN},
+the name of the executable program.
+
+\vspace{0.15 in}\noindent
+{\bf Input from Keyboard}
+
+\begin{footnotesize}
+\begin{verbatim}
+  ALADDIN -[ks]
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+{\bf Input from a File}
+
+\begin{footnotesize}
+\begin{verbatim}
+  ALADDIN -[sf] <filename>  
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Command options have the following meaning:
+
+\begin{description} 
+\item {\tt -f}
+Indicate input from a file (it must be accompanied by a filename).
+\item {\tt -k}
+Indicates input from the keyboard. When input
+is generated via the keyboard, a input history file
+will be generated and named as {\bf inputfile.std}.
+In the likely event of mistyping or a syntax error,
+you can continue type in {\bf inputfile.std}.
+\item {\tt -s}
+All input will be scanned for syntax errors
+without actually executing the program.
+\end{description} 
+
+\vspace{0.15 in}\noindent
+The command {\tt ALADDIN} must be accompanied by
+either the {\tt -f} flag, or the {\tt -k} flag.
+The {\tt -s} flag is optional.
+Command line options can be typed in arbitrary sequences.
+
+\vspace{0.15 in}\noindent
+The command to exit from ALADDIN is 
+
+\begin{footnotesize}
+\begin{verbatim}
+  quit;
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Don't forget the semicolon.
+
+\section{Format of General Command Language}
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+The ALADDIN command language corresponds to individual
+statements, and sequences of statements.
+
+\begin{footnotesize}
+\begin{verbatim}
+  statement 1;    
+  statement 2;    
+  ........
+  statement N;
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Each statement ends with a semi-colon ({\tt ;}). 
+Comment statements (as with the C programming language,
+comments are enclosed between {\tt /* .... */}), as in
+
+\begin{footnotesize}
+\begin{verbatim}
+/*
+ *  ================================
+ *  Here is a block of N statements.
+ *  ================================
+ */
+
+  statement 1;         /* the  first ALADDIN statement */
+  statement 2;         /* the second ALADDIN statement */
+  ........
+  statement N;         /* the   n^th ALADDIN statement */
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Basic output of character strings and physical quantities is handled with
+the {\tt print} command. For example,
+
+\begin{footnotesize}
+\begin{verbatim}
+   print "Here is one line of output \n";
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.05 in}\noindent
+gives
+
+\begin{footnotesize}
+\begin{verbatim}
+          Here is one line of output
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.10 in}\noindent
+Character strings are enclosed within quotes (i.e {\tt "....."}).
+The escape character ({\tt $\backslash n$})
+forces output onto a new line.
+
+\newpage
+\section{Physical Quantities}
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+While the importance of the engineering units is well known ~\cite{cmelik88,gehani82,karr78},
+physical units are not a standard part of many main-stream finite element
+software packages -- indeed, most engineering software packages simply
+hold the engineer responsible for making sure engineering units are consistent,
+While this practice of implementation may be satisfactory for
+computation of well established algorithms, it is almost certain
+to lead to incorrect results when engineers are working on the
+development of new and innovative computations.
+ALADDIN deviates from this trend by providing support
+for basic arithmetic operations on quantities and matrices of physical quantities.
+
+\subsection{Definition and Printing of Quantities}
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+Let's begin with the basics.  A quantity is a number with physical units.
+To assign the quantity ``2 m'' to variable ``x'' just type
+
+\begin{footnotesize}
+\begin{verbatim}
+x = 2 m;
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+The semi-colon character ``;'' is required for every 
+command to indicate the end of the one statement.
+The following script of code demonstrates definition
+of quantities.
+
+\vspace{0.15 in}
+\begin{footnotesize}
+\noindent
+\rule{1.2 in}{0.035 in} INPUT \rule{1.2 in}{0.035 in}\hspace{0.1 in}
+\rule{1.3 in}{0.035 in} OUTPUT\rule{1.3 in}{0.035 in}
+\begin{verbatim}
+print " LENGTH UNITS : SI SYSTEM \n";                  LENGTH UNITS : SI SYSTEM 
+
+x =  1 mm; y =  1 cm; z =  1 dm;
+u =  1  m; v =  1 km;
+
+print  "x = ", x, "\n";                                x =        1 mm
+print  "y = ", y, "\n";                                y =        1 cm
+print  "z = ", z, "\n";                                z =        1 dm
+print  "u = ", u, "\n";                                u =        1 m
+print  "v = ", v, "\n";                                v =        1 km
+
+print "\n VOLUME UNITS : US \n";                       VOLUME UNITS : US 
+
+x =  1 gallon; y =  1 barrel;
+
+print  "x = ", x, "\n";                                x =        1 gallon
+print  "y = ", y, "\n";                                y =        1 barrel
+
+print "\n MASS UNITS : SI SYSTEM \n";                  MASS UNITS : SI SYSTEM 
+
+x = 1 g; y = 1 kg; z = 1 Mg;
+
+print  "x = ", x, "\n";                                x =        1 g
+print  "y = ", y, "\n";                                y =        1 kg
+print  "z = ", z, "\n";                                z =        1 Mg
+
+print " TIME UNITS : SI SYSTEM \n";                    TIME UNITS : SI SYSTEM 
+
+x =  1 sec; y =  1  ms; 
+z =  1 min; u =  1  hr;  
+
+print  "x = ", x, "\n";                                x =        1 sec
+print  "y = ", y, "\n";                                y =        1 ms
+print  "z = ", z, "\n";                                z =        1 min
+print  "u = ", u, "\n";                                u =        1 hr
+
+print "\n TEMPERATURE UNITS : SI SYSTEM \n";           TEMPERATURE UNITS : SI SYSTEM 
+x = 1 deg_C;
+
+print  "x = ", x, "\n";                                x =        1 deg_C
+
+print "\n TEMPERATURE UNITS : US SYSTEM \n";           TEMPERATURE UNITS : US SYSTEM 
+x = 1 deg_F;
+
+print  "x = ", x, "\n";                                x =        1 deg_F
+
+print "\n UNITS OF FREQUENCY & SPEED \n";              UNITS OF FREQUENCY & SPEED 
+x = 1 Hz;
+y = 1 rpm;     /* rev. per min  */
+z = 1 cps;     /* cycle per sec */
+
+print  "x = ", x, "\n";                                x =        1 Hz
+print  "y = ", y, "\n";                                y =        1 rpm
+print  "z = ", z, "\n";                                z =        1 cps
+
+print "\n FORCE UNITS : SI SYSTEM \n";                 FORCE UNITS : SI SYSTEM 
+
+x =  1   N; y =  1  kN; z =  1 kgf;
+
+print  "x = ", x, "\n";                                x =        1 N
+print  "y = ", y, "\n";                                y =        1 kN
+print  "z = ", z, "\n";                                z =        1 kgf
+
+print "\n PRESSURE UNITS : SI SYSTEM \n";              PRESSURE UNITS : SI SYSTEM 
+
+x =  1   Pa; y =  1  kPa;
+z =  1  MPa; u =  1  GPa;
+
+print  "x = ", x, "\n";                                x =        1 Pa
+print  "y = ", y, "\n";                                y =        1 kPa
+print  "z = ", z, "\n";                                z =        1 MPa
+print  "u = ", u, "\n";                                u =        1 GPa
+
+print "\n ENERGY UNITS : SI SYSTEM \n";                ENERGY UNITS : SI SYSTEM 
+
+x =  1 Jou; y =  1  kJ;
+
+print  "x = ", x, "\n";                                x =        1 Jou
+print  "y = ", y, "\n";                                y =        1 kJ
+
+print "\n POWER UNITS : SI \n";                        POWER UNITS : SI 
+
+x =  1 Watt; y =  1  kW;
+
+print  "x = ", x, "\n";                                x =        1 Watt
+print  "y = ", y, "\n";                                y =        1 kW
+
+print "\n UNITS OF PLANE ANGLE UNITS \n";              UNITS OF PLANE ANGLE UNITS 
+
+x =  1 deg; y =  1 rad;
+
+print  "x = ", x, "\n";                                x =        1 deg
+print  "y = ", y, "\n";                                y =        1 rad
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.25 in}\noindent
+These examples focus on the SI system of units.
+In the US system, units of length are provided for
+micro inches ({\tt micro\_in}), inches ({\tt in}),
+feet ({\tt ft}), yards ({\tt yard}), and miles ({\tt mile}).
+Similarly, US units of mass are provided for
+pounds ({\tt lb}), grains ({\tt grain}),
+kilo pounds ({\tt klb}), and tons ({\tt ton}).
+Units of force in the US system are pounds force
+({\tt lbf}) and one thousand pounds force ({\tt kips}).
+Corresponding units of pressure in the US system are
+pounds per square inch ({\tt psi}),
+and thousands of pounds per square inch ({\tt ksi}).
+
+\vspace{0.25 in}\noindent
+{\bf Restrictions on Quantity Names :}
+Like many other programming languages,
+the ALADDIN command language has keywords and constants
+which are reserved for special purposes -- they 
+cannot be used for arbitrary purposes, such as variable names.
+For example, ALADDIN reserves the characters ``N'' and ``m'' 
+for engineering units Newton and metre.
+Similar restrictions apply to all units,
+keywords defining looping and control constructs (e.g. {\tt for} and {\tt while}),
+as well as built-in function names.
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+A complete list of keywords and constants is given
+in Table ~\ref{tab: my-keywords-and-constants}.
+Table ~\ref{tab: my-mathematical-functions} contains a list
+of names that are reserved for mathematical functions.
+Reserved names for matrix allocation functions,
+and functions to compute matrix operations,
+are given in Tables ~\ref{tab: my-builtin-matrix-allocation-functions}
+and ~\ref{tab: my-basic-matrix-operations}, respectively.
+Reserved names also apply to names of functions for solving
+linear equations, eigenvalues and eigenvectors, as well as 
+finite element analysis. These names are listed in
+Tables ~\ref{tab: my-linear-equation-functions}, \ref{tab: my-eigenvalue-functions},
+\ref{tab: my-section-properties}, \ref{tab: my-material-properties},
+and in the text of Chapter 5.
+
+\subsection{Formatting of Quantity Output}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+The command option {\tt "($<$ units $>$)"} allows for the
+printing of a quantity with a desired units.
+The following script of code gives some examples:
+
+\vspace{0.15 in}
+\begin{footnotesize}
+\noindent
+\rule{1.2 in}{0.035 in} INPUT \rule{1.2 in}{0.035 in}\hspace{0.1 in}
+\rule{1.3 in}{0.035 in} OUTPUT\rule{1.3 in}{0.035 in}
+\begin{verbatim}
+print " LENGTH UNITS \n";                           LENGTH UNITS
+
+v =  1 km; w =  1 mile;
+
+print  "v    = ", v       , "\n";                   v    =        1 km
+print  "v    = ", v (in)  , "\n";                   v    = 3.937e+04 in
+print  "v    = ", v (ft)  , "\n";                   v    =     3281 ft
+print  "v    = ", v (yard), "\n";                   v    =     1094 yard
+print  "v    = ", v (mile), "\n";                   v    =   0.6214 mile
+
+print  "w    = ", w       , "\n";                   w    =        1 mile
+print  "w    = ", w (mm)  , "\n";                   w    = 1.609e+06 mm
+print  "w    = ", w (cm)  , "\n";                   w    = 1.609e+05 cm
+print  "w    = ", w (dm)  , "\n";                   w    = 1.609e+04 dm
+print  "w    = ", w (m )  , "\n";                   w    =     1609 m
+print  "w    = ", w (km)  , "\n";                   w    =    1.609 km
+
+print "\n VOLUME UNITS \n";                         VOLUME UNITS 
+x =  1 gallon;
+
+print  "x = ", x     ,     "\n";                    x =        1 gallon
+print  "x = ", x (m^3),    "\n";                    x = 0.003785 m^ 3.0
+print  "x = ", x (ft^3),   "\n";                    x =   0.1337 ft^ 3.0
+print  "x = ", x (cm^3),   "\n";                    x =     3785 cm^ 3.0
+print  "x = ", x (in^3),   "\n";                    x =      231 in^ 3.0
+print  "x = ", x (barrel), "\n";                    x =  0.02381 barrel
+
+print "\n TEMPERATURE UNITS \n";i                   TEMPERATURE UNITS 
+
+x = 1 deg_C;    U = 10 mm/DEG_C;   
+y = 1 deg_F;    V = 10 in/DEG_F;
+
+print  "x = ", x        , "\n";                     x =        1 deg_C
+print  "x = ", x (deg_F), "\n";                     x =     33.8 deg_F
+print  "y = ", y        , "\n";                     y =        1 deg_F
+print  "y = ", y (deg_C), "\n";                     y =   -17.22 deg_C
+print  "U = ", U, "\n";                             U =       10 mm/DEG_C
+print  "V = ", V, "\n";                             V =       10 in/DEG_F
+
+print "\n";
+print "U*(1 DEG_C) = ", U*(1 DEG_C) (mm), "\n";     U*(1 DEG_C) =       10 mm
+print "U*(1 DEG_F) = ", U*(1 DEG_F) (mm), "\n";     U*(1 DEG_F) =    5.556 mm
+
+print "V*(1 DEG_C) = ", V*(1 DEG_C) (in), "\n";     V*(1 DEG_C) =       18 in
+print "V*(1 DEG_F) = ", V*(1 DEG_F) (in), "\n";     V*(1 DEG_F) =       10 in
+
+print " TIME UNITS \n";                             TIME UNITS 
+x =  1  hr;
+
+print  "x = ", x, "\n";                             x =        1 hr
+print  "x = ", x (min), "\n";                       x =       60 min
+print  "x = ", x (sec), "\n";                       x =     3600 sec
+
+print "\n UNITS OF FREQUENCY & SPEED \n";           UNITS OF FREQUENCY & SPEED
+
+y = 60 rpm;     /* rev. per min  */
+
+print  "y = ", y,       "\n";                       y =       60 rpm
+print  "y = ", y (Hz),  "\n";                       y =        1 Hz
+print  "y = ", y (cps), "\n";                       y =        1 cps
+
+print "\n PLANE ANGLE UNITS \n";                    PLANE ANGLE UNITS 
+
+x =  180 deg; y =  PI;
+
+print  "x = ", x, "\n";                             x =      180 deg
+print  "x = ", x (rad), "\n";                       x =    3.142 rad
+print  "y = ", y, "\n";                             y =   3.1416e+00 
+print  "y = ", y (deg), "\n";                       y =      180 deg
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Similar conversion factors exist for units of mass,
+force, pressure, energy and power.
+
+\subsection{Quantity Arithmetic}
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+Physical units may be manipulated with
+basic multiply, division and power operations.
+The following script of code demonstrates the
+range of arithmetic operations that are possible:
+
+\vspace{0.15 in}
+\begin{footnotesize}
+\noindent
+\rule{1.2 in}{0.035 in} INPUT \rule{1.2 in}{0.035 in}\hspace{0.1 in}
+\rule{1.3 in}{0.035 in} OUTPUT\rule{1.3 in}{0.035 in}
+\begin{verbatim}
+x  = 10 g; y  = 1 kg; z  = 1  m;
+
+print "\nADDITION & SUBTRACTION \n";                 ADDITION & SUBTRACTION
+
+print  "x + y = ", x + y, "\n";                      x + y =     1.01 kg
+print  "x - y = ", x - y, "\n";                      x - y =    -0.99 kg
+
+print "\n MULTIPLY \n";                              MULTIPLY 
+print  "x * y = ", x * y, "\n";                      x * y =       10 g.kg
+print  "x * z = ", x * z, "\n";                      x * z =       10 g.m
+
+print "\n DIVISION \n";                              DIVISION
+print  "x / y   = ", x / y, "\n";                    x / y   =     1.0000e-02
+print  "x / z   = ", x / z, "\n";                    x / z   =       10 g/m
+print  "1 / z   = ", 1 / z, "\n";                    1 / z   =        1 m^-1.0
+print  "z / 2   = ", z / 2 ,"\n";                    z / 2   =      0.5 m
+print  "1/(x*y) = ", 1/(x*y),"\n";                   1/(x*y) =      0.1 1/(g.kg)
+print  "z/(x*y) = ", z/(x*y),"\n";                   z/(x*y) =      0.1 m/g.kg
+print  "(x*y)/z = ", (x*y)/z,"\n";                   (x*y)/z =       10 g.kg/m
+
+
+print "\n POWER \n";                                 POWER 
+print  "x^0.5    = ", x ^ 0.5, "\n";                 x^0.5    =    3.162 g^ 0.5
+print  "z^2      = ", z ^ 2,   "\n";                 z^2      =        1 m^ 2.0
+print  "z^-3     = ", z ^ (-3),"\n";                 z^-3     =        1 m^-3.0
+print  "(x*y)^-2 = ", (x*y)^(-2),"\n";               (x*y)^-2 =     0.01 g.kg^-2.0
+print  "sqrt(z)  = ", sqrt(z),    "\n";              sqrt(z)  =        1 m^ 0.5
+
+print "\n MATH CALCULATIONS \n";                     MATH CALCULATIONS 
+u  = 30 deg;
+v  =  -PI/2;
+w  =    2;
+print  "sin(u)     = ", sin(u),     "\n";            sin(u)     =     5.0000e-01 
+print  "sin(v)     = ", sin(v),     "\n";            sin(v)     =    -1.0000e+00 
+print  "cos(u)     = ", cos(u),     "\n";            cos(u)     =     8.6603e-01 
+print  "cos(v)     = ", cos(v),     "\n";            cos(v)     =     6.1230e-17 
+print  "tan(PI/4)  = ", tan(PI/4),  "\n";            tan(PI/4)  =     1.0000e+00 
+print  "atan(1)    = ", atan(1),    "\n";            atan(1)    =     7.8540e-01 
+print  "abs(-3 m)  = ", abs(-3 m),  "\n";            abs(-3 m)  =        3 m     
+print  "abs(v)     = ", abs(v),     "\n";            abs(v)     =     1.5708e+00 
+print  "log(1E+5)  = ", log(1E+5),  "\n";            log(1E+5)  =     1.1513e+01 
+print  "log10(1E+5)= ", log10(1E+5),"\n";            log10(1E+5)=     5.0000e+00 
+print  "exp(w)     = ", exp(w),     "\n";            exp(w)     =     7.3891e+00 
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+We use the {\tt print} command and the character string {\tt "$\backslash$n"}
+containing the newline to
+print physical quantities and statements.
+Characters inside the equation marks ``  '' are considered statements.
+Arguments to mathematical functions,
+such as {\tt log()} and {\tt exp()} take dimensionless quantities.
+The power function can only accept a number as the exponent,
+even though {\tt x$\wedge$y} is grammatically legal. 
+Trigonometric functions can, however, take arguments
+with the units degree and radian because the latter are non-dimensional.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+An important feature of quantity operations is the check for consistent units.
+Suppose, for example, we try to add a quantity with time units
+to a second quantity having units of length,
+ALADDIN provides an appropriate fatal error message
+
+\begin{footnotesize}
+\begin{verbatim}
+  x = 1 in; y = 1 sec;
+
+  z = x + y;
+  FATAL ERROR >> In Add() : Inconsistent Dimensions.
+  FATAL ERROR >> Compilation Aborted.
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+followed by the termination of program execution.
+
+\subsection{Making a Quantity Dimensionless}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+In the development of algorithms to solve engineering problems,
+we will sometimes need to strip (or remove) the units
+from a physical quantity, and work with the numerical value alone.
+The built-in function {\tt QDimenLess()} removes units from quantities,
+as demonstrated in the following script of code:
+
+\vspace{0.20 in}
+\begin{footnotesize}
+\noindent
+\rule{1.2 in}{0.035 in} INPUT \rule{1.2 in}{0.035 in}\hspace{0.1 in}
+\rule{1.3 in}{0.035 in} OUTPUT\rule{1.3 in}{0.035 in}
+\begin{verbatim}
+print "\n MAKE A QUANTITY DIMENSIONLESS \n";       MAKE A QUANTITY DIMENSIONLESS 
+
+x = 1 N; y = 1 cm/sec;
+
+z = QDimenLess(x); u = QDimenLess(y);
+
+print  "x (with dimen)    = ", x, "\n";            x (with dimen)    =         1 N
+print  "y (with dimen)    = ", y, "\n";            y (with dimen)    =      0.01 m/sec
+print  "x (without dimen) = ", z, "\n";            x (without dimen) =   1.0000e+00 
+print  "y (without dimen) = ", u, "\n";            y (without dimen) =   1.0000e-02 
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\subsection{Switching Units On and Off}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+The command {\tt SetUnitsOn} turns the checking of units on,
+and the command {\tt SetUnitsOff} turns the checking of units off.
+The default units option is {\tt SetUnitsOn}.
+
+\subsection{Setting Units Type to US or SI}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+The default units type is {\tt SI}.
+The function {\tt SetUnitsType("string")},
+where "string" equals {\tt "US"} or {\tt "SI"},
+sets the units to either SI or US.
+Users should call this function before finite element displacements and
+stresses (i.e. calling {\tt PrintDispl()}, calling {\tt PrintStressl()}).
+
+\clearpage
+\begin{table}[h]
+\tablewidth = 5.5truein
+\begintable
+Category   | \para{List of Reserved Names}                           \crthick
+Constants  | \para{ DEG   = 57.29577951308, E = 2.718281828459,
+	            GAMMA = 0.577215664901, and PI = 3.141592653589} \cr
+Keywords   | \para{ break, else, for, if, print, quit,
+                    read, return, SetUnitsOn, SetUnitsOff, then, while}    \cr
+SI Units   | \para{ micron, mm,	cm, dm, m, km, g, kg, mg, N, kN, kgf,
+                    Pa, kPa, MPa, GPa, deg\_C, DEG\_C, Jou, kJ,
+                    Watt, kW, Hz, rpm, cps }           \cr
+US Units   | \para{ in, ft, yard, mile, mil, micro\_in, lb, klb, ton, grain,
+                    lbf, kips,  psi, ksi, deg\_F, DEG\_F, gallon, barrel,
+                    sec,   ms,  min,  hr,   deg, rad } 
+\endtable
+\vspace{0.01 in}
+\caption{\bf List of ALADDIN Keywords and Constants}
+\label{tab: my-keywords-and-constants}
+\end{table}
+
+\begin{table}[h]
+\tablewidth = 5.5truein
+\begintable
+Name/Argument | \para{Purpose of Function}                                      \crthick
+cos(x)        | \para{Compute cosine of quantity x. Default units are radians}  \cr
+sin(x)        | \para{Compute sin of quantity x. Default units are radians}     \cr
+tan(x)        | \para{Compute tangent of quantity x. Default units are radians} \crthick
+abs(x)        | \para{Return absolute value of quantity x.}                     \cr
+exp(x)        | \para{Compute exponential of quantity x.}                       \cr
+integer(x)    | \para{Return integer component of quantity x.}                  \cr
+log(x)        | \para{Compute natural logarithm of quantity x.}                 \cr
+log10(x)      | \para{Compute logarithm, base 10, of quantity x.}               \cr
+pow(x,n)      | \para{Compute quantity x raised to the power n; n is a number.} \cr
+sqrt(x)       | \para{Compute square root of quantity x.}                      
+\endtable
+\vspace{0.01 in}
+\caption{\bf List of Mathematical Functions}
+\label{tab: my-mathematical-functions}
+\vspace{0.21 in}
+\end{table}
+
+
+\clearpage
+\section{Control of Program Flow}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+In ALADDIN, control of program flow is accomplished with
+logic operations on physical quantities,
+constructs for conditional branching, and looping constructs.
+
+\begin{figure}[ht]
+\vspace{0.15 in}
+\epsfxsize=5.0truein
+\centerline{\epsfbox{my-chapter1-fig3.ps}}
+\caption{Branching and Looping Constructs in ALADDIN}
+\label{fig: aladdin-branch-and-loop-part2}
+\end{figure}
+
+\vspace{0.15 in}\noindent
+Figure ~\ref{fig: aladdin-branch-and-loop-part2} is a schematic
+of branching and looping constructs.
+ALADDIN supports the {\tt while} and {\tt for} looping constructs,
+and {\tt if} and {\tt if-then-else} branching constructs.
+
+\subsection{Logical Operations}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+ALADDIN supports three logical operators on quantities --
+{\tt $\&\&$} means logical and;
+{\tt $!$} means logical not;
+and {\tt $\Vert$} means logical or.
+Operators for conditional branching include:
+{\tt >} means greater than;
+{\tt <} means less than;
+{\tt >=} means greater than or equal to;
+{\tt <=} means less thano or equal to;
+{\tt ==} means identically equal to.
+Examples of their use are dispersed throughout
+the following scripts of code.
+
+\vspace{0.15 in}
+\begin{footnotesize}
+\noindent
+\rule{1.2 in}{0.035 in} INPUT \rule{1.2 in}{0.035 in}\hspace{0.1 in}
+\rule{1.3 in}{0.035 in} OUTPUT\rule{1.3 in}{0.035 in}
+\begin{verbatim}
+X1 = 1  m; X2 = 10 m;
+
+print "\n TEST RELATIONAL OPERATIONS \n";           TEST RELATIONAL OPERATIONS 
+
+Y1 = X1 > X2; Y2 = X1 < X2;
+
+print" Y1 = ", Y1, " FALSE \n";                     Y1 =     0.0000e+00  FALSE 
+print" Y2 = ", Y2, " TRUE  \n";                     Y2 =     1.0000e+00  TRUE  
+
+Y1 = X1 >= X2; Y2 = X1 <= X2;
+
+print" Y1 = ", Y1, " FALSE \n";                     Y1 =     0.0000e+00  FALSE 
+print" Y2 = ", Y2, " TRUE  \n";                     Y2 =     1.0000e+00  TRUE  
+
+Y1 = X1 == X2; Y2 = X1 != X2;
+
+print" Y1 = ", Y1, " FALSE \n";                     Y1 =     0.0000e+00  FALSE 
+print" Y2 = ", Y2, " TRUE  \n";                     Y2 =     1.0000e+00  TRUE  
+
+print "\n TEST LOGICAL AND/OR \n";                  TEST LOGICAL AND/OR 
+
+Y1 = (X1 == 1 m) && (X2 != 10 m);
+Y2 = (X1 != 1 m) && (X2 == 10 m);
+Y3 = (X1 == 1 m) && (X2 == 10 m);
+Y4 = (X1 != 1 m) && (X2 != 10 m);
+
+print" Y1 = ", Y1, " FALSE \n";                     Y1 =     0.0000e+00  FALSE 
+print" Y2 = ", Y2, " FALSE \n";                     Y2 =     0.0000e+00  FALSE 
+print" Y3 = ", Y3, " TRUE  \n";                     Y3 =     1.0000e+00  TRUE  
+print" Y4 = ", Y4, " FALSE \n";                     Y4 =     0.0000e+00  FALSE 
+
+Y1 = (X1 == 1 m) || (X2 != 10 m);
+Y2 = (X1 != 1 m) || (X2 == 10 m);
+Y3 = (X1 == 1 m) || (X2 == 10 m);
+Y4 = (X1 != 1 m) || (X2 != 10 m);
+
+print" Y1 = ", Y1, " TRUE  \n";                     Y1 =     1.0000e+00  TRUE  
+print" Y2 = ", Y2, " TRUE  \n";                     Y2 =     1.0000e+00  TRUE  
+print" Y3 = ", Y3, " TRUE  \n";                     Y3 =     1.0000e+00  TRUE  
+print" Y4 = ", Y4, " FALSE \n";                     Y4 =     0.0000e+00  FALSE 
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\subsection{Conditional Branching}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+The {\tt if} and {\tt if-then-else} constructs allow 
+for conditional branching of program flow.
+The command syntax is:
+
+\begin{footnotesize}
+\begin{verbatim}
+if(statement1) {        /* If the statements1 is true, then execute statements2 */
+   statements2;
+}                       /* Skip statements2 if statement1 is false              */
+\end{verbatim}
+\end{footnotesize}
+\vspace{ 0.05 in}
+
+\noindent and 
+\vspace{ 0.05 in}
+
+\begin{footnotesize}
+\begin{verbatim}
+if(statement1) then {   /* If the statement1 is true, then execute statements2  */
+   statements2;
+} else {
+   statements3;         /* If the statement1 is false, then execute statements3 */
+}
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{ 0.15 in}\noindent
+with the braces ``\{'' and ``\}'' necessary even if
+{\tt statements1} consists of a single statement.
+Here are two examples:
+
+\vspace{0.15 in}
+\begin{footnotesize}
+\noindent
+\rule{1.2 in}{0.035 in} INPUT \rule{1.2 in}{0.035 in}\hspace{0.1 in}
+\rule{1.3 in}{0.035 in} OUTPUT\rule{1.3 in}{0.035 in}
+\begin{verbatim}
+print "\n -- if condition \n";                    -- if condition 
+
+x = 1 ksi;                                        x =        1 ksi
+if ( x < 10 ksi ) {
+     print " x = ", x ,"\n";
+}
+
+print "\n -- if-else condition \n";               -- if-else condition 
+
+x = 10 ksi; y = 1 MPa;
+if ( x < 10 ksi ) then {
+     print " x = ", x ,"\n";
+} else {
+     print " y = ", y ,"\n";                      y =        1 MPa
+}
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\subsection{Looping and Stopping Commands}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+ALADDIN supports two looping constructs, the while-loop and the for-loop.
+The while-loop syntax is:
+
+\begin{footnotesize}
+\begin{verbatim}
+
+while (statement0) {
+      statments;    /* If statement0 is true execute */
+                    /* statements, else stop looping */
+}
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+If {\tt statement0} is true (i.e evaluates to a constant larger than zero).
+then the body of the while-loop (i.e {\tt statements}) will be executed.
+Otherwise, the program will stop looping,
+and continue onto the next command.
+As we will see in the scripts of code below,
+{\tt statement0} can be a single statement condition,
+or multiple conditions connected through logic operators.
+
+\vspace{0.15 in}\noindent
+The for-loop syntax is:
+
+\begin{footnotesize}
+\begin{verbatim}
+for ( initializer; condition; increment ){
+      statements;
+}
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+The {\tt initializer}, {\tt condition}, and {\tt increment}
+statements can be either a series of quantity statements
+separated by comma (i.e ','), or, an empty statment.
+Zero or more statements may be located in the for-loop body.
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+The command for breaking one layer of loopings is {\tt break} --
+and it must be used inside the looping
+body bounded by the symbol ``\{'' and ``\}''.
+The {\tt quit} statement terminates program execution;
+it can be used anywhere outside the loops.
+
+\vspace{0.15 in}\noindent
+{\bf While Loop with One Layer :}
+The examples of input commands for one-layer
+while-loop with different conditions are given below:
+
+\vspace{0.15 in}
+\begin{footnotesize}
+\noindent
+\rule{1.2 in}{0.035 in} INPUT \rule{1.2 in}{0.035 in}\hspace{0.1 in}
+\rule{1.3 in}{0.035 in} OUTPUT\rule{1.3 in}{0.035 in}
+\begin{verbatim}
+print "\n -- Single Condition \n";               -- Single Condition
+X = 1 m;                                         X =        1 m
+while (X <= 5 m) {                               X =        2 m
+   print " X = ", X, "\n";                       X =        3 m
+   X = X + 1 m;                                  X =        4 m
+}                                                X =        5 m
+
+print "\n -- Multiple Conditions \n";            -- Multiple Conditions 
+Y = 1 in;                                        (X, Y) = (       1 m       1 in)
+X = 1 m;                                         (X, Y) = (       2 m       2 in)
+while (X <= 5 m && Y <= 0.5 ft) {                (X, Y) = (       3 m       3 in)
+   print " (X, Y) = (",X,Y,")\n";                (X, Y) = (       4 m       4 in)
+   X = X + 1 m;                                  (X, Y) = (       5 m       5 in)
+   Y = Y + 1 in;
+}
+
+print "\n -- Empty Condition \n";                -- Empty Condition
+X = 1 m;                                         X =        1 m
+while ( ) {                                      X =        2 m
+   if(X > 5 m) {                                 X =        3 m
+      break;                                     X =        4 m
+   }                                             X =        5 m
+   print " X = ", X, "\n";
+   X = X + 1 m;
+}
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.25 in}\noindent
+{\bf While Loops with Multiple Layers :}
+The examples of input commands for multi-layers while-loop
+are given below:
+
+\vspace{0.15 in}
+\begin{footnotesize}
+\noindent
+\rule{1.2 in}{0.035 in} INPUT \rule{1.2 in}{0.035 in}\hspace{0.1 in}
+\rule{1.3 in}{0.035 in} OUTPUT\rule{1.3 in}{0.035 in}
+\begin{verbatim}
+print "\n -- Multiple Layers \n";                -- Multiple Layers 
+X = 2 m;                                         (X, Y) = (       2 m       1 in)
+while (X <= 5 m) {                               (X, Y) = (       2 m       5 in)
+   Y = 1 in;                                     (X, Y) = (       2 m       9 in)
+   print "\n";                                   (X, Y) = (       4 m       1 in)
+   while(Y <= 1 ft) {                            (X, Y) = (       4 m       5 in)
+      print "(X, Y) = (",X,Y,")\n";              (X, Y) = (       4 m       9 in)
+      Y = Y + 4 in;
+   }
+   X = X + 2 m ;
+}
+
+print "\n Break inside Multilayer While \n";     Break inside Multilayer While 
+
+X = 2 m;                                         (X, Y) = (       2 m       1 in)
+while (X <= 10 m) {                              (X, Y) = (       2 m       2 in)
+    if(X < 4m) then {                            (X, Y) = (       2 m       3 in)
+    } else break;                                (X, Y) = (       2 m       4 in)
+    Y = 1 in;                                    (X, Y) = (       2 m       5 in)
+    print "\n";                                  (X, Y) = (       2 m       6 in)
+    while(Y <= 1 ft) {                           (X, Y) = (       2 m       7 in)
+        if(Y > 8 in)
+           break;
+        print "(X, Y) = (",X,Y,")\n";
+        Y = Y + 1 in;
+    }
+    X = X + 2 m ;
+}
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.25 in}\noindent
+{\bf For Loops with One Layer :}
+The examples of input commands for one-layer for-loop with different
+conditions are given below:
+
+\vspace{0.15 in}
+\begin{footnotesize}
+\noindent
+\rule{1.2 in}{0.035 in} INPUT \rule{1.2 in}{0.035 in}\hspace{0.1 in}
+\rule{1.3 in}{0.035 in} OUTPUT\rule{1.3 in}{0.035 in}
+\begin{verbatim}
+print "\n -- Empty Initializer\n";               -- Empty Initializer
+
+x = 1m;                                          x        = 1 m
+for(     ; x <= 5 m; x = x + 1 m) {              x        = 2 m
+   print "x = ", x, "\n";                        x        = 3 m
+}                                                x        = 4 m
+                                                 x        = 5 m
+
+print "\n -- Empty Increment \n";                -- Empty Increment
+
+for(x = 1 m; x <= 5 m;       ) {                 x        = 1 m
+   print "x = ", x, "\n";                        x        = 2 m
+   x = x + 1 m;                                  x        = 3 m
+}                                                x        = 4 m
+                                                 x        = 5 m
+
+print "\n -- Empty Condition\n";                 -- Empty Condition
+
+for(x = 1 m;   ; x = x + 1 m ) {                 x        = 1 m
+   if(x > 5 m) {                                 x        = 2 m
+      break;                                     x        = 3 m
+   }                                             x        = 4 m
+   print "x = ", x, "\n";                        x        = 5 m
+}
+
+print "\n -- Empty Increment and Condition\n";   -- Empty Increment and Condition
+
+x = 1m;                                          x        = 1 m
+for( ;  ;  ) {                                   x        = 2 m
+    if(x > 5 m) {                                x        = 3 m
+      break;                                     x        = 4 m
+    }                                            x        = 5 m
+    print "x = ", x, "\n";
+    x = x + 1m;
+}
+
+print "\n -- Single Condition \n";               -- Single Condition
+
+for(x = 1 m; x <= 5 m; x = x + 1 m) {            x        = 1 m
+   print "x = ", x, "\n";                        x        = 2 m
+}                                                x        = 3 m
+                                                 x        = 4 m
+                                                 x        = 5 m
+
+print "\n -- Multiple Conditions \n";            -- Multiple Conditions
+
+x = 1 m;                                         (x,y,z) = (  1 m  1 in    100 yard)
+y = 1 in;                                        (x,y,z) = (  2 m  2 in    500 yard)
+z = 100 yard;                                    (x,y,z) = (  3 m  3 in    900 yard)
+                                                 (x,y,z) = (  4 m  4 in   1300 yard)
+for(x = 1 m, y = 1 in, z = 100 yard; x <= 5 m    (x,y,z) = (  5 m  5 in   1700 yard)
+    && y < 1 ft || z < 0.5 mile; x = x + 1 m,
+    y = y + 1 in, z = z + 400 yard) {
+        print " (x,y,z) = (",x, y, z,")\n";
+}
+
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+The looping constructs {\tt for} and {\tt while} may be nested;
+examples are located in Chapter 4, and in the numerical and finite element
+algorithms developed for Part 2 of this report.
+
+\vspace{0.15 in}
+\section{Definition and Printing of Matrices}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+The ALADDIN command language supports interactive definition of matrices,
+their allocation to variable names, and matrix operations.
+Matrix elements may be defined with physical units.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+There are two basic mechanisms for defining a matrix;
+(a) build the matrix directly from an input command,
+and (b) make use of built-in matrix allocation functions,
+
+
+\subsection{Definition of Small Matrices}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+The following input commands demonstrate the
+interactive definition and printing of small matrices:
+ 
+\begin{footnotesize}
+\begin{verbatim}
+    X = [1, 2, 3];
+    Y = [1; 2; 3];
+    Z = [1,
+            3;
+               2, 4];
+
+    PrintMatrix(X);
+    PrintMatrix(Y,Z);
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+X ,Y and Z are (1 $\times$ 3), (3$\times$1) and (2 $\times$ 2) matrices, respectively.
+We use square brackets (i.e. {\tt "["} and {\tt "]"}) to indicate the beginning and end 
+of a matrix definition. Individual elements of a matrix are separated by commas,
+and may be located on one or more lines of input.
+The elements of a matrix are defined row-wise,
+with a semi-colon positioned inside the brackets separating matrix rows.
+Each row of the matrix must have the same number of columns.
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+{\tt PrintMatrix()} prints the contents of a matrix to
+standard output (i.e. the computer screen).
+With matrix X defined above, {\tt PrintMatrix(X);} gives
+
+\begin{footnotesize}
+\begin{verbatim}
+MATRIX : "X"
+
+row/col          1            2            3          
+      units                                 
+   1            1.00000e+00  2.00000e+00  3.00000e+00
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Notice that a blank row and blank column are available for the printing
+of units -- we will describe this feature in the next subsection.
+{\tt PrintMatrix()} accepts from one to five matrix arguments.
+So, for example, the single command {\tt PrintMatrix(Y, Z);} generates
+
+\begin{footnotesize}
+\begin{verbatim}
+MATRIX : "Y"
+row/col          1          
+      units                                 
+   1            1.00000e+00
+   2            2.00000e+00
+   3            3.00000e+00
+
+MATRIX : "Z"
+row/col          1            2          
+      units                                 
+   1            1.00000e+00  3.00000e+00  
+   2            2.00000e+00  4.00000e+00  
+\end{verbatim}
+\end{footnotesize}
+
+\begin{table}[t]
+\tablewidth = 6.25truein
+\begintable
+Matrix           | \para{Purpose of Function}                                  \crthick
+Matrix([s, t])   | \para{Allocate s $\times$ t matrix}                         \cr
+PrintMatrix(A, B,..) | \para{Print matrices {\tt A}, {\tt B}, and so on.}      \crthick
+ColumnUnits(A, [u])| \para{Assign column units {\tt u} to matrix {\tt A} -- for
+                           complete details, see the text.}                    \cr
+RowUnits(A, [u])| \para{Assign row units {\tt u} to matrix {\tt A} -- for
+                        complete details, see the text.}                       \crthick
+Diag([s, n])     | \para{Allocate s $\times$ s diagonal matrix with n along diagonal} \cr
+One([s, t])      | \para{Allocate s $\times$ t matrix full of ones}            \cr
+One([s])         | \para{Allocate s $\times$ s matrix full of ones}            \cr
+Zero([s])        | \para{Allocate s $\times$ s matrix full of zeros}           \cr
+Zero([s, t])     | \para{Allocate s $\times$ t matrix full of zeros}          
+\endtable
+\vspace{0.01 in}
+\caption{\bf Functions for Definition and Printing of Matrices}
+\label{tab: my-builtin-matrix-allocation-functions}
+\end{table}
+
+\vspace{0.15 in}\noindent
+The same output would be generated by the command sequence:
+
+\begin{footnotesize}
+\begin{verbatim}
+   PrintMatrix(Y); PrintMatrix(Z);
+\end{verbatim}
+\end{footnotesize}
+
+\subsection{Built-in Functions for Allocation of Matrices}
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+The interactive definition of matrices can be a error-prone process that
+becomes progressively tedious with increasing matrix size.
+In situations where numerical and finite element analysis problems generate
+matrices with hundreds -- sometimes thousands -- of rows and columns,
+the interactive definition of matrices is simply impractical.
+To mitigate these limitations,
+ALADDIN provides a family of functions to generate matrices
+commonly used in numerical and finite element analyses.
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+Table ~\ref{tab: my-builtin-matrix-allocation-functions} contains
+a summary of functions and their arguments for the definition of matrices
+(we will describe the finite element functions in Part 2 of this report).
+The following script of commented input code 
+demonstrates and explains use of these functions.
+
+\vspace{0.15 in}
+\begin{footnotesize}
+\noindent
+{\rule{2.3 in}{0.035 in} START OF INPUT FILE \rule{2.3 in}{0.035 in} }
+\begin{verbatim}
+
+   /* [a] : Allocate a 20 by 30 matrix               */
+
+      W = Matrix([20, 30]);
+
+   /* [b] : Allocate a 1 by 30 matrix full of zeros */
+
+      X = Zero([1, 30]);
+
+   /* [c] : Allocate a 30 by 30 matrix full of zeros */
+
+      X = Zero([30, 30]);
+      Y = Zero([30]);
+
+   /* [d] : Allocate a matrix full of zeros, the size is same of [W] */
+
+      X = Zero(Dimension(W));
+
+   /* [e] : Allocate a 30 by 30 matrix full of ones */
+
+      Y = One([30]);
+      X = One([30, 30]);
+
+   /* [f] : Allocate a 30 by 30 diagonal matrix with 2 along diagonal     */
+   /*       and a 44 by 44 identity matrix                                */
+
+      X = Diag([30, 2]);
+      Y = Diag([44, 1]);
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\subsection{Definition of Matrices with Units}
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+Recall from Chapter 2 that matrix units are
+stored in row units and column units buffers.
+The definition of matrices with units falls into two classes,
+and we will demonstrate each by example.
+
+\vspace{0.15 in}\noindent
+{\bf Row and Column Vectors :}
+Example commands for matrices that
+are either row or column vectors are
+
+\begin{footnotesize}
+\begin{verbatim}
+    X = [1 kN, 2 Pa, 3 m];
+    Y = [1 kN; 2 Pa; 3 m];
+    Z = [lbf*ft; m^2; psi*in^2];
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+where the X, Y are 1x3, 3x1 matrices.
+The elements of X are {\tt X[1][1] = 1.0 kN},
+{\tt X[1][2] = 2.0 Pa}, and {\tt X[1][3] = 3 m}.
+The matrix Y is simply the transpose of matrix X.
+Matrix Z is a 3x1 matrix that consists of units alone.
+It's elements are {\tt Z[1][1] = lbf.ft},
+{\tt Z[1][2] = m$\wedge$2} and {\tt Z[1][3] = psi.in$\wedge$2 = lbf}.
+
+\vspace{0.15 in}\noindent
+{\bf General Matrices :}
+For general matrices, units are written to units buffer with the
+built-in functions {\tt ColumnUnits()} and {\tt RowUnits()}.
+{\tt ColumnUnits()} writes a column units buffer into a matrix.
+{\tt RowUnits()} writes a row units buffer.
+{\tt ColumnUnits()} and {\tt RowUnits()}
+both accept either two or three arguments.
+The first argument is name of the matrix that units will be assigned to.
+The second argument is a (1 $\times$ n) units vector.
+The third argument is a (1 $\times$ 1) matrix
+containing the column number (or row number) units will be assigned to.
+In summary, the syntax is
+
+\begin{footnotesize}
+\begin{verbatim}
+    W = ColumnUnits(M, [ units_vector ]);
+    W =    RowUnits(M, [ units_vector ]);
+
+    W = ColumnUnits(M, [ units_vector ], [ number ]);
+    W =    RowUnits(M, [ units_vector ], [ number ]);
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+{\bf Example of ColumnUnits() :}
+Let {\tt X} be a (4 $\times$ 4) non-dimensional matrix full of ones,
+possibly generated with the command {\tt X = One([4,4]);}.
+The command
+
+\begin{footnotesize}
+
+\begin{verbatim}
+    X = ColumnUnits(X, [kN]);
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+will assign the units {\tt kN} to every element of the column units buffer in {\tt X}. 
+All of the elements of {\tt X} will now have units {\tt kN}.
+Two alternative ways of achieving the same result are:
+
+\begin{footnotesize}
+\begin{verbatim}
+    X = ColumnUnits(X, [kN, kN, kN, kN]);
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.05 in}\noindent
+and 
+
+\begin{footnotesize}
+\begin{verbatim}
+    X = ColumnUnits(X, [kN], [1]);
+    X = ColumnUnits(X, [kN], [2]);
+    X = ColumnUnits(X, [kN], [3]);
+    X = ColumnUnits(X, [kN], [4]);
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+where the command {\tt X = ColumnUnits(X, [kN], [1])}; assigns units
+{\tt kN} to the first element of the column units buffer in X.
+It is important to note our careful choice of the words {\tt assign} --
+when specific row or column numbers are omitted,
+units assignment takes place in all of those rows or columns that
+match the units exponents.
+Suppose, for example, that we generate {\tt X} with
+the following sequence of statements:
+
+\begin{footnotesize}
+\begin{verbatim}
+    X = One([6]);
+    X = ColumnUnits(X, [ton],  [1]);
+    X = ColumnUnits(X, [mile], [3]);
+    X = ColumnUnits(X, [klb],  [4]);
+    X = ColumnUnits(X, [ft],   [6]);
+
+    Y = ColumnUnits(X, [in, lb]);
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+The command {\tt X = One([6])} generates a (6 $\times$ 6) matrix full of ones,
+and assigns the result to variable {\tt X}. Repeated use
+of {\tt ColumnUnits()} assigns to columns 1, 3, 4, 6 of {\tt X},
+units {\tt ton}, {\tt mile}, {\tt klb}, and {\tt ft}.
+Put another way, columns 1 and 4 have units of mass,
+and columns 3 and 6, units of length. Columns 2 and 5 are dimensionless.
+The details of {\tt X} are:
+
+\begin{footnotesize}
+\begin{verbatim}
+MATRIX : "X"
+
+row/col          1            2            3            4            5        
+      units          ton                   mile          klb                  
+   1            1.00000e+00  1.00000e+00  1.00000e+00  1.00000e+00  1.00000e+00
+   2            1.00000e+00  1.00000e+00  1.00000e+00  1.00000e+00  1.00000e+00
+   3            1.00000e+00  1.00000e+00  1.00000e+00  1.00000e+00  1.00000e+00
+   4            1.00000e+00  1.00000e+00  1.00000e+00  1.00000e+00  1.00000e+00
+   5            1.00000e+00  1.00000e+00  1.00000e+00  1.00000e+00  1.00000e+00
+   6            1.00000e+00  1.00000e+00  1.00000e+00  1.00000e+00  1.00000e+00
+
+
+row/col          6          
+      units     ft   
+   1            1.00000e+00
+   2            1.00000e+00 
+   3            1.00000e+00 
+   4            1.00000e+00 
+   5            1.00000e+00 
+   6            1.00000e+00 
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+In the new matrix {\tt Y}, the {\tt ton} and {\tt klb}
+are replaced with unit {\tt lb},
+so are the corresponding value of the elements,
+and {\tt miles} and {\tt ft} are replaced with {\tt in}.
+The details of {\tt Y} are:
+
+\begin{footnotesize}
+\begin{verbatim}
+MATRIX : "Y"
+
+row/col          1            2            3            4            5           
+      units           lb                     in           lb                     
+   1            2.00000e+06  1.00000e+00  6.33600e+04  1.00000e+03  1.00000e+00  
+   2            2.00000e+06  1.00000e+00  6.33600e+04  1.00000e+03  1.00000e+00  
+   3            2.00000e+06  1.00000e+00  6.33600e+04  1.00000e+03  1.00000e+00  
+   4            2.00000e+06  1.00000e+00  6.33600e+04  1.00000e+03  1.00000e+00  
+   5            2.00000e+06  1.00000e+00  6.33600e+04  1.00000e+03  1.00000e+00  
+   6            2.00000e+06  1.00000e+00  6.33600e+04  1.00000e+03  1.00000e+00  
+
+row/col          6 
+      units     in   
+   1            1.20000e+01
+   2            1.20000e+01
+   3            1.20000e+01
+   4            1.20000e+01
+   5            1.20000e+01
+   6            1.20000e+01
+\end{verbatim}
+\end{footnotesize}
+
+\subsection{Printing Matrices with Desired Units}  
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+The function {\tt PrintMatrixCast()} prints a single matrix,
+or perhaps a family of matrices with desired units.
+The syntax for using {\tt PrintMatrixCast()} is:
+
+\begin{footnotesize}
+\begin{verbatim}
+       PrintMatrixCast( matrix1 , units_m );
+       PrintMatrixCast( matrix1 , matrix2, .... , units_m );
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+where {\tt matrix1}, {\tt matrix2}, and so on,
+are names of matrices to be printed,
+and {\tt units\_m} is a vector matrix containing the desired units.
+{\tt PrintMatrixCast()} accepts from one to four arguments.
+
+\vspace{0.15 in}\noindent
+{\bf Example :} Suppose that matrices {\tt X} and {\tt Y}
+are generated as follows
+
+\begin{footnotesize}
+\begin{verbatim}
+X = One([3, 4]);
+Y = [2, 3; 4, 5];
+X = ColumnUnits(X, [psi], [1]);
+X = ColumnUnits(X, [kN],  [2]);
+X = ColumnUnits(X, [km],  [4]);
+X = RowUnits(X, [psi, N, mm]);
+
+Y = ColumnUnits(Y, [psi]);
+Y = RowUnits(Y,[in]);
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+The details of matrices {\tt X} and {\tt Y} are:
+
+\begin{footnotesize}
+\begin{verbatim}
+MATRIX : "X"
+
+row/col          1            2            3            4          
+      units          psi           kN                     km   
+   1      psi   1.00000e+00  1.00000e+00  1.00000e+00  1.00000e+00
+   2        N   1.00000e+00  1.00000e+00  1.00000e+00  1.00000e+00
+   3       mm   1.00000e+00  1.00000e+00  1.00000e+00  1.00000e+00
+
+MATRIX : "Y"
+
+row/col          1            2          
+      units          psi          psi   
+   1       in   2.00000e+00  3.00000e+00
+   2       in   4.00000e+00  5.00000e+00
+
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Suppose that we now want to print {\tt X} and {\tt Y}, but with appropriate
+column units of pressure and length rescaled to {\tt ksi} and {\tt mm}.
+The command {\tt PrintMatrixCast(X,} {\tt Y, [ksi, mm]);} generates
+the output
+
+\begin{footnotesize}
+\begin{verbatim}
+MATRIX : "X"
+
+row/col          1            2            3            4          
+      units          ksi           kN                     mm   
+   1      psi   1.00000e-03  1.00000e+00  1.00000e+00  1.00000e+06
+   2        N   1.00000e-03  1.00000e+00  1.00000e+00  1.00000e+06
+   3       mm   1.00000e-03  1.00000e+00  1.00000e+00  1.00000e+06
+
+MATRIX : "Y"
+
+row/col          1            2          
+      units          ksi          ksi   
+   1       in   2.00000e-03  3.00000e-03
+   2       in   4.00000e-03  5.00000e-03
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Row buffer units may also be re-scaled.
+For example, the command {\tt PrintMatrixCast(X,} {\tt Y, [ksi; mm]);}
+rescales the pressure and length units in appropriate rows to
+{\tt ksi} and {\tt mm} and generates the output:
+
+\begin{footnotesize}
+\begin{verbatim}
+MATRIX : "X"
+
+row/col          1            2            3            4          
+      units          psi           kN                     km   
+   1      ksi   1.00000e-03  1.00000e-03  1.00000e-03  1.00000e-03
+   2        N   1.00000e+00  1.00000e+00  1.00000e+00  1.00000e+00
+   3       mm   1.00000e+00  1.00000e+00  1.00000e+00  1.00000e+00
+
+MATRIX : "Y"
+
+row/col          1            2          
+      units          psi          psi   
+   1       mm   5.08000e+01  7.62000e+01
+   2       mm   1.01600e+02  1.27000e+02
+\end{verbatim}
+\end{footnotesize}
+
+\section{Matrix-to-Quantity Conversion}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+Let {\tt X} be a matrix, and {\tt s} and {\tt t} be positive integers.
+The command {\tt Y = X[s][t]} extracts matrix element {\tt X[s][t]} from {\tt X},
+and assigns the quantity to variable {\tt Y}.  An equivalent command
+for (1 $\times$ 1) matrices {\tt X} is {\tt Y = QuanCast(X)}.
+We demonstrate use of {\tt QuanCast()} in the following script of code:
+
+\vspace{0.15 in}
+\begin{footnotesize}
+\noindent
+\rule{1.2 in}{0.035 in} INPUT \rule{1.2 in}{0.035 in}\hspace{0.1 in}
+\rule{1.3 in}{0.035 in} OUTPUT\rule{1.3 in}{0.035 in}
+\begin{verbatim}
+/* [a] : Define (1x1) matrix */
+
+   X = [100 kPa];
+
+/* [b] : Print element [1][1] of X */
+
+   print "Y = ", QuanCast(X), "\n";              Y =      100 kPa
+   print "Y = ", X[1][1]    , "\n";              Y =      100 kPa
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.15 in}
+\section{Basic Matrix Operations}
+
+\subsection{Retrieving the Dimensions of a Matrix}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+In the development of many numerical algorithms for engineering computations,
+there is often a need to extract the dimensions of a particular matrix.
+The number of rows and columns in a matrix may determine, for example,
+how many iterations of an algorithm will be computed.
+In ALADDIN, the function {\tt Dimension( X )} extracts the 
+number of rows and columns for matrix {\tt X}, and returns
+the result in a ($1 \times 2$) matrix.
+Elements {\tt [1][1]} and {\tt [1][2]} of the matrix returned by
+{\tt Dimension()} contain the number of
+rows and columns in {\tt X}, respectively.
+
+\vspace{0.15 in}
+\begin{footnotesize}
+\noindent
+\rule{1.2 in}{0.035 in} INPUT \rule{1.2 in}{0.035 in}\hspace{0.1 in}
+\rule{1.3 in}{0.035 in} OUTPUT\rule{1.3 in}{0.035 in}
+\begin{verbatim}
+/* [a] : Generate 13 by 20 matrix called Z */
+
+   Z = One( [ 13, 20] );
+
+/* [b] : Extract and print dimensions of Z */
+
+   size = Dimension(Z);
+
+   print "\n\n";
+   print "Rows in [Z]    = ", size[1][1] ,"\n";  Rows in [Z]    =     1.3000e+01 
+   print "Columns in [Z] = ", size[1][2] ,"\n";  Columns in [Z] =     2.0000e+01 
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\subsection{Matrix Copy and Matrix Transpose}
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+The functions {\tt Copy()} and {\tt Transpose()} compute respectively,
+a matrix copy, and the matrix transpose.
+Both functions accept a single matrix argument.
+Examples of their use are located in the next subsection.
+
+\subsection{Matrix Addition, Subtraction, and Multiplication}
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+Operations for basic matrix arithmetic include
+assignment, addition, subtraction, copying a matrix,
+and computing the matrix transpose and inverse.
+Here are some examples.
+
+\vspace{0.15 in}
+\begin{footnotesize}
+\noindent
+{\rule{2.3 in}{0.035 in} START OF INPUT FILE \rule{2.3 in}{0.035 in} }
+\begin{verbatim}
+/* [a] : define matrix A; use matrix copy and matrix transpose functions */
+
+   A = [ 1.0 kN, 2.0 Pa, 3 cm ];
+   B =  Copy(A);
+   C = Trans(A);
+
+/* [b] : define and print matrices X and Y, with units */
+
+   X = Diag([4, 1]);
+   Y = One([4]);
+   X = ColumnUnits(X, [ksi, ft, N, m]);
+   Y = ColumnUnits(Y, [psi, in, kN,km]);
+   X = RowUnits(X, [psi, in, kN, mm]);
+   Y = RowUnits(Y, [ksi, ft, N, mm]);
+
+   PrintMatrix(X, Y);
+
+/* [c] : compute matrix addition and subtraction, and print results */
+
+   Z = X + Y; U = X - Y;
+
+   PrintMatrix(Z, U);
+\end{verbatim}
+\noindent
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\begin{table}[t]
+\tablewidth = 6.25truein
+\begintable
+Name/Argument | \para{Purpose of Function}                                     \crthick
+Copy(A)       | \para{Make a copy of matrix {\tt A}.}                          \cr
+Dimension(A)  | \para{Retrieve the size, or dimensions, of matrix {\tt A} -- 
+                      the result is a (1x2) matrix.}                           \cr
+Extract(A,X,[s,t]) | \para{ Extract a submatrix of size {\tt A} from matrix
+                            {\tt X} starting at corner (s,t).}                 \cr
+L2Norm(A)     | \para{Compute $L_2$ (Euclidean) norm of row or column vector {\tt A}.}     \cr
+Put(X,A,[s,t])| \para{ Put a p x q matrix A into matrix X, starting at corner (s,t).
+                       The contents of matrix X bounded by the row and column numbers
+                       (s,t) and (p+s-1,q+t-1) are replaced by the contents of A} \cr
+QuanCast(A)   | \para{Cast a (1x1) matrix into a quantity.}                     \cr
+Trans(A)      | \para{Compute transpose of matrix {\tt A}.}                
+\endtable
+\vspace{0.01 in}
+\caption{\bf Functions for Basic Matrix Operations}
+\label{tab: my-basic-matrix-operations}
+\end{table}
+
+\vspace{0.15 in}\noindent
+Matrices {\tt X} and {\tt Y} are:
+
+\begin{footnotesize}
+\begin{verbatim}
+MATRIX : "X"
+
+row/col          1            2            3            4          
+      units          ksi           ft            N            m   
+   1      psi   1.00000e+00  0.00000e+00  0.00000e+00  0.00000e+00
+   2       in   0.00000e+00  1.00000e+00  0.00000e+00  0.00000e+00
+   3       kN   0.00000e+00  0.00000e+00  1.00000e+00  0.00000e+00
+   4       mm   0.00000e+00  0.00000e+00  0.00000e+00  1.00000e+00
+
+MATRIX : "Y"
+
+row/col          1            2            3            4          
+      units          psi           in           kN           km   
+   1      ksi   1.00000e+00  1.00000e+00  1.00000e+00  1.00000e+00
+   2       ft   1.00000e+00  1.00000e+00  1.00000e+00  1.00000e+00
+   3        N   1.00000e+00  1.00000e+00  1.00000e+00  1.00000e+00
+   4       mm   1.00000e+00  1.00000e+00  1.00000e+00  1.00000e+00
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Results of the matrix addition and subtraction are:
+
+\begin{footnotesize}
+\begin{verbatim}
+MATRIX : "Z"
+
+row/col          1            2            3            4          
+      units          ksi           ft            N            m   
+   1      psi   2.00000e+00  8.33333e+01  1.00000e+06  1.00000e+06
+   2       in   1.20000e-02  2.00000e+00  1.20000e+04  1.20000e+04
+   3       kN   1.00000e-06  8.33333e-05  2.00000e+00  1.00000e+00
+   4       mm   1.00000e-03  8.33333e-02  1.00000e+03  1.00100e+03
+
+MATRIX : "U"
+
+row/col          1            2            3            4          
+      units          ksi           ft            N            m   
+   1      psi   0.00000e+00 -8.33333e+01 -1.00000e+06 -1.00000e+06
+   2       in  -1.20000e-02  0.00000e+00 -1.20000e+04 -1.20000e+04
+   3       kN  -1.00000e-06 -8.33333e-05  0.00000e+00 -1.00000e+00
+   4       mm  -1.00000e-03 -8.33333e-02 -1.00000e+03 -9.99000e+02
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+As pointed out in Chapter 2, consistent units are required for all matrix operations, 
+including matrix addition and subtraction, and multiplication.
+Sometimes a power function can be used as a
+substitute to a series of matrix multiplications.
+Consider the following script of code to compute a square matrix
+{\tt X} raised to the power of 3:
+
+\begin{footnotesize}
+\begin{verbatim}
+X = [3,  4, 5; 1, 6, 7; 81, 71,2];
+
+Y = X*X*X;     /* triple product of matrices X */
+Z = X^3;       /* X raised to the power of 3   */
+\end{verbatim}
+\end{footnotesize}
+
+\noindent The results are:
+\begin{footnotesize}
+\begin{verbatim}
+MATRIX : "Y"
+
+row/col          1            2            3          
+      units                                 
+   1            5.93800e+03  7.78100e+03  4.93300e+03
+   2            7.20600e+03  9.85700e+03  6.76100e+03
+   3            7.57060e+04  7.15820e+04  1.04360e+04
+
+MATRIX : "Z"
+
+row/col          1            2            3          
+      units                                 
+   1            5.93800e+03  7.78100e+03  4.93300e+03
+   2            7.20600e+03  9.85700e+03  6.76100e+03
+   3            7.57060e+04  7.15820e+04  1.04360e+04
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Notice that the syntax to compute a matrix raised to a power
+is the same as for a quantity raised to a power. 
+Power operations may only be applied to certain classes of matrices:
+
+\vspace{0.10 in}
+\begin{description}
+\item{[1]}
+The matrix must be a square matrix -- this requirement is needed because a
+matrix is multiplied from both left and right.
+\item{[2]}
+The exponent is limited to integers larger than or equal to -1.
+Matrix raised to an exponent with fractional digits, such as $ [X]^{0.3}$,
+or to a less than -1 power, such as 
+$ [X]^{-3}$ are lack of well defined mathematical meaning.
+\item{[3]}
+The function is only useful for non-dimensional matrices. For dimensional matrices,
+two matrices can only multiply to each other when their units are consistent. And a matrix
+multiply to itself will result in unconsistent units.
+\end{description}
+
+\vspace{0.15 in}\noindent
+A matrix raised to the power of zero is taken
+as a non-dimensional matrix full of ones.
+
+\subsection{Scaling a Matrix by a Quantity}
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+Let {\tt A} be a matrix and {\tt q} a physical quantity.
+ALADDIN's grammar supports
+pre-multiplication of {\tt A} by a quantity (i.e. {\tt q.A}),
+post-multiplication of {\tt A} by a quantity (i.e. {\tt A.q}),
+and division of {\tt A} by a quantity (i.e. {\tt A/q}).
+The following script of code demonstrates use of these commands.
+The script contains three parts -- first,
+we generate a (4 $\times$ 4) matrix {\tt X} with units.
+In Part 2, {\tt X} is scaled by {\tt 2 in} via post-multiplication,
+and in Part 3, the elements of {\tt X} are divided by {\tt 2 in}.
+
+\begin{footnotesize}
+\begin{verbatim}
+/* [a] : Define and print matrix [X] with units */
+
+   X = One([4]);
+   X = ColumnUnits(X, [ksi, lbf, ksi, ft]);
+   X = RowUnits(X, [psi, in, kips, lb]);
+
+   PrintMatrix(X);
+
+/* [b] : Scale Matrix by constant factor of 2 in */
+
+   print "\n Scale Matrix by constant factor of 2 in \n";
+
+   Y = X*2 in;
+   PrintMatrix(Y);
+
+/* [c] : Reduce Matrix Content by a factor of 2 in */
+
+   print "\n Reduce Matrix Content by a factor of 2 in \n";
+
+   print "X [1][4] = ", X[1][4],"\n";
+   Y = X/2 in;
+   print "Y [1][4] = ", Y[1][4],"\n";
+   PrintMatrix(Y);
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.05 in}\noindent
+The generated output is:
+
+\begin{footnotesize}
+\begin{verbatim}
+MATRIX : "X"
+
+row/col          1            2            3            4          
+      units          ksi          lbf          ksi           ft   
+   1      psi   1.00000e+00  1.00000e+00  1.00000e+00  1.00000e+00
+   2       in   1.00000e+00  1.00000e+00  1.00000e+00  1.00000e+00
+   3     kips   1.00000e+00  1.00000e+00  1.00000e+00  1.00000e+00
+   4       lb   1.00000e+00  1.00000e+00  1.00000e+00  1.00000e+00
+
+Scale Matrix by constant factor of 2 in 
+
+MATRIX : "Y"
+
+row/col          1            2            3            4          
+      units       lbf/in       lbf.in       lbf/in      in^ 2.0   
+   1      psi   2.00000e+03  2.00000e+00  2.00000e+03  2.40000e+01
+   2       in   2.00000e+03  2.00000e+00  2.00000e+03  2.40000e+01
+   3     kips   2.00000e+03  2.00000e+00  2.00000e+03  2.40000e+01
+   4       lb   2.00000e+03  2.00000e+00  2.00000e+03  2.40000e+01
+
+Reduce Matrix Content by a factor of 2 in 
+
+X [1][4] =       12 lbf/in
+Y [1][4] =        6 psi
+
+MATRIX : "Y"
+
+row/col          1            2            3            4          
+      units   (ksi)/(in)       lbf/in   (ksi)/(in)             
+   1      psi   5.00000e-01  5.00000e-01  5.00000e-01  6.00000e+00
+   2       in   5.00000e-01  5.00000e-01  5.00000e-01  6.00000e+00
+   3     kips   5.00000e-01  5.00000e-01  5.00000e-01  6.00000e+00
+   4       lb   5.00000e-01  5.00000e-01  5.00000e-01  6.00000e+00
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Notice how the contents of {\tt X[1][4]}
+and {\tt Y[1][4]} have units that are the product of entries
+in the row and column units vectors.
+
+\subsection{Euclidean Norm of Row/Column Vectors}
+
+\vspace{0.15 in}
+\noindent\hspace{0.51 in}
+ALADDIN provides the function {\tt L2Norm()} to compute the $L_2$
+norm of either a $(1 \times n)$ row vector, or $(n \times 1)$ column vector.
+
+\begin{equation}
+{\| x \|}_2 = \sqrt{\left[ {\sum_{i=1}^{n} {x_i^2}} \right]}
+\label{eq: L2-Norm}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+Consider the following example:
+
+\begin{footnotesize}
+\begin{verbatim}
+X = [1, 2, 3, 4, 5];
+
+U = L2Norm(X);
+PrintMatrix(X);
+
+print "Euclidean Norm of [X] = ", U, "\n";
+print "Euclidean Norm of [Y] = ", V, "\n";
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.05 in}\noindent
+The generated output is:
+
+\begin{footnotesize}
+\begin{verbatim}
+MATRIX : "X"
+
+row/col          1            2            3            4            5          
+      units                                                     
+   1            1.00000e+00  2.00000e+00  3.00000e+00  4.00000e+00  5.00000e+00
+
+Euclidean Norm of [X] =     7.4162e+00 
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.05 in}\noindent
+ALADDIN also allows $L_2$ norms to be computed for
+row and column vectors containing consistent sets of units.
+For example.
+
+\begin{footnotesize}
+\begin{verbatim}
+Y = [1 m; 2 m ; 3E-3 km; 4 m; 5 m];
+
+V = L2Norm(Y);
+
+PrintMatrix(Y);
+
+print "Euclidean Norm of [Y] = ", V, "\n";
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.05 in}\noindent
+sets up a 1 by 5 row vector X, and a 5 by 1 column vector Y.
+Again, the generated output is:
+
+\begin{footnotesize}
+\begin{verbatim}
+MATRIX : "Y"
+
+row/col          1          
+      units             
+   1        m   1.00000e+00
+   2        m   2.00000e+00
+   3       km   3.00000e-03
+   4        m   4.00000e+00
+   5        m   5.00000e+00
+
+Euclidean Norm of [Y] =     7.4162e+00 
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.05 in}\noindent
+Notice how the units have been stripped from the Euclidean norm.
+
+\subsection{Substitution/Extraction of Submatrices}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+ALADDIN provides the function {\tt Extract()} to
+extract a submatrix from a larger matrix, and the function
+{\tt Put()} to replace a submatrix within a larger specified matrix.
+Both functions require three matrix arguments -- for details,
+see Table ~\ref{tab: my-basic-matrix-operations}.
+Suppose, for example, we generate matrices with the
+sequence of commands:
+
+\begin{footnotesize}
+\begin{verbatim}
+  /* [a] : generate (3x4) matrix with units */
+
+     X = One([3, 4]);
+     X = ColumnUnits(X, [psi], [1]);
+     X = ColumnUnits(X, [kN],  [2]);
+     X = ColumnUnits(X, [km],  [4]);
+     X = RowUnits(X, [psi, N, mm]);
+
+  /* [b] : Extract() a (2x2) matrix from a (3x4) matrix starting at corner (1,1) */
+
+     A = Matrix([2,2]);
+     A = Extract(A,X,[1,1]);
+
+  /* [c] : Extract() the 2nd column of matrix X  */
+
+     B = Matrix([3,1]);
+     B = Extract(B,X,[1,2]);
+
+  /* [d] : Extract() the 3rd row of matrix X     */
+
+     C = Matrix([1,4]);
+     C = Extract(C,X,[3,1]);
+
+  /* [e] : Put() a (2x2) submatrix D into X starting at corner (1,1) */
+
+     D = [2 , 3 ; 6, 3];
+     Y = Put(X, D, [1,1]);
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+The output from this script of code,
+including defined matrices X and D,
+and results of extracted matrices A,B,C and replaced matrix Y, is:
+
+\begin{footnotesize}
+\begin{verbatim}
+MATRIX : "X"
+
+row/col          1            2            3            4          
+      units          psi           kN                     km   
+   1      psi   1.00000e+00  1.00000e+00  1.00000e+00  1.00000e+00
+   2        N   1.00000e+00  1.00000e+00  1.00000e+00  1.00000e+00
+   3       mm   1.00000e+00  1.00000e+00  1.00000e+00  1.00000e+00
+
+MATRIX : "D"
+
+row/col          1            2          
+      units                       
+   1            2.00000e+00  3.00000e+00
+   2            6.00000e+00  3.00000e+00
+
+MATRIX : "A"
+
+row/col          1            2          
+      units          psi            N   
+   1      psi   1.00000e+00  1.00000e+03
+   2        N   1.00000e+00  1.00000e+03
+
+MATRIX : "B"
+
+row/col          1          
+      units             
+   1     psi.   1.00000e+00
+   2   N^ 2.0   1.00000e+03
+   3      N.m   1.00000e+00
+
+MATRIX : "C"
+
+row/col          1            2            3            4          
+      units       lbf/in          N.m           mm       m^ 2.0   
+   1            3.93701e-02  1.00000e+00  1.00000e+00  1.00000e+00
+
+MATRIX : "Y"
+
+row/col          1            2            3            4          
+      units                                           
+   1            2.00000e+00  3.00000e+00  1.00000e+00  1.00000e+00
+   2            6.00000e+00  3.00000e+00  1.00000e+00  1.00000e+00
+   3            1.00000e+00  1.00000e+00  1.00000e+00  1.00000e+00
+\end{verbatim}
+\end{footnotesize}
+
+\clearpage
+\section{Solution of Linear Matrix Equations}
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+The purpose of this section is to describe
+the functions ALADDIN supports for the solution of linear equations
+
+\begin{equation}
+\left[ A \right] \lbrace x \rbrace = \lbrace b \rbrace
+\label{eqn:linear-equation1}
+\end{equation}
+
+\vspace{0.05 in}\noindent
+We assume in equation (\ref{eqn:linear-equation1}) that
+$\left[ A \right]$ is a $(n \times n)$ square matrix,
+and $\lbrace x \rbrace$ and $\lbrace b \rbrace$ are $(n \times 1)$ column vectors.
+Generally speaking, the computational work required to solve one or more families
+of linear equations is affected by:
+(a) the size and structure of matrix {\tt A},
+(b) the computational algorithm used to compute the numerical solution,
+and (c) the number of separate families of equations solutions are required.
+
+\vspace{0.15 in}
+\begin{figure} [h]
+\epsfxsize=6.25truein
+\centerline{\epsfbox{my-chapter2-fig1.ps}}
+\caption{Strategies for Solving $\left[ A \right] \lbrace x \rbrace = \lbrace b \rbrace$}
+\label{fig:solution-stragies}
+\end{figure}
+
+\vspace{0.15 in}\noindent
+Figure \ref{fig:solution-stragies} summarizes four pathways of computation 
+for the solution of linear equations $\left[ A \right] \lbrace x \rbrace = \lbrace b \rbrace$.
+When matrix {\tt A} is is either lower or upper triangular form,
+solutions to $\left[ L \right] \lbrace x \rbrace = \lbrace b \rbrace$ can
+be computed with forward substitution,
+and solutions to $\left[ U \right] \lbrace x \rbrace = \lbrace b \rbrace$
+via backward substitution. Algorithms for forward/backward
+substitution require $O(n^2)$ computational work.
+The method of Guass Elimination is perhaps the most
+widely known method for solving systems of linear equations.
+In the first stage of Gauss Elimination, a set of well defined
+row operations transforms $\left[ A \right] \lbrace x \rbrace = \lbrace b \rbrace$
+into $\left[ U \right] \lbrace x \rbrace = \lbrace b^{*} \rbrace$.
+In the second stage of Gauss Elimination, the solution matrix {\tt x} is
+computed via back substitution. The first and second stages of Gauss Elimination
+require $O(n^3)$ and $O(n^2)$ computational work, respectively.
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+In many numerical and finite element
+computations (e.g. structural dynamics with finite elements),
+families of equations [A]\{x\}= \{b\} are solved many
+times with different right-hand side vectors {\tt b}.
+For example, in Figure \ref{fig:solution-stragies},
+$\{ b_1 \}$, $\{ b_2 \}$, and $\{ b_3 \}$ represent
+three distinct right-hand sides to [A]\{x\}= \{b\}.
+The optimal solution procedure is to first decompose {\tt A}
+into a product of lower and upper triangular
+matrices ($O(n^3)$ computational work), and then use forward
+substitution to solve $\left[ L \right] \lbrace z \rbrace = \lbrace b \rbrace$,
+followed by backward substitution for
+$\left[ U \right] \lbrace x \rbrace = \lbrace z \rbrace$ ($O(n^2)$ computational work).
+While solutions the first set of equations requires $O(n^3)$ computational work,
+solutions to all subsequent families of [A]\{x\} = \{b's\} requires only
+$O(n^2)$ computational work. 
+
+\begin{table}[t]
+\tablewidth = 6.25truein
+\begintable
+Name/Argument | \para{Purpose of Function}                                     \crthick
+Det(A)        | \para{Compute determinant of matrix {\tt A} --
+                      the result is a quantity.}                               \cr
+Decompose(A)  | \para{Compute LU decomposition for square matrix {\tt A}.}     \cr
+Inverse(A)    | \para{Compute the inverse of matrix {\tt A}.}                  \cr
+Solve(A,b)    | \para{Compute solution to
+                      $[A] \lbrace x \rbrace = \lbrace b \rbrace$.}            \cr
+Substitution(LU,b) | \para{Compute forward and backward substitution. LU is a
+                           matrix containing the LU decomposition of A.}   
+\endtable
+\vspace{0.01 in}
+\caption{\bf Functions for Solving Linear Equations}
+\label{tab: my-linear-equation-functions}
+\end{table}
+
+\subsection{Solving $\left[ A \right] \lbrace x \rbrace = \lbrace b \rbrace$}
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+ALADDIN provides three functions,
+{\tt Decompose()}, {\tt Substitution()}, and {\tt Solve()}
+for the solution of linear equations [A]\{x\}= \{b\}.
+A summary of ALADDIN's functions for solving linear equations
+is given in Table ~\ref{tab: my-linear-equation-functions}.
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+Function {\tt Decompose()} computes the LU decomposition of matrix A.
+A typical example of its usage is:
+
+\begin{footnotesize}
+\begin{verbatim}
+   LU = Decompose(A);
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+{\tt Decompose()} will print an error message if matrix A is
+singular (i.e the determinant of A is zero, and a unique 
+solution to the equations does not exist).
+With the LU decomposition of A complete,
+solutions to linear equations [L][U]\{x\}= \{b\}
+can be computed with forward and backward substitution.
+This two-step procedure is handled by a single call
+to {\tt Substitution()}. A typical example of its usage is:
+
+\begin{footnotesize}
+\begin{verbatim}
+   x = Substitution(LU, b).
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+As demonstrated in Chapter 1, solutions to linear equations
+may also be computed with the single command
+
+\begin{footnotesize}
+\begin{verbatim}
+   x = Solve(A, b).
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Function {\tt Solve()} computes the solution to a single
+family of equations via the method of LU decomposition.
+The numerical procedure is identical to the two-command sequence
+
+\begin{footnotesize}
+\begin{verbatim}
+   LU = Decompose(A);
+   x  = Substitution(LU, b).
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+LU decomposition can be used to solve a family of equations
+with different right-hand side vectors {\tt b}. For example:
+
+\begin{footnotesize}
+\begin{verbatim}
+   LU = Decompose(A);
+   x1  = Substitution(LU, b1).   /* Solve [A].x1 = b1 */
+   x2  = Substitution(LU, b2).   /* Solve [A].x2 = b2 */
+   x3  = Substitution(LU, b2).   /* Solve [A].x3 = b3 */
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+{\bf Numerical Example :} Figure \ref{fig:prismatic-beam} shows
+a schematic and simplified model of an elastic cantilever beam.
+External loads include an axial force, a translational
+force (perpendicular to the axis of the beam),
+and a bending moment applied at the end point of the cantilever.
+
+\vspace{0.10 in}
+\begin{figure} [h]
+\epsfxsize=6.0truein
+\centerline{\epsfbox{my-chapter2-fig3.ps}}
+\caption{Schematic and Model of Prismatic Cantilever Beam}
+\label{fig:prismatic-beam}
+\end{figure}
+
+\vspace{0.15 in}\noindent
+The cantilever is modeled with full fixity at its base.
+It has length $L = 5$ meters,
+cross section area $A = 0.10 m^2$,
+moment of inertia $I = 0.10 m^4$,
+and a Young's modulus of Elasticity $E = 200 Pa$.
+The cross section shape and material properties are
+assumed to be constant along the length of the cantilever.
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+If deformations of the beam are small, and the material remains
+elastic, then the translational displacements and rotation of
+the cantilever end point are given by solutions to the equation
+
+\begin{equation}
+\left[
+\begin{array}{rrr}
+{{EA} \over L} &                     0  &                0     \\
+              0 & {{12EI \over {L^3}}}  & {{-6EI} \over {L^2}} \\
+              0 & {{-6EI \over {L^2}}}  & {{4EI} \over L}      \\
+\end{array}
+\right] \cdot \left[
+\begin{array}{r}
+x \\
+y \\
+\theta \\
+\end{array}
+\right] = \left[
+\begin{array}{r}
+F_1 \\
+F_2 \\
+  M \\
+\end{array}
+\right] 
+\end{equation}
+
+\vspace{0.15 in}\noindent
+In the first phase of our analysis, we define variables for
+properties of the cantilever beam, allocate memory for the
+stiffness matrix and two external load matrices,
+and initialize and print the contents of these matrices.
+These tasks are accomplished by the script of input file:
+
+\vspace{0.10 in}
+\begin{footnotesize}
+\noindent
+{\rule{2.3 in}{0.035 in} START OF INPUT FILE \rule{2.3 in}{0.035 in} }
+\begin{verbatim}
+/* [a] : Setup section/material properties for Cantilever Beam */
+
+   E = 200   GPa;
+   I = 0.10  m^4;
+   A = 0.10  m^2;
+   L = 5       m;
+
+/* [b] : Define a (3x3) test matrix for Cantilever Beam */
+
+   stiff = Matrix([3,3]);
+   stiff = ColumnUnits( stiff, [N/m, N/m, N] );
+   stiff =    RowUnits( stiff, [m], [3] );
+
+   stiff[1][1] = E*A/L;
+   stiff[2][2] = 12*E*I/(L^3);
+   stiff[3][3] = 4*E*I/L;
+
+   stiff[2][3] = -6*E*I/(L^2);
+   stiff[3][2] = -6*E*I/(L^2);
+
+   PrintMatrix(stiff);
+
+/* [c] : Define and print two external load matrices */
+
+   load1 = ColumnUnits( Matrix([3,1]), [N]);
+   load1 = RowUnits( load1, [m], [3] );
+
+   load1[1][1] =  10 kN;
+   load1[2][1] =  10 kN;
+   load1[3][1] =  00 kN*m;
+
+   load2 = ColumnUnits( Matrix([3,1]), [N]);
+   load2 = RowUnits( load2, [m], [3] );
+
+   load2[1][1] =  10 kN;
+   load2[2][1] = -10 kN;
+   load2[3][1] =  00 kN*m;
+
+   PrintMatrix( load1, load2 );
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+The contents of matrices {\tt stiff}, {\tt load1}, and {\tt load2} are:
+
+\begin{footnotesize}
+\begin{verbatim}
+MATRIX : "stiff"
+
+row/col          1            2            3          
+      units          N/m          N/m            N   
+   1            4.00000e+09  0.00000e+00  0.00000e+00
+   2            0.00000e+00  1.92000e+09 -4.80000e+09
+   3        m   0.00000e+00 -4.80000e+09  1.60000e+10
+
+MATRIX : "load1"
+
+row/col          1          
+      units             
+   1        N   1.00000e+04
+   2        N   1.00000e+04
+   3      N.m   0.00000e+00
+
+MATRIX : "load2"
+
+row/col          1          
+      units             
+   1        N   1.00000e+04
+   2        N  -1.00000e+04
+   3      N.m   0.00000e+00
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Suppose that a unit displacement is applied to the ${i^{th}}$ degree of
+freedom in the structure, and displacements are zero at all other degrees of freedom.
+By definition, stiffness element ${k_{ij}}$ corresponds the force (or moment)
+required at degree of freedom {\tt j} for equilibrium. In our cantilever
+structure, for example, the third row of the stiffness matrix corresponds to
+the forces needed produced a unit end rotation without also causing lateral
+or translational displacements. The required set of forces/moments are:
+
+\vspace{0.15 in}
+\begin{footnotesize}
+\noindent
+\rule{1.2 in}{0.035 in} INPUT \rule{1.2 in}{0.035 in}\hspace{0.1 in}
+\rule{1.3 in}{0.035 in} OUTPUT\rule{1.3 in}{0.035 in}
+\begin{verbatim}
+   print "stiff[3][1] = ", stiff[3][1], "\n";           stiff[3][1] =        0 N
+   print "stiff[3][2] = ", stiff[3][2], "\n";           stiff[3][2] = -4.8e+09 N
+   print "stiff[3][3] = ", stiff[3][3], "\n";           stiff[3][3] =  1.6e+10 N.m
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Components {\tt stiff[3][1]} to {\tt stiff[3][3]}
+have units of force, force, and moment, respectively.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+The linear equations are now solved in two ways.
+First, we use {\tt Solve()} to compute displacements for load cases 1 and 2.
+Then we use {\tt Decompose()} to compute the LU decomposition of {\tt stiff},
+followed by two applications of {\tt Substitution()} for
+right-hand matrices {\tt 2*load1} and {\tt 2*load2}.
+
+\vspace{0.15 in}
+\begin{footnotesize}
+\noindent
+{\rule{2.2 in}{0.035 in} INPUT FILE CONTINUED \rule{2.2 in}{0.035 in} }
+\begin{verbatim}
+/* [d] : Use "Solve()" to compute solutions to sets of equations */
+
+   displacements1 = Solve( stiff, load1 );
+   PrintMatrix( displacements1 );
+
+   displacements2 = Solve( stiff, load2 );
+   PrintMatrix( displacements2 );
+
+/* [e] : Use "Decompose()" followed by multiple calls to "Substitution()" */
+
+   lu = Decompose( stiff );
+
+   displacements1 = Substitution( lu, 2*load1 );
+   displacements2 = Substitution( lu, 2*load2 );
+
+   PrintMatrix( displacements1 );
+   PrintMatrix( displacements2 );
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+For ease reading, displacements {\tt 1} and {\tt 2},
+and {\tt 3} and {\tt 4} are juxtaposed.
+
+\vspace{0.15 in}
+\begin{footnotesize}
+\begin{verbatim}
+MATRIX : "displacements1"                       MATRIX : "displacements2"
+
+row/col          1                              row/col          1          
+      units                                           units             
+   1        m   2.50000e-06                     1        m   2.50000e-06
+   2        m   2.08333e-05                     2        m  -2.08333e-05
+   3            6.25000e-06                     3           -6.25000e-06
+
+MATRIX : "displacements3"                       MATRIX : "displacements4"
+
+row/col          1                              row/col          1          
+      units                                           units             
+   1        m   5.00000e-06                     1        m   5.00000e-06
+   2        m   4.16667e-05                     2        m  -4.16667e-05
+   3            1.25000e-05                     3           -1.25000e-05
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Before the forward and backward substitution proceeds,
+ALADDIN checks that the units of {\tt LU} and {\tt b} are compatible,
+and automatically assigns units to the solution vector.
+For our cantilever example, degrees of freedom one and two correspond
+to axial and translational displacements of the cantilever end point.
+They have units of length. Degree of freedom three is rotation of the
+cantilever end point -- it is printed as a dimensionless quantity.
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+Finally, we check the accuracy of our numerical solution by
+computing the residual of solutions:
+
+\vspace{0.15 in}
+\begin{footnotesize}
+\noindent
+{\rule{2.2 in}{0.035 in} INPUT FILE CONTINUED \rule{2.2 in}{0.035 in} }
+\begin{verbatim}
+/* [e] : Compute and printk residuals of solution matrices */
+
+   R1 = stiff*displacements1 -   load1;
+   R2 = stiff*displacements2 -   load2;
+   R3 = stiff*displacements3 - 2*load1;
+   R4 = stiff*displacements4 - 2*load2;
+
+   PrintMatrix( R1, R2, R3, R4 );
+   quit;
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+generates the output
+
+\begin{footnotesize}
+\begin{verbatim}
+MATRIX : "R1"                                   MATRIX : "R2"
+
+row/col          1                              row/col          1          
+      units                                           units             
+   1        N   0.00000e+00                     1        N   0.00000e+00
+   2        N   0.00000e+00                     2        N   0.00000e+00
+   3      N.m   0.00000e+00                     3      N.m   0.00000e+00
+
+MATRIX : "R3"                                   MATRIX : "R4"
+
+row/col          1                              row/col          1          
+      units                                           units             
+   1        N   0.00000e+00                     1        N   0.00000e+00
+   2        N   0.00000e+00                     2        N   0.00000e+00
+   3      N.m   0.00000e+00                     3      N.m   0.00000e+00
+\end{verbatim}
+\end{footnotesize}
+
+\subsection{Matrix Inverse}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+The inverse of matrix A is denoted $A^{-1}$, and for non-dimensional matrices,
+is given by solutions to the matrix equations:
+
+\begin{equation}
+A \cdot A^{-1} = A^{-1} \cdot A = I.
+\label{eq: inverse-part1}
+\end{equation}
+
+\vspace{0.10 in}\noindent
+For matrices containing units, the left- and right-inverses are given by
+
+\begin{equation}
+A \cdot A^{-1} = \left( {A^{-1} \cdot A} \right)^T = IL,
+\label{eq: inverse-part2}
+\end{equation}
+
+\noindent
+and
+
+\begin{equation}
+A^{-1} \cdot A = \left( {A \cdot A^{-1}} \right)^T = IR.
+\label{eq: inverse-part3}
+\end{equation}
+
+\vspace{0.10 in}\noindent
+In Chapter 7 we will see that numerical values of
+matrix elements of {\tt IR} and {\tt IL} are symmetric,
+but the left- and right- identity matrices have units
+that are transposed with respect to one another.  Also, when the units
+are removed from {\tt IR} and {\tt IL}, {\tt IR} = {\tt IL} = {\tt I}.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+An inverse to matrix A will exist if and only
+if A is nonsingular (i.e. the determinant of A is nonzero).
+ALADDIN employs a two step method for computing the inverse of a matrix:
+
+\begin{description} 
+\item {[1]}
+Compute the LU decomposition of A. If the product of diagonal
+terms in either {\tt L} or {\tt U} equals zero, then {\tt A}
+is singular, and an inverse does not exist.
+\item {[2]}
+Let $b_i$ correspond to the $i^{th}$ column of {\tt I}.
+For each $b_i$, i = 1 to $n$, compute forward and backward substitution
+for $[L][U] \{ x_i \} = \{ b_i \}$. Solution $\{ x_i \}$ corresponds to
+the $i^{th}$ column of $A^{-1}$.
+\end{description} 
+
+\vspace{0.05 in}\noindent
+The following script of code demonstrates two ways of computing
+the inverse of a matrix {\tt X}.
+
+\vspace{0.10 in}
+\begin{footnotesize}
+\noindent
+{\rule{2.3 in}{0.035 in} START OF INPUT FILE \rule{2.3 in}{0.035 in} }
+\begin{verbatim}
+/* [a] Define (4x4) matrix X */
+
+   X = [ 3,  4,  5, 7;
+         1,  6,  7, 9;
+        11, 26, 47, 9;
+        81, 71,  2, 2 ];
+
+/* [b] Compute inverse of X in two ways */
+
+   Y = Inverse(X);
+   Z = X^-1;
+
+   PrintMatrix(X, Y, Z);
+
+/* [c] Compute and print left and right identity matrices */
+
+   IL = X*Y;    /* Left  identity matrix */
+   IR = Y*X;    /* Right identity matrix */
+
+   PrintMatrix(IL, IR);
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Notice how the product of matrices {\tt X} and {\tt Y} is computed
+by simply typing {\tt X*Y}.
+The matrices X, Y, IR, and IL are 
+
+\begin{footnotesize}
+\begin{verbatim}
+MATRIX : "X"
+
+row/col          1            2            3            4          
+      units                                           
+   1            3.00000e+00  4.00000e+00  5.00000e+00  7.00000e+00
+   2            1.00000e+00  6.00000e+00  7.00000e+00  9.00000e+00
+   3            1.10000e+01  2.60000e+01  4.70000e+01  9.00000e+00
+   4            8.10000e+01  7.10000e+01  2.00000e+00  2.00000e+00
+
+MATRIX : "Y"
+
+row/col          1            2            3            4          
+      units                                           
+   1            3.50926e-01 -2.77316e-01  3.87423e-03  2.24593e-03
+   2           -4.07636e-01  3.19090e-01 -4.66030e-03  1.17911e-02
+   3            1.16086e-01 -1.15216e-01  2.63616e-02 -6.45705e-03
+   4            1.42476e-01  1.88097e-02 -1.78271e-02 -3.08815e-03
+
+MATRIX : "Z"
+
+row/col          1            2            3            4          
+      units                                           
+   1            3.50926e-01 -2.77316e-01  3.87423e-03  2.24593e-03
+   2           -4.07636e-01  3.19090e-01 -4.66030e-03  1.17911e-02
+   3            1.16086e-01 -1.15216e-01  2.63616e-02 -6.45705e-03
+   4            1.42476e-01  1.88097e-02 -1.78271e-02 -3.08815e-03
+
+MATRIX : "IL"
+
+row/col          1            2            3            4          
+      units                                           
+   1            1.00000e+00 -1.94289e-16  0.00000e+00 -3.46945e-18
+   2           -2.22045e-16  1.00000e+00  2.77556e-17  3.46945e-18
+   3            6.66134e-16 -5.27356e-16  1.00000e+00 -2.42861e-17
+   4            3.05311e-15 -7.45931e-15  2.77556e-17  1.00000e+00
+
+MATRIX : "IR"
+
+row/col          1            2            3            4          
+      units                                           
+   1            1.00000e+00 -5.82867e-16 -3.22659e-16 -6.83481e-16
+   2            3.33067e-16  1.00000e+00  3.29597e-16  1.07553e-16
+   3            1.11022e-16 -5.55112e-17  1.00000e+00 -1.04083e-16
+   4           -5.55112e-17 -2.77556e-17 -6.67869e-17  1.00000e+00
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+For non-dimensional matrices, the left and right identity products
+$X \cdot X^{-1}$ and $X^{-1} \cdot X$ are identical (except for roundoff errors).
+Now let's look at the inverse of square matrices
+having units -- here is one example.
+
+\vspace{0.15 in}
+\begin{footnotesize}
+\noindent
+{\rule{2.3 in}{0.035 in} START OF INPUT FILE \rule{2.3 in}{0.035 in} }
+\begin{verbatim}
+/* [a] Define (4x4) matrix X */
+
+   X = [ 3,  4,  5;
+         1,  6,  7;
+        81, 71,  2 ];
+
+   X = ColumnUnits(X, [N/m, N/m, N]);
+   X = RowUnits(X, [m], [3]);
+
+/* [b] Compute inverse of X in two ways */
+
+   Y  = X^-1;
+
+   PrintMatrix(X, Y);
+
+/* [c] Compute and print left and right identity matrices */
+
+   IL = X*Y;    /* Left  identity matrix */
+   IR = Y*X;    /* Right identity matrix */
+
+   PrintMatrix(IL, IR);
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+The generated output is
+
+\begin{footnotesize}
+\begin{verbatim}
+MATRIX : "X"
+
+row/col          1            2            3          
+      units          N/m          N/m            N   
+   1            3.00000e+00  4.00000e+00  5.00000e+00
+   2            1.00000e+00  6.00000e+00  7.00000e+00
+   3        m   8.10000e+01  7.10000e+01  2.00000e+00
+
+MATRIX : "Y"
+
+row/col          1            2            3          
+      units                           m^-1.0   
+   1      m/N   3.81890e-01 -2.73228e-01  1.57480e-03
+   2      m/N  -4.44882e-01  3.14173e-01  1.25984e-02
+   3   N^-1.0   3.26772e-01 -8.74016e-02 -1.10236e-02
+
+MATRIX : "IL"
+
+row/col          1            2            3          
+      units          N/m          N/m           Pa   
+   1      m/N   1.00000e+00 -5.55112e-17 -6.93889e-18
+   2      m/N   4.44089e-16  1.00000e+00  0.00000e+00
+   3  Pa^-1.0  -6.66134e-16 -1.36002e-15  1.00000e+00
+
+MATRIX : "IR"
+
+row/col          1            2            3          
+      units          N/m          N/m            N   
+   1      m/N   1.00000e+00 -1.94289e-16 -8.67362e-17
+   2      m/N   0.00000e+00  1.00000e+00 -2.22045e-16
+   3   N^-1.0   0.00000e+00 -1.11022e-16  1.00000e+00
+\end{verbatim}
+\end{footnotesize}
+
+\clearpage
+\section{Matrix Eigenvalues and Eigenvectors}
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+Let {\bf K} be a $(n \times n)$ matrix.
+The eigenvector of {\bf K} is defined as a vector, which when
+premultiplied by {\bf K} generates a vector proportional to the original vector.
+The constant of proportionality is called the eigenvalue.
+In mathematical notation we write
+
+\begin{equation}
+{\bf K} {\bf \phi} = \lambda {\bf \phi},
+\label{eqn: eigen-basic1}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+where ${\bf \phi}$ is the $(n \times 1)$ eigenvector, and $\lambda$ the eigenvalue.
+We say that equation (\ref{eqn: eigen-basic1})
+is an eigenvalue problem when it is solved for the $\lambda's$.
+And it is an eigenvector problem
+when (\ref{eqn: eigen-basic1}) is solved for the ${\bf \phi}'s$.
+Equation (\ref{eqn: eigen-basic1}) is an eigenproblem when it is solved
+for both the $\lambda's$ and ${\bf \phi}'s$.
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+In this section we describe the two types of
+eigenproblems ALADDIN can solve. The first, and simpler case,
+is the standard eigenproblem
+
+\begin{equation}
+{\bf K} \Phi = \Phi \Lambda.
+\label{eqn: eigen1}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+In equation (\ref{eqn: eigen1}), {\bf K} is a $(n \times n)$ positive definite
+symmetric stiffness matrix, and $\Lambda$ and $\Phi$ are $(n \times n)$ matrices of
+eigenvalues and eigenvectors,
+respectively (i.e. $\Phi = \left[ \phi_1, \phi_2, \cdots , \phi_n \right]$),
+and $\Lambda = diag(\lambda_1, \lambda_2, \cdots, \lambda_n)$.
+ALADDIN also supports solutions to the generalized eigenproblem
+
+\begin{equation}
+{\bf K} \Phi = {\bf M} \Phi \Lambda,
+\label{eqn: eigen2}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+where {\bf M} is a $(n \times n)$ positive definite matrix,
+and the remaining symbols take their aforementioned definition.
+Generalized eigenproblems play a fundamental role in the
+free-vibration analysis of structural and mechanical systems,
+studies of instability in engineering systems,
+and in the identification of principal moments of
+inertia in two- and three-dimensional solids.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+In the analysis of many engineering systems, only the first 
+$p$ ($p < n$) eigenpairs are needed for analysis.
+The solution for $p$ eigenpairs in the standard eigenproblem corresponds to
+
+\begin{equation}
+{\bf K} \Phi = \Phi \Lambda.
+\label{eqn: eigen3}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+The definition of $\Phi$ is modified to a $(n \times p)$
+matrix containing the first $p$
+eigenvectors (i.e. $\Phi = \left[ \phi_1, \phi_2, \cdots , \phi_p \right]$),
+and $\Lambda = diag(\lambda_1, \lambda_2, \cdots, \lambda_p)$ is
+a $(p \times p)$ diagonal matrix containing the first $p$ eigenvalues.
+The counterpart to equation (\ref{eqn: eigen2}) is
+
+\begin{equation}
+{\bf K} \Phi = {\bf M} \Phi \Lambda.
+\label{eqn: eigen4}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+In equations (\ref{eqn: eigen3}) and (\ref{eqn: eigen4}),
+it is important to notice how the eigenvalues and eigenvectors 
+have been carefully positioned so that both the left- and right-hand
+sides evaluate to a $(n \times p)$ matrix.
+
+\vspace{0.15 in}
+\noindent\hspace{0.50 in}
+ALADDIN employs a subspace iteration algorithm to solve
+equations (\ref{eqn: eigen1}) and (\ref{eqn: eigen4}).
+A theoretical discussion of the algorithm may be found in Bathe \cite{bathe76}.
+Details of the C code may be found in Austin and Mazzoni ~\cite{austin95}.
+
+\begin{table}[t]
+\tablewidth = 6.25truein
+\begintable
+Name/Argument      | \para{Purpose of Function}                                    \crthick
+Eigen(K,M,[s])     | \para{ Compute {\tt s} eigenvalues and eigenvectors. Result of
+                            the function call is assigned to {\tt eigen}.}         \cr
+Eigenvalue(eigen)  | \para{ Extract eigenvalues from array {\tt eigen}.}           \cr
+Eigenvector(eigen) | \para{ Extract eigenvectors from array {\tt eigen}.}                            
+\endtable
+\vspace{0.01 in}
+\caption{\bf Eigenvalue and Eigenvector Functions}
+\label{tab: my-eigenvalue-functions}
+\end{table}
+
+\subsection{Solving ${\bf K} \Phi = {\bf M} \Phi \Lambda$}
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+ALADDIN provides three functions,
+{\tt Eigen()}, {\tt Eigenvalue()}, and {\tt Eigenvector()},
+for the solution of the matrix eigenvalue problems -- a summary of these
+functions and their arguments is given in Table ~\ref{tab: my-eigenvalue-functions}.
+{\tt Eigen()} requires three matrix arguements as input.
+The first and second arguments are the stiffness and mass matrices,
+and the third argument, a $(1 \times 1)$ matrix containing
+the number of eigenvalues and eigenvectors the subspace
+algorithm should compute. Here is skeleton script
+of code for the solution of an eigenproblem
+
+\begin{footnotesize}
+\begin{verbatim}
+   no_eigen = 2;
+   eigen = Eigen( K, M, [ no_eigen ]);
+   eigenvalue  = Eigenvalue( eigen );
+   eigenvector = Eigenvector( eigen );
+\end{verbatim}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+If {\bf K} and {\bf M} are $(n \times n)$ matrices,
+then {\tt eigen} is a $((n+1) \times n)$ matrix
+containing a composite of eigenvalues and eigenvectors.
+Functions {\tt Eigenvalue()} and {\tt Eigenvector()} simply
+extract the appropriate rows and columns from {\tt eigen} -- the
+same result could be achieved with {\tt Extract()}.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+We now apply these functions to two applications,
+elastic buckling of a pin-ended column,
+and vibration analysis of a supported cantilever beam.
+
+\addcontentsline{toc}{subsection}{\protect\numberline{}{Numerical Example 1 : Buckling of Rod}}
+\vspace{0.25 in}\noindent
+{\bf Numerical Example 1 :} 
+Figure \ref{fig:buckling-of-rod1} shows a pin-ended column
+acted on by a central axial compressive force P.
+The column has length $L = 5m$, modulus of elasticity $E = 200 GPa$,
+and constant moment of inertia $I = 1000 mm^4$ along its length.
+The theoretical buckling load is given by solutions to 
+
+\begin{equation}
+EI \cdot {{d^2x} \over {d^2y}} + P.y = 0
+\label{eq: buckle-part1}
+\end{equation}
+
+\vspace{0.10 in}\noindent
+with boundary conditions $y(0) = y(L) = 0$.
+Solutions to equation (\ref{eq: buckle-part1}) are well known,
+and may be found in most undergraduate texts on structural mechanics --
+hence, we will simply state the results here.
+The deformed column will be in static equilibrium,
+and satisfy the boundary conditions, when
+
+\begin{figure} [t]
+\epsfxsize=6.0truein
+\centerline{\epsfbox{my-chapter2-fig4.ps}}
+\caption{Elastic Buckling of Pin-Ended Column}
+\label{fig:buckling-of-rod1}
+\end{figure}
+
+\begin{equation}
+P_n = {{n^2 \pi^2 EI } \over {L^2}} ~~~ \hbox{for} ~ n = 1,2,3, \cdots.
+\label{eq: buckle-part2}
+\end{equation}
+
+\vspace{0.10 in}\noindent
+The mode shape $Y_n(x)$ corresponding to critical load $P_n$ is
+
+\begin{equation}
+Y_n (x) = A . \hbox{sin} \left( {{n \pi x} \over L} \right).
+\label{eq: buckle-part3}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+For our example column, first and second mode buckling loads and modal shapes are:
+
+\begin{equation}
+P_1 = {{\pi^2 EI} \over L^2} = 78.957 N ~~~~~
+Y_1(x) = \hbox{sin} \left( {{\pi x} \over 5} \right),
+\label{eq: buckle-part4}
+\end{equation}
+
+\noindent
+and
+
+\begin{equation}
+P_2 = {{4 {\pi^2 EI}} \over L^2} = 315.82 N ~~~~
+Y_2(x) = \hbox{sin} \left( {{2 \pi x} \over 5} \right).
+\label{eq: buckle-part5}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+Numerical estimates of the column buckling loads and 
+shapes of deformation may be computed via a finite
+difference approximation to equation (\ref{eq: buckle-part1}),
+followed by solution of the ensuing eigenproblem.
+We will illustrate the numerical method by computing
+the column's lateral displacements at five equally
+spaced nodal points $(x_1,y_1)$, $(x_2,y_2)$, $(x_3,y_3)$, $(x_4,y_4)$ and $(x_5,y_5)$,
+as shown in the center diagram of Figure \ref{fig:buckling-of-rod1}.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+For step one, Ghali and Neville ~\cite{ghali79} have shown that a suitable finite
+difference approximation to equation (\ref{eq: buckle-part1}) is
+
+\begin{equation}
+\left[ \begin{array}{ccc}
+-1 & 2 & -1 \\
+\end{array} \right]
+\cdot \left[ \begin{array}{c}
+y_{(i-1)} \\ y_i \\ y_{(i+1)} \\
+\end{array} \right]
+= {{P_{cr} \xi^2} \over {12EI}}
+\left[ \begin{array}{ccc}
+1 & 10 & 1 \\
+\end{array} \right]
+\cdot \left[ \begin{array}{c}
+y_{(i-1)} \\ y_i \\ y_{(i+1)} \\
+\end{array} \right]
+\label{eq: buckle-part6}
+\end{equation}
+
+\vspace{0.10 in}\noindent
+where coordinates $y_{(i-1)}$, $y_{(i)}$, and $y_{(i+1)}$ are
+lateral displacements of the column,
+and $\xi$ is the x coordinate spacing between nodes (i.e. ${\xi = x_{(i+1)} - x_i} = L/6$).
+Global behavior of the column is given by the sequential application of
+equation (\ref{eq: buckle-part6}) to each of the five internal nodes.
+The eigenproblem that results is
+
+\begin{equation}
+\left[ A \right] \lbrace y \rbrace = \lambda
+\left[ B \right] \lbrace y \rbrace,
+~~~\hbox{where}~~~
+\lambda ~=~ {{P_{cr} \xi^2} \over {12EI}},
+\label{eq: buckle-part7}
+\end{equation}
+
+\vspace{0.10 in}\noindent
+and {\tt A} and {\tt B} are $(5 \times 5)$ matrices,
+and $\lbrace y \rbrace$ is a $(5 \times 1)$
+matrix of lateral displacements along the column.
+The details of {\tt A} and {\tt B} are as follows
+
+\begin{equation}
+A = \left[ \begin{array}{ccccc}
+ 2 &  -1 &  0 &  0  &  0 \\
+-1 &   2 & -1 &  0  &  0 \\
+ 0 &  -1 &  2 & -1  &  0 \\
+ 0 &   0 & -1 &  2  & -1 \\
+ 0 &   0 &  0 & -1  &  2 \\
+\end{array} \right] ~~~ 
+B = \left[ \begin{array}{ccccc}
+10 &   1 &  0 &  0  &  0 \\
+ 1 &  10 &  1 &  0  &  0 \\
+ 0 &   1 & 10 &  1  &  0 \\
+ 0 &   0 &  1 & 10  &  1 \\
+ 0 &   0 &  0 &  1  & 10 \\
+\end{array} \right].
+\label{eq: buckle-part8}
+\end{equation}.
+
+\vspace{0.20 in}\noindent
+{\bf Details of Input File :}
+A four-part input file is needed for the definition of
+column geometry, material and section properties,
+assembly of the finite difference matrices,
+solution of the eigenvalue problem,
+and printing of the buckling loads and modal shapes.
+
+\vspace{0.15 in}
+\begin{footnotesize}
+\noindent
+{\rule{2.3 in}{0.035 in} START OF INPUT FILE \rule{2.3 in}{0.035 in} }
+\begin{verbatim}
+/* [a] : Define section/material properties Buckling Problem */
+
+   E = 200   GPa;
+   I = 1000 mm^4;
+   L = 5       m;
+
+/* [b] : Define a (5x5) matrices for finite difference approximation */
+
+   A = [  2, -1,  0,  0,  0;
+         -1,  2, -1,  0,  0;
+          0, -1,  2, -1,  0;
+          0,  0, -1,  2, -1;
+          0,  0,  0, -1,  2 ];
+
+   B = [ 10,  1,  0,  0,  0;
+          1, 10,  1,  0,  0;
+          0,  1, 10,  1,  0;
+          0,  0,  1, 10,  1;
+          0,  0,  0,  1, 10 ];
+
+   PrintMatrix(A,B);
+
+/* [c] : Compute Eigenvalues and Eigenvectors */
+
+   no_eigen    = 2;
+   eigen       = Eigen(A, B, [ no_eigen ]);
+   eigenvalue  = Eigenvalue(eigen);
+   eigenvector = Eigenvector(eigen);
+
+/* [d] : Print Eigenvalues, Eigenvectors, and Buckling Loads */
+
+   size = Dimension(A);
+   for(i = 1; i <= no_eigen; i = i + 1) {
+       print "\n";
+       print "Mode", i ,"\n";
+       print "Eigenvalue      = ", eigenvalue[i][1],                "\n";
+       print "Buckling Load P = ", 12*E*I*eigenvalue[i][1]/(L/6)^2 ,"\n";
+
+       for(j = 1; j <= size[1][1]; j = j + 1) {
+           if(j == 1) then {
+             print "\n";
+             print "Mode Shape :", eigenvector[j][i], "\n";
+           } else {
+             print "            ", eigenvector[j][i], "\n";
+           } 
+       }
+   }
+   print "\n";
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+{\bf Abbreviated Output File :} 
+We have used the parameter {\tt no\_eigen}
+to control the number of eigenvalues/vectors that are 
+computed by the subspace iteration, and printed.
+
+\vspace{0.20 truein}
+\begin{footnotesize}
+\noindent
+{\rule{1.7 in}{0.035 in} START OF ABBREVIATED OUTPUT FILE \rule{1.7 in}{0.035 in} }
+\begin{verbatim}
+MATRIX : "A"
+
+row/col                  1            2            3            4            5   
+        units                                                                    
+   1            2.00000e+00 -1.00000e+00  0.00000e+00  0.00000e+00  0.00000e+00
+   2           -1.00000e+00  2.00000e+00 -1.00000e+00  0.00000e+00  0.00000e+00
+   3            0.00000e+00 -1.00000e+00  2.00000e+00 -1.00000e+00  0.00000e+00
+   4            0.00000e+00  0.00000e+00 -1.00000e+00  2.00000e+00 -1.00000e+00
+   5            0.00000e+00  0.00000e+00  0.00000e+00 -1.00000e+00  2.00000e+00
+
+MATRIX : "B"
+
+row/col                  1            2            3            4            5   
+        units                                                                    
+   1            1.00000e+01  1.00000e+00  0.00000e+00  0.00000e+00  0.00000e+00
+   2            1.00000e+00  1.00000e+01  1.00000e+00  0.00000e+00  0.00000e+00
+   3            0.00000e+00  1.00000e+00  1.00000e+01  1.00000e+00  0.00000e+00
+   4            0.00000e+00  0.00000e+00  1.00000e+00  1.00000e+01  1.00000e+00
+   5            0.00000e+00  0.00000e+00  0.00000e+00  1.00000e+00  1.00000e+01
+
+*** SUBSPACE ITERATION CONVERGED IN 10 ITERATIONS 
+
+Mode         1 
+Eigenvalue      =    0.02284 
+Buckling Load P =      78.93 N 
+
+Mode Shape :       0.5 
+                 0.866 
+                     1 
+                 0.866 
+                   0.5 
+
+Mode         2 
+Eigenvalue      =    0.09091 
+Buckling Load P =      314.2 N 
+
+Mode Shape :         1 
+                0.9988 
+             -0.001186 
+               -0.9988 
+               -0.9976 
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.20 in}\noindent
+A summary of numerical results is shown on
+the right-hand side of Figure \ref{fig:buckling-of-rod1}.
+The numerical results for both the buckling loads and
+modal shapes are in very good agreement with
+equations (\ref{eq: buckle-part4}) and (\ref{eq: buckle-part5}).
+
+\clearpage
+\addcontentsline{toc}{subsection}{\protect\numberline{}{Numerical Example 2 : Vibration of Cantilever Beam}}
+\vspace{0.15 in}\noindent
+{\bf Numerical Example 2 :}
+The purposes of this numerical example are to demonstrate use of:
+\begin{description}
+\item{[1]}
+Element level stiffness and mass matrices,
+as would be found in finite element analysis.
+\item{[2]}
+Destination arrays as a means of mapping degrees of freedom
+in the mass and stiffness finite element matrices onto the
+global stiffness matrix (and mass matrix) degrees of freedom.
+\item{[3]}
+The eigenvalue functions to compute the natural periods,
+and modal shapes of vibration.
+\end{description}
+
+\vspace{0.15 in}\noindent
+We have deliberately selected a problem with a small number of
+unknowns so that step-by-step details of items [1] and [2] 
+may be written down, and solved using functions from the matrix library alone.
+
+\vspace{0.15 in}
+\begin{figure} [ht]
+\epsfxsize=6.00truein
+\centerline{\epsfbox{my-chapter2-fig5.ps}}
+\caption{Single Span Cantilever Beam with Supported End Point}
+\label{fig:elastic-beam-geometry}
+\end{figure}
+
+\vspace{0.15 in}\noindent
+Figure \ref{fig:elastic-beam-geometry} shows a uniform
+cantilever beam with a supported end point.
+The cantilever has length 20 m, modulus of elasticity $E = 200 ~GPa$,
+and constant moment of inertia $I = 15.5 \times 10^6 ~mm^4$ along its length.
+We will assume that the cantilever is rigid in its axial direction (i.e. beam cross
+section area $\approx$ $\infty ~m^2$), and that all other deformations are small.
+The boundary conditions are full-fixity at the base of the cantilever,
+and zero translational displacement at the cantilever end.
+
+\vspace{0.15 in}
+\noindent\hspace{0.5 in}
+Overall behavior of the cantilever will be modeled with
+five beam finite elements, and nine global degrees of freedom.
+They are a translation and rotation at each of the internal nodes,
+and a single rotational degree of freedom at the hinged cantilever support. 
+Numbering for the global degrees of freedom is shown on the
+left-hand side of Figure \ref{fig:elastic-beam-geometry}.
+Lateral displacements along each beam element will be expressed
+as the superposition of four cubic interpolation functions,
+each weighted by a nodal displacement factor. The four nodal displacements
+are two beam-end lateral displacements, and two beam-end rotations,
+as shown on the right-hand side of Figure \ref{fig:elastic-beam-geometry}.
+
+\vspace{0.15 in}\noindent
+{\bf Element Stiffness and Mass Matrices :}
+It is well known that if cubic interpolation functions are used to describe
+displacements along the beam element,
+then the beam element stiffness matrix will be
+
+\begin{equation}
+{\bf K} = \left[ {2EI \over L} \right] \cdot \left [
+\begin{array}{cccc}
+           2   &    3/L   &    1   &   -3/L  \\
+         3/L   &  6/L^2   &  3/L   & -6/L^2  \\
+           1   &    3/L   &    2   &   -3/L  \\
+        -3/L   & -6/L^2   & -3/L   &  6/L^2
+\end{array} \right],
+\end{equation}
+
+\vspace{0.15 in}\noindent
+where EI is the flexural rigidity of the beam element, and L its length.
+We say that a mass matrix is "consistent" when the shape functions
+used to evaluate the mass matrix are the same as those for the
+stiffness matrix. The consistent mass matrix is
+
+\begin{equation}
+{\bf M} = \left[ {{{\bar m } L} \over 420} \right] \cdot \left [
+\begin{array}{cccc}
+         4L^2  &    22L   &  -3L^2 &    13L  \\
+         22L   &    156   &   -13L &     54  \\
+         -3L^2 &   -13L   &   4L^2 &   -22L  \\
+         13L   &     54   &   -22L &    156
+\end{array} \right],
+\end{equation}
+
+\vspace{0.15 in}\noindent
+where ${\bar m}$ is average mass per unit length.
+Notice that in the translational degrees of
+freedom (i.e. columns 2 and 4 and rows 2 and 4 of {\bf M}),
+the coefficients 156, 54, 156, and 54 sum to 420, thereby giving
+a total beam mass ${\bar m}L$.
+
+\vspace{0.15 in}\noindent
+{\bf Assembly of Global Stiffness and Mass Matrices :}
+The assembly process for the global stiffness and global mass matrices
+may be written
+
+\begin{equation}
+{\bf K} = \sum_{i = 1}^{N} {K_i}
+~~~\hbox{and}~~~~
+{\bf M} = \sum_{i = 1}^{N} {M_i}
+\end{equation}
+
+\vspace{0.15 in}\noindent
+where ${K_i}$ and ${M_i}$ represent the stiffness and mass matrices for beam
+element {\tt i} mapped onto the global degrees of freedom,
+and {\tt N} is the total number of elements in the model.
+A straight forward way of assembling these matrices is
+with the use of destination arrays. The destination array
+for our cantilever problem is
+
+\begin{equation}
+{\bf LD} = \left[
+\begin{array}{cccc}
+         0 & 0 & 1 & 2 \\
+         1 & 2 & 3 & 4 \\
+         3 & 4 & 5 & 6 \\
+         5 & 6 & 7 & 8 \\
+         7 & 8 & 9 & 0 
+\end{array} \right].
+\end{equation}
+
+\vspace{0.15 in}\noindent
+Element {\tt (i,j)} of {\bf LD} contains the global degree of
+freedom for degree of freedom {\tt j} of beam finite element {\tt i}.
+A zero entry indicates that the beam element degree of freedom
+will not be mapped to the global stiffness matrix.
+So, for example, degrees of freedom 1 and 2 of beam element 1 are
+not mapped to the global stiffness matrix -- this is because the left-most
+section of the cantilever is firmly attached to the wall.
+Degrees of freedom 3 and 4 of beam element 1 are mapped
+to degrees of freedom 1 and 2 in the global stiffness and mass matrices.
+Similarly, degrees of freedom 1, 2, and 3 of beam element 5 will be
+mapped to global degrees of freedom 7, 8, and 9.
+Degree of freedom 4 of beam element 5 is not mapped to the global stiffness
+matrix because lateral displacements of the cantilever end are prevented
+by the hinged support.
+
+\vspace{0.20 in}\noindent
+{\bf Details of Input File :} A finite element model for the supported cantilever
+is defined in parts {\tt [a]} to {\tt [f]} of the following input file.
+The eigenvalue problem is solved in part {\tt [g]}.
+
+\vspace{0.15 in}
+\begin{footnotesize}
+\noindent
+{\rule{2.2 in}{0.035 in} ABBREVIATED INPUT FILE \rule{2.2 in}{0.035 in} }
+\begin{verbatim}
+/* [a] : Define section/material properties */
+
+   E    = 200000   MPa;
+   I    = 15.5E+6 mm^4;
+   L    = 4       m;
+   mbar = 31.6 kg/m;
+
+/* [b] : Define (4x4) stiffness matrix for beam element */
+
+   stiff = Matrix([4,4]);
+   stiff = ColumnUnits( stiff, [N,  N/m,  N,  N/m] );
+   stiff =    RowUnits( stiff, [m], [1] );
+   stiff =    RowUnits( stiff, [m], [3] );
+
+   stiff[1][1] =  4*E*I/L;
+   stiff[1][2] =  6*E*I/(L^2);
+   stiff[1][3] =  2*E*I/L;
+   stiff[1][4] = -6*E*I/(L^2);
+
+   stiff[2][1] =   6*E*I/(L^2);
+   stiff[2][2] =  12*E*I/(L^3);
+   stiff[2][3] =   6*E*I/(L^2);
+   stiff[2][4] = -12*E*I/(L^3);
+
+   stiff[3][1] =  2*E*I/L;
+   stiff[3][2] =  6*E*I/(L^2);
+   stiff[3][3] =  4*E*I/L;
+   stiff[3][4] = -6*E*I/(L^2);
+
+   stiff[4][1] =  -6*E*I/(L^2);
+   stiff[4][2] = -12*E*I/(L^3);
+   stiff[4][3] =  -6*E*I/(L^2);  
+   stiff[4][4] =  12*E*I/(L^3);
+
+   PrintMatrix(stiff);
+
+/* [c] : Define (4x4) consistent mass matrix for beam element */
+
+   mass = Matrix([4,4]);
+   mass = ColumnUnits( mass, [ kg*m, kg, kg*m, kg] );
+   mass =    RowUnits( mass, [m], [1] );
+   mass =    RowUnits( mass, [m], [3] ); 
+
+   mass[1][1] = (mbar*L/420)*4*L*L;
+   mass[2][1] = (mbar*L/420)*22*L;
+   mass[3][1] = (mbar*L/420)*-3*L^2;
+   mass[4][1] = (mbar*L/420)*13*L;
+
+   mass[1][2] = (mbar*L/420)*22*L;
+   mass[2][2] = (mbar*L/420)*156;
+   mass[3][2] = (mbar*L/420)*-13*L;
+   mass[4][2] = (mbar*L/420)*54;
+
+   mass[1][3] = (mbar*L/420)*-3*L^2;
+   mass[2][3] = (mbar*L/420)*-13*L;
+   mass[3][3] = (mbar*L/420)*4*L^2;
+   mass[4][3] = (mbar*L/420)*-22*L  ;
+
+   mass[1][4] = (mbar*L/420)*13*L;
+   mass[2][4] = (mbar*L/420)*54;
+   mass[3][4] = (mbar*L/420)*-22*L;
+   mass[4][4] = (mbar*L/420)*156;
+
+   PrintMatrix(mass);
+
+/* [d] : Destination Array beam element connectivity */
+
+   LD = [ 0, 0, 1, 2  ;
+          1, 2, 3, 4  ; 
+          3, 4, 5, 6  ; 
+          5, 6, 7, 8  ; 
+          7, 8, 9, 0 ]; 
+
+/* [e] : Allocate memory for global mass and stiffness matrices */
+
+   GMASS = Matrix([9,9]);
+   GMASS = ColumnUnits( GMASS, [ kg*m, kg, kg*m, kg, kg*m, kg, kg*m, kg, kg*m ] );
+   GMASS =    RowUnits( GMASS, [m], [1] );
+   GMASS =    RowUnits( GMASS, [m], [3] );
+   GMASS =    RowUnits( GMASS, [m], [5] );
+   GMASS =    RowUnits( GMASS, [m], [7] ); 
+   GMASS =    RowUnits( GMASS, [m], [9] ); 
+
+   GSTIFF = Matrix([9,9]);
+   GSTIFF = ColumnUnits( GSTIFF, [ N, N/m,  N,  N/m, N, N/m, N, N/m, N ] );
+   GSTIFF =    RowUnits( GSTIFF, [m], [1] );
+   GSTIFF =    RowUnits( GSTIFF, [m], [3] );
+   GSTIFF =    RowUnits( GSTIFF, [m], [5] );
+   GSTIFF =    RowUnits( GSTIFF, [m], [7] );
+   GSTIFF =    RowUnits( GSTIFF, [m], [9] );
+
+/* [f] : Assemble Global Stiffness/Mass Matrices for Two Element Cantilever */
+
+   no_elements = 5;
+   for( i = 1; i <= no_elements; i = i + 1) {
+   for( j = 1; j <= 4; j = j + 1) {
+
+   row = LD [i][j];
+   if( row > 0) {
+       for( k = 1; k <= 4; k = k + 1) {
+          col = LD [i][k];
+          if( col > 0) {
+              GMASS [ row ][ col ] = GMASS [ row ][ col ] + mass[j][k];
+              GSTIFF[ row ][ col ] = GSTIFF[ row ][ col ] + stiff[j][k];
+          }
+       }
+   } 
+   }
+   }
+
+/* [g] : Compute and Print Eigenvalues and Eigenvectors */
+
+   no_eigen    = 2;
+   eigen       = Eigen( GSTIFF, GMASS, [ no_eigen ]);
+   eigenvalue  = Eigenvalue(eigen);
+   eigenvector = Eigenvector(eigen);
+
+   for(i = 1; i <= no_eigen; i = i + 1) {
+       print "Mode", i ," : w^2 = ", eigenvalue[i][1];
+       print " : T = ", 2*PI/sqrt(eigenvalue[i][1]) ,"\n";
+   }
+
+   PrintMatrix(eigenvector);
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Points to note are:
+
+\begin{description}
+\item{[1]}
+Element level stiffness matrices are stored in {\tt stiff}.
+Rows 1 and 3 of {\tt stiff} represent equations of equilibrium
+when a moment is applied at the beam end to cause a unit rotation,
+and rows 2 and 4, equations of equilibrium for unit lateral
+displacements of the beam element. We distinguish these cases
+by applying units of {\tt m} to rows 1 and 3.
+\item{[2]}
+Element level mass matrices are stored in {\tt mass}.
+By definition, terms in the mass matrix correspond to forces, or torques,
+required to cause unit translational or rotational acceleration.
+A unit acceleration in a translational degree of freedom will
+require a force of the type {\it force} = {\it mass} $\times$ {\it acc'n},
+with mass taking kilogram (kg) units. A unit rotational acceleration
+will have the form {\it torque} = {\it inertia} $\times$ {\it angular acc'n}.
+The units for {\it inertia} are ${\tt kg} ~m^2$.
+\item{[3]}
+The $(9 \times 9)$ global mass and global stiffness matrices are
+stored in {\tt GMASS} and {\tt GSTIFF}, respectively.
+The statements {\tt row = LD[i][j]} and {\tt col = LD[i][j]}
+contain the row-column mapping for the beam element degrees of
+freedom onto the global degrees of freedom.
+\end{description}
+
+\vspace{0.15 in}\noindent
+{\bf Abbreviated Output File :} Details of the beam element stiffness
+and mass matrices, and ensuing eigenvalues and eigenvectors are as follows:
+
+\vspace{0.20 truein}
+\begin{footnotesize}
+\noindent
+{\rule{1.7 in}{0.035 in} START OF ABBREVIATED OUTPUT FILE \rule{1.7 in}{0.035 in} }
+\begin{verbatim}
+MATRIX : "stiff"
+
+row/col          1            2            3            4          
+      units            N          N/m            N          N/m   
+   1        m   3.10000e+06  1.16250e+06  1.55000e+06 -1.16250e+06
+   2            1.16250e+06  5.81250e+05  1.16250e+06 -5.81250e+05
+   3        m   1.55000e+06  1.16250e+06  3.10000e+06 -1.16250e+06
+   4           -1.16250e+06 -5.81250e+05 -1.16250e+06  5.81250e+05
+
+MATRIX : "mass"
+
+row/col          1            2            3            4          
+      units         kg.m           kg         kg.m           kg   
+   1        m   1.92610e+01  2.64838e+01 -1.44457e+01  1.56495e+01
+   2            2.64838e+01  4.69486e+01 -1.56495e+01  1.62514e+01
+   3        m  -1.44457e+01 -1.56495e+01  1.92610e+01 -2.64838e+01
+   4            1.56495e+01  1.62514e+01 -2.64838e+01  4.69486e+01
+
+*** SUBSPACE ITERATION CONVERGED IN  7 ITERATIONS 
+
+Mode    1.0000e+00  : w^2 =    145.8 rad.sec^-2.0 : T =   0.5203 sec
+Mode    2.0000e+00  : w^2 =     1539 rad.sec^-2.0 : T =   0.1602 sec
+
+MATRIX : "eigenvector"
+
+row/col          1            2          
+      units                       
+   1            1.24900e-01 -2.28500e-01
+   2        m   3.02715e-01 -7.71256e-01
+   3            1.03061e-01  1.77895e-01
+   4        m   8.01556e-01 -9.46803e-01
+   5           -1.29310e-02  3.44764e-01
+   6        m   1.00000e+00  3.03399e-01
+   7           -1.37281e-01 -5.51890e-02
+   8        m   6.87189e-01  1.00000e+00
+   9           -1.89640e-01 -3.58198e-01
+\end{verbatim}
+\rule{6.25 in}{0.035 in}
+\end{footnotesize}
+
+\vspace{0.15 in}\noindent
+Points to note are:
+
+\begin{description}
+\item{[1]}
+The eigenvalues of this problem correspond to the circular natural
+frequency squared of the individual modes,
+and they take the units {\tt rad/sec/sec}.
+The natural period of vibration for the first and second modes
+is {\tt 0.5203} seconds, and {\tt 0.1602} seconds, respectively.
+\item{[2]}
+The first two eigenvectors are summarized in the script of abbreviated output.
+Perhaps the most surprising result of this analysis is the unit on the
+eigenvectors -- for those degrees of freedom corresponding to
+translational displacements, the eigenvector is printed with units of length.
+The remaining degrees of freedom represent rotations,
+and take the (non-dimensional) units of radians.
+\item{[3]}
+Figure \ref{fig:elastic-beam-mode-shape} shows the mode shapes
+and natural periods of vibration for the supported cantilever beam.
+We have drawn the mode shapes as connected straight lines -- actually,
+the mode shapes will be cubic splines, as defined by the
+beam element shape functions.
+\end{description}
+
+\vspace{0.15 in}
+\begin{figure} [t]
+\epsfxsize=6.00truein
+\centerline{\epsfbox{my-chapter2-fig6.ps}}
+\caption{Mode Shapes and Periods of Vibration for Single Span Steel Beam}
+\label{fig:elastic-beam-mode-shape}
+\end{figure}
